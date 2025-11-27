@@ -316,7 +316,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 for (int i = 0; i < normals.Length; i++)
                 {
                     Ray ray = new(
-                            bc.transform.position,
+                            bc.bounds.center,
                             normals[i]
                         );
 
@@ -375,13 +375,18 @@ public class RuntimeGizmoTransform : MonoBehaviour
                         {
                             snappedObjectColliders.Add((BoxCollider)bestHit.collider);
 
-                            // Get rotation needed to make obj normal match (-hitted collider normal)
+                            //if anchor is not in the Box collider center
                             Quaternion rotationDelta = Quaternion.FromToRotation(bestMatchNormal, -hitNormal);
+                            Quaternion finalRotation = rotationDelta * transform.rotation;
+                            Vector3 pivotToCenter = bc.bounds.center - transform.position;
+                            Vector3 rotatedPivotToCenter = rotationDelta * pivotToCenter;
+                            Vector3 targetCenterPosition = hitPoint + (hitNormal * sizeAlongNormal);
+                            Vector3 finalPosition = targetCenterPosition - rotatedPivotToCenter;
 
-                            //Apply transformations
-                            transform.SetPositionAndRotation(hitPoint + (hitNormal * sizeAlongNormal), rotationDelta * transform.rotation);
+                            // Apply transformations
+                            transform.SetPositionAndRotation(finalPosition, finalRotation);
 
-                            //remove handle control (as if the button was released)
+                            // remove handle control
                             currentHandle = null;
                             CreateHandles(meshes[GizmoMode.Translate]);
                             ShowAllHandles();
