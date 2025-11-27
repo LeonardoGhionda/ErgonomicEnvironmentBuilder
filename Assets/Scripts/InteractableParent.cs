@@ -17,20 +17,39 @@ public class InteractableParent : Interactable
 
     public override void OnSelect()
     {
+        BoxCollider parentCollider = gameObject.AddComponent<BoxCollider>();
+        MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
 
-        ForEachChildRecursive(transform, child =>
+        Bounds combinedBounds = new Bounds(gameObject.transform.position, Vector3.zero);
+        bool hasBounds = false;
+
+        foreach (var mr in childrenMRs)
         {
-            if (child.TryGetComponent(out MeshRenderer r))
+            //calculate bounds
+            if (!hasBounds)
             {
-                materialsMap.Add(r.GetInstanceID(), r.material);
-                r.material = selectedMaterial;
+                //bound initialization
+                combinedBounds = mr.bounds;
+                hasBounds = true;
             }
             else
             {
-                Debug.LogWarning("Renderer not found for: " + child.name);
+                combinedBounds.Encapsulate(mr.bounds);
             }
-        });
 
+            //set material
+            materialsMap.Add(mr.GetInstanceID(), mr.material);
+            mr.material = selectedMaterial;
+        }
+
+        if (hasBounds)
+        {
+            parentCollider.size = combinedBounds.size;
+            // The center must be offset relative to the parent's pivot
+            parentCollider.center = gameObject.transform.InverseTransformPoint(combinedBounds.center);
+        }
+
+        parentCollider.enabled = false;
 
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
 
@@ -39,30 +58,20 @@ public class InteractableParent : Interactable
 
     public override void OnDeselect()
     {
-        ForEachChildRecursive(transform, child =>
+
+        MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
+        foreach (var mr in childrenMRs)
         {
-            if (child.TryGetComponent(out MeshRenderer r))
-            {
-                if (materialsMap.TryGetValue(r.GetInstanceID(), out Material material))
-                    r.material = material;
-            }
-        });
+            if (materialsMap.TryGetValue(mr.GetInstanceID(), out Material material))
+                mr.material = material;
+        }
 
         materialsMap.Clear();
 
         var collVisual = gameObject.GetNamedChild(RuntimeGizmoTransform.colliderVisualName);
         Destroy(collVisual);
         Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
-
+        Destroy(gameObject.GetComponent<BoxCollider>());
         rightPanel.Visible(false);
-    }
-
-    void ForEachChildRecursive(Transform root, System.Action<Transform> action)
-    {
-        foreach (Transform child in root)
-        {
-            action(child);
-            ForEachChildRecursive(child, action); // recurse
-        }
     }
 }

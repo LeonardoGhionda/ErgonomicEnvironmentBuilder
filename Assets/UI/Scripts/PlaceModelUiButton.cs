@@ -56,40 +56,15 @@ public class PlaceModelUiButton : MonoBehaviour
         parent.tag = SelectionManager.parentTag;
 
         parent.AddComponent<InteractableParent>();
-        BoxCollider parentCollider = parent.AddComponent<BoxCollider>();
 
         parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
 
-        //Get all Renderers to calculate BoxColliders union
         MeshRenderer[] childrenMRs = parent.GetComponentsInChildren<MeshRenderer>();
-
-        Bounds combinedBounds = new Bounds(parent.transform.position, Vector3.zero);
-        bool hasBounds = false;
 
         foreach (var mr in childrenMRs)
         {
             var childCollider = mr.gameObject.AddComponent<BoxCollider>();
             mr.gameObject.AddComponent<InteractableObject>();
-
-            if (!hasBounds)
-            {
-                //bound initialization
-                combinedBounds = mr.bounds;
-                hasBounds = true;
-            }
-            else
-            {
-                combinedBounds.Encapsulate(mr.bounds);
-            }
         }
-
-        if (hasBounds)
-        {
-            parentCollider.size = combinedBounds.size;
-            // The center must be offset relative to the parent's pivot
-            parentCollider.center = parent.transform.InverseTransformPoint(combinedBounds.center);
-        }
-
-        parentCollider.enabled = false;
     }
 }
