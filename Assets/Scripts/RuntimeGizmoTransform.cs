@@ -1,0 +1,685 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.XR.CoreUtils;
+using UnityEngine;
+using UnityEngine.InputSystem;
+public enum GizmoMode
+{
+    None,
+    Translate,
+    Rotate,
+    Scale
+}
+
+
+public class RuntimeGizmoTransform : MonoBehaviour
+{
+    //called when GizmoMode change
+    //used by dropdown Menu
+    public Action<GizmoMode> OnModeChanged;
+    GizmoMode currentMode = GizmoMode.None;
+    public GizmoMode GizmoMode
+    {
+        get { return currentMode; }
+        set
+        {
+            currentMode = value;
+            OnModeChanged?.Invoke(currentMode);
+        }
+    }
+
+    private bool localTranform = true;
+    private Dictionary<GizmoMode, Mesh> meshes;
+    public bool LocalTranform
+    {
+        set
+        {
+            localTranform = value;
+
+            //adapt gizmo to current mode
+            //by destroing
+            DestroyAllHandles();
+            //and recreating the handles
+            CreateHandles(meshes[currentMode]);
+        }
+    }
+
+    //INPUT 
+    private InputActionMap gizmoActionMap;
+    private InputAction selectAction;
+    private InputAction mousePosAction;
+    private InputAction enableCameraAction;
+    private InputAction snapAction;
+
+    private Camera cam;
+    private FreeCameraController fCam;
+    private Transform xHandle, yHandle, zHandle;
+    private Transform currentHandle;
+
+    private Vector2 lastMousePos;
+
+    private int mouseWrapMarginX;
+    private int mouseWrapMarginY;
+
+    private readonly string colliderVisualName = "ColliderVisual";
+
+    // Reusable array to avoid multiple allocations
+    //32 should be enough for the number of elements that can be hit at once
+    private static readonly RaycastHit[] raycastHits = new RaycastHit[32];
+
+    //SNAPTOOL
+    Vector3 hitNormal;
+    Vector3 hitPoint;
+    private readonly float minDistanceToSnap = .2f;
+    private readonly float minAngleToSnap = 15.0f;
+    private readonly int ignoreRaycastLayer = 2;
+    //check if there was a translation to avoid useless snap detections
+    private bool translationThisFrame = false;
+    private List<BoxCollider> snappedObjectColliders;
+
+    private void Start()
+    {
+        mouseWrapMarginX = Screen.width / 200;
+        mouseWrapMarginY = Screen.height / 200;
+
+        // Input Actions
+        gizmoActionMap = InputSystem.actions.FindActionMap("Gizmo");
+        selectAction = gizmoActionMap.FindAction("SelectTarget");
+        mousePosAction = gizmoActionMap.FindAction("MousePosition");
+        enableCameraAction = gizmoActionMap.FindAction("EnableCamera");
+        snapAction = gizmoActionMap.FindAction("TranslationSnapping");
+
+        //Loading meshes
+        meshes = new()
+        {
+            { GizmoMode.None, null },
+            { GizmoMode.Translate, Resources.Load<Mesh>("Handles/Translate") },
+            { GizmoMode.Rotate, Resources.Load<Mesh>("Handles/Rotation") },
+            { GizmoMode.Scale, Resources.Load<Mesh>("Handles/Scale") }
+        };
+
+        // Camera
+        cam = Camera.main;
+        fCam = cam.GetComponent<FreeCameraController>();
+
+        CreateHandles(null);
+
+        snappedObjectColliders = new List<BoxCollider>();
+        ShowBoxCollider(GetComponent<BoxCollider>());
+    }
+
+    private void Update()
+    {
+        if (enableCameraAction.WasPressedThisFrame())
+        {
+            fCam.enabled = true;
+        }
+        if (enableCameraAction.IsInProgress())
+        {
+            return;
+        }
+        if (enableCameraAction.WasReleasedThisFrame())
+        {
+            fCam.enabled = false;
+        }
+
+        if (selectAction.WasPressedThisFrame() && currentMode != GizmoMode.None)
+        {
+            Vector2 mouseScreenPos = mousePosAction.ReadValue<Vector2>();
+            Ray ray = cam.ScreenPointToRay(mouseScreenPos);
+            Physics.RaycastNonAlloc(ray, raycastHits);
+
+            RaycastHit hit = new();
+            bool foundHit = true;
+            // get closest hit that is one of the handles or null
+            try
+            {
+                hit = raycastHits
+                .OrderBy(h => h.distance)
+                .First(h =>
+                h.transform == xHandle ||
+                h.transform == yHandle ||
+                h.transform == zHandle
+            );
+            }
+            catch
+            {
+                foundHit = false;
+            }
+
+            Array.Clear(raycastHits, 0, raycastHits.Length);
+
+            if (foundHit)
+            {
+                currentHandle = hit.transform;
+                HideNonSelectedHandle();
+                lastMousePos = mousePosAction.ReadValue<Vector2>();
+            }
+        }
+
+        if (selectAction.IsPressed() && currentHandle != null && currentMode != GizmoMode.None)
+        {
+
+
+            Vector2 mousePos = mousePosAction.ReadValue<Vector2>();
+            var (warped, newPos) = WarpMouse(mousePos);
+
+            if (warped)
+            {
+                mousePos = newPos;
+                lastMousePos = newPos;
+            }
+
+            Vector2 delta = mousePos - lastMousePos;
+
+            Vector3 screenP0 = cam.WorldToScreenPoint(transform.position);
+            Vector3 screenP1 = cam.WorldToScreenPoint(transform.position + currentHandle.up);
+            //screen-space direction of the axis
+            Vector2 axisScreen = (screenP1 - screenP0);
+
+            if (axisScreen.sqrMagnitude > 0.0001f)
+            {
+                //scalar amount of movement along the axis.
+                float projected = Vector2.Dot(delta, axisScreen.normalized);
+                //Make movement in world space proportional to distance from camera
+                float distance = (transform.position - cam.transform.position).magnitude;
+                float worldScale = distance * 0.001f;
+
+                //TRANSLATION
+                //--------------------------------
+                if (currentMode == GizmoMode.Translate)
+                {
+                    var translation = projected * worldScale * currentHandle.up;
+                    transform.Translate(translation, Space.World);
+
+                    if (translation.magnitude > 0.0001f)
+                    {
+                        translationThisFrame = true;
+                        gameObject.TryGetComponent(out BoxCollider ObjectBC);
+                        snappedObjectColliders.RemoveAll(bc => bc == null);
+                        snappedObjectColliders.RemoveAll(bc =>
+                        {
+                            Vector3 closestPoint = bc.ClosestPoint(transform.position);
+                            float colliderSize = GetColliderSizeAlongNormal(
+                                ObjectBC,
+                                Vector3.Normalize(closestPoint - transform.position)
+                            );
+                            bool remove = Vector3.Distance(closestPoint, transform.position) > colliderSize + minDistanceToSnap;
+                            return remove;
+                        });
+
+                    }
+
+                    //change gizmoActionMap positions to match
+                    xHandle.localPosition = transform.localPosition;
+                    yHandle.localPosition = transform.localPosition;
+                    zHandle.localPosition = transform.localPosition;
+                }
+                //ROTATION
+                //-------------------------------
+                if (currentMode == GizmoMode.Rotate)
+                {
+                    float angle = projected * worldScale;
+                    float rotSpeed = 20f;
+                    Quaternion deltaRotation = Quaternion.AngleAxis(rotSpeed * angle, currentHandle.up);
+                    transform.rotation = deltaRotation * transform.rotation;
+
+                    //clear snapped objects
+                    snappedObjectColliders.Clear();
+                }
+                //SCALE
+                //-------------------------------
+                if (currentMode == GizmoMode.Scale)
+                {
+                    if (localTranform)
+                    {
+                        //local scale 
+                        float scaleAmount = projected * worldScale * 0.1f;
+                        Vector3 direction = new();
+
+                        if (currentHandle.name.Contains("X", StringComparison.OrdinalIgnoreCase))
+                            direction = new(1, 0, 0);
+                        else if (currentHandle.name.Contains("Y", StringComparison.OrdinalIgnoreCase))
+                            direction = new(0, 1, 0);
+                        else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
+                            direction = new(0, 0, 1);
+
+                        transform.localScale += scaleAmount * direction;
+                    }
+                    else
+                    {
+                        //global scale
+                        float scaleAmount = projected * worldScale * 0.01f;
+                        Vector3 axis = currentHandle.up.normalized;
+                        float amount = projected * worldScale * 0.1f;
+
+                        // Build current transform matrix
+                        Matrix4x4 m = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
+
+                        // Build world-space scale matrix
+                        Matrix4x4 s = Matrix4x4.identity;
+                        s.m00 += axis.x * amount;
+                        s.m11 += axis.y * amount;
+                        s.m22 += axis.z * amount;
+
+                        // Apply world-axis scaling
+                        m = s * m;
+
+                        // Decompose back into position, rotation, scale
+                        transform.position = m.GetColumn(3);
+                        Vector3 right = m.GetColumn(0);
+                        Vector3 up = m.GetColumn(1);
+                        Vector3 forward = m.GetColumn(2);
+
+                        transform.rotation = Quaternion.LookRotation(forward, up);
+                        transform.localScale = new Vector3(right.magnitude, up.magnitude, forward.magnitude);
+                        transform.localPosition = xHandle.transform.localPosition;
+                    }
+                }
+            }
+
+            // Warp cursor to wrapped position
+            if (warped)
+                Mouse.current.WarpCursorPosition(mousePos + new Vector2(mouseWrapMarginX, mouseWrapMarginY));
+
+            // Update last
+            lastMousePos = mousePos;
+        }
+        //SNAP LOGIC
+        //-------------------------------------
+        if (snapAction.IsInProgress() &&
+            translationThisFrame && 
+            selectAction.IsPressed() && 
+            currentHandle != null && 
+            currentMode == GizmoMode.Translate)
+        {
+            //set objs in a layer where they are excluded from the raycast 
+            SetLayerRecursively(gameObject, ignoreRaycastLayer);
+            xHandle.gameObject.layer = ignoreRaycastLayer;
+            yHandle.gameObject.layer = ignoreRaycastLayer;
+            zHandle.gameObject.layer = ignoreRaycastLayer;
+
+            //WORKS ONLY FOR GameObjects WITH A BOXCOLLIDER
+            if (!gameObject.TryGetComponent<BoxCollider>(out var bc))
+            {
+                Debug.LogWarning("SnapTool: No BoxCollider found");
+                return;
+            }
+
+            if (bc != null)
+            {
+
+                Vector3[] normals = GetBoxNormals(bc);
+                RaycastHit bestHit = new();
+                bool first = true;
+                bool hitFound = false;
+
+                //for each face of the box collider a ray is created
+                for (int i = 0; i < normals.Length; i++)
+                {
+                    Ray ray = new(
+                            bc.transform.position,
+                            normals[i]
+                        );
+
+                    Physics.Raycast(ray, out RaycastHit hit);
+                    //Find best face to snap by the distance from the object 
+
+                    //skips hits with object it's currently already snapping
+                    if(hit.collider is BoxCollider && snappedObjectColliders.Contains(hit.collider))
+                        continue;
+
+                    if (first)
+                    {
+                        hitFound = true;
+                        first = false;
+                        bestHit = hit;
+                    }
+                    else if (bestHit.distance > hit.distance)
+                    {
+                        bestHit = hit;
+                    }
+
+                }
+
+                //SNAP is possible 
+                if (hitFound && bestHit.collider != null && bestHit.distance < minDistanceToSnap + bc.size.MaxComponent()) 
+                { 
+                    hitNormal = bestHit.normal;
+                    hitPoint = bestHit.point;
+
+                    Vector3 bestMatchNormal = Vector3.zero;
+                    float bestDot = -2f; // Il dot product va da -1 a 1, quindi partiamo più bassi
+
+                    // Find best normal by highest dot product because normals are in the opposite direction
+                    foreach (var normal in normals)
+                    {
+                        float dot = Vector3.Dot(normal, -hitNormal);
+
+                        if (dot > bestDot)
+                        {
+                            bestDot = dot;
+                            bestMatchNormal = normal;
+                        }
+                    }
+
+                    float angle = Vector3.Angle(hitNormal, -bestMatchNormal);
+
+                    //execute the snap
+                    if (angle < minAngleToSnap)
+                    {
+
+                        //Size of the object along the best match normal
+                        float sizeAlongNormal = GetColliderSizeAlongNormal(bc, bestMatchNormal);
+
+                        //SNAP found
+                        if (bestHit.distance < minDistanceToSnap + sizeAlongNormal)
+                        {
+                            snappedObjectColliders.Add((BoxCollider)bestHit.collider);
+
+                            // Get rotation needed to make obj normal match (-hitted collider normal)
+                            Quaternion rotationDelta = Quaternion.FromToRotation(bestMatchNormal, -hitNormal);
+
+                            //Apply transformations
+                            transform.SetPositionAndRotation(hitPoint + (hitNormal * sizeAlongNormal), rotationDelta * transform.rotation);
+
+                            //remove handle control (as if the button was released)
+                            currentHandle = null;
+                            CreateHandles(meshes[GizmoMode.Translate]);
+                            ShowAllHandles();
+                        }     
+                    }
+                }
+
+                //set layers back to default
+                SetLayerRecursively(gameObject, 0);
+                xHandle.gameObject.layer = 0;
+                yHandle.gameObject.layer = 0;
+                zHandle.gameObject.layer = 0;
+            }
+        }
+
+        if (selectAction.WasReleasedThisFrame())
+        {
+            //recreate the handles to match the object new local rotatation
+            if (currentMode == GizmoMode.Rotate && localTranform)
+            {
+                CreateHandles(meshes[currentMode]);
+            }
+
+            currentHandle = null;
+            ShowAllHandles();
+
+        }
+
+        translationThisFrame = false;
+    }
+
+    //HANDLES FUNCTIONS
+    //----------------------------------
+    private void CreateHandles(Mesh mesh)
+    {
+
+        DestroyAllHandles();
+
+        if (mesh == null)
+        {
+            if (currentMode != GizmoMode.None)
+                Debug.LogError("Mesh is null");
+            return;
+        }
+
+        // Create handles
+        xHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Red_AlwaysOnTop"), Vector3.right);
+        yHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Green_AlwaysOnTop"), Vector3.up);
+        zHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Blue_AlwaysOnTop"), Vector3.forward);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="aotMaterial">Always On Top Material (From custom shader)</param>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    private Transform CreateHandle(Mesh mesh, Material aotMaterial, Vector3 direction)
+    {
+        string dirName = "";
+        if (direction.x > 0) dirName = "X";
+        else if (direction.y > 0) dirName = "Y";
+        else if (direction.z > 0) dirName = "Z";
+
+        string name = "Handle_" + currentMode.ToString() + "_" + dirName;
+
+
+        GameObject go = new(name);
+
+        go.AddComponent<MeshFilter>().mesh = mesh;
+        go.AddComponent<MeshRenderer>().material = aotMaterial;
+        if (currentMode == GizmoMode.Rotate)
+        {
+            AddTourusCollider(go, 16, .08f);
+        }
+        else
+        {
+            go.AddComponent<CapsuleCollider>().isTrigger = true;
+        }
+
+        if (localTranform)
+        {
+            direction = transform.localRotation * direction;
+        }
+
+        go.transform.up = direction;
+        go.transform.localPosition = transform.localPosition;
+
+        return go.transform;
+    }
+
+    private void AddTourusCollider(GameObject target, int segments, float capsuleRadius, float torousRadius = 1f)
+    {
+        float dAngle = Mathf.PI * 2 / segments;
+        int stepN = segments / 4;
+        int stepLeft = (int)Math.Ceiling((double)stepN / 2); ;
+
+        int currentDir = 2;
+
+        for (int i = 0; i < segments; i++)
+        {
+            var cc = target.AddComponent<CapsuleCollider>();
+            cc.radius = capsuleRadius;
+            cc.height = dAngle * torousRadius;
+            cc.isTrigger = true;
+
+            cc.direction = currentDir;
+            if (--stepLeft == 0)
+            {
+                stepLeft = stepN;
+                currentDir = (currentDir == 0) ? 2 : 0;
+            }
+            cc.center = new(torousRadius * Mathf.Cos(dAngle * i), 0f, torousRadius * Mathf.Sin(dAngle * i));
+        }
+    }
+
+    private void DestroyAllHandles()
+    {
+        if (xHandle != null)
+            Destroy(xHandle.gameObject);
+        if (yHandle != null)
+            Destroy(yHandle.gameObject);
+        if (zHandle != null)
+            Destroy(zHandle.gameObject);
+    }
+
+    void HideNonSelectedHandle()
+    {
+        if (xHandle == null || yHandle == null || zHandle == null) return;
+
+        xHandle.gameObject.SetActive(currentHandle == xHandle);
+        yHandle.gameObject.SetActive(currentHandle == yHandle);
+        zHandle.gameObject.SetActive(currentHandle == zHandle);
+    }
+
+    void ShowAllHandles()
+    {
+        if (xHandle == null || yHandle == null || zHandle == null) return;
+
+        xHandle.gameObject.SetActive(true);
+        yHandle.gameObject.SetActive(true);
+        zHandle.gameObject.SetActive(true);
+    }
+
+    //----------------------------------------------------------
+    //END HANDLE FUNCTIONS
+
+    /// <summary>
+    /// Move mouse position to opposite side of screen if it goes out of bounds
+    /// </summary>
+    /// <param name="pos">currentPos</param>
+    /// <returns></returns>
+    private (bool, Vector2) WarpMouse(Vector2 pos)
+    {
+        bool warped = false;
+        float x = pos.x;
+        float y = pos.y;
+
+        if (x < 0 + mouseWrapMarginX)
+        {
+            x = Screen.width - 1;
+            warped = true;
+        }
+        else if (x > Screen.width - mouseWrapMarginX)
+        {
+            x = 1;
+            warped = true;
+        }
+        if (y < 0 + mouseWrapMarginY)
+        {
+            y = Screen.height - 1;
+            warped = true;
+        }
+        else if (y > Screen.height - mouseWrapMarginY)
+        {
+            y = 1;
+            warped = true;
+        }
+        return (warped, new Vector2(x, y));
+    }
+
+
+    public void SetMode(GizmoMode newMode)
+    {
+        if (newMode == currentMode) return;
+        GizmoMode = newMode;
+        CreateHandles(meshes[currentMode]);
+        if (currentMode == GizmoMode.None)
+            gizmoActionMap.Disable();
+        else
+            gizmoActionMap.Enable();
+        ShowAllHandles();
+    }
+
+    //SNAP FUNCTIONS
+    //-------------------------
+    void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+
+        for (int i = 0; i < obj.transform.childCount; i++)
+        {
+            SetLayerRecursively(obj.transform.GetChild(i).gameObject, layer);
+        }
+    }
+
+    Vector3[] GetBoxNormals(BoxCollider box)
+    {
+        Vector3[] normals = new Vector3[6];
+
+        // local axes
+        normals[0] = box.transform.right;    // +X
+        normals[1] = -box.transform.right;   // -X
+        normals[2] = box.transform.up;       // +Y
+        normals[3] = -box.transform.up;      // -Y
+        normals[4] = box.transform.forward;  // +Z
+        normals[5] = -box.transform.forward; // -Z
+
+        return normals;
+    }
+
+    private float GetColliderSizeAlongNormal(BoxCollider bc, Vector3 normal)
+    {
+        //translation distance
+        //get local normal
+        Vector3 localNormal = transform.InverseTransformDirection(normal);
+
+        //Compute the (world space) half size of the box
+        Vector3 worldHalfSize = Vector3.Scale(bc.size, transform.lossyScale) * 0.5f;
+
+        return Mathf.Abs(localNormal.x * worldHalfSize.x) +
+               Mathf.Abs(localNormal.y * worldHalfSize.y) +
+               Mathf.Abs(localNormal.z * worldHalfSize.z);
+    }
+    //------------------------------------------
+    //END SNAP FUNCTIONS
+
+    public void ShowBoxCollider(BoxCollider bc)
+    {
+        if (bc == null) return;
+
+        // Create the visual GameObject
+        GameObject go = new(colliderVisualName);
+        go.transform.SetParent(bc.transform, false);
+
+        LineRenderer lr = go.AddComponent<LineRenderer>();
+
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+
+        lr.loop = false;
+        lr.widthMultiplier = 0.02f;
+
+
+        lr.useWorldSpace = false;
+
+        Vector3 c = bc.center;
+        Vector3 s = bc.size * 0.5f;
+
+        // Define the 8 corners in Local Space
+        Vector3[] corners = new Vector3[8]
+        {
+            c + new Vector3(-s.x, -s.y, -s.z), // 0: Bottom-Front-Left
+            c + new Vector3( s.x, -s.y, -s.z), // 1: Bottom-Front-Right
+            c + new Vector3( s.x, -s.y,  s.z), // 2: Bottom-Back-Right
+            c + new Vector3(-s.x, -s.y,  s.z), // 3: Bottom-Back-Left
+            c + new Vector3(-s.x,  s.y, -s.z), // 4: Top-Front-Left
+            c + new Vector3( s.x,  s.y, -s.z), // 5: Top-Front-Right
+            c + new Vector3( s.x,  s.y,  s.z), // 6: Top-Back-Right
+            c + new Vector3(-s.x,  s.y,  s.z)  // 7: Top-Back-Left
+        };
+
+        Vector3[] linePoints = new Vector3[]
+        {
+            //bottom
+            corners[0], corners[1], corners[2], corners[3], corners[0],            
+            corners[4],  
+            //top
+            corners[5], corners[6], corners[7], corners[4],
+            corners[5],
+            corners[1],         
+            corners[2],
+            corners[6],
+            corners[7],
+            corners[3]
+        };
+
+        lr.positionCount = linePoints.Length;
+        lr.SetPositions(linePoints);
+    }
+
+
+    void OnDestroy()
+    {
+        Destroy(gameObject.GetNamedChild(colliderVisualName)); //no problem if its null
+        SetLayerRecursively(gameObject, 0);
+        DestroyAllHandles();
+    }
+}
