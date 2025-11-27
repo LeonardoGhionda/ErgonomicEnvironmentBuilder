@@ -209,9 +209,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
                     }
 
                     //change gizmoActionMap positions to match
-                    xHandle.localPosition = transform.localPosition;
-                    yHandle.localPosition = transform.localPosition;
-                    zHandle.localPosition = transform.localPosition;
+                    xHandle.localPosition = transform.position;
+                    yHandle.localPosition = transform.position;
+                    zHandle.localPosition = transform.position;
                 }
                 //ROTATION
                 //-------------------------------
@@ -468,7 +468,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
         }
 
         go.transform.up = direction;
-        go.transform.localPosition = transform.localPosition;
+        go.transform.localPosition = transform.position;
 
         return go.transform;
     }
