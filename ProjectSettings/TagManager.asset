@@ -9,6 +9,7 @@ TagManager:
   - UI Side Panel
   - ROOM Edge
   - Player Spawn UI
+  - Parent
   layers:
   - Default
   - TransparentFX

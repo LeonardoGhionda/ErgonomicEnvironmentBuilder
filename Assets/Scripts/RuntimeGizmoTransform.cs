@@ -62,7 +62,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
     private int mouseWrapMarginX;
     private int mouseWrapMarginY;
 
-    private readonly string colliderVisualName = "ColliderVisual";
+    public static readonly string colliderVisualName = "ColliderVisual";
 
     // Reusable array to avoid multiple allocations
     //32 should be enough for the number of elements that can be hit at once
@@ -111,12 +111,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
     private void Update()
     {
-        if (enableCameraAction.WasPressedThisFrame())
-        {
-            fCam.enabled = true;
-        }
         if (enableCameraAction.IsInProgress())
         {
+            fCam.enabled = true;
             return;
         }
         if (enableCameraAction.WasReleasedThisFrame())
@@ -622,15 +619,25 @@ public class RuntimeGizmoTransform : MonoBehaviour
     //------------------------------------------
     //END SNAP FUNCTIONS
 
+    int cnt;
+
     public void ShowBoxCollider(BoxCollider bc)
     {
-        if (bc == null) return;
+        if (bc == null)
+        {
+            Debug.LogWarning("ShowBoxCollider: collider not found for go: " + gameObject.name);
+            return;
+        }
+
+        cnt = SelectionManager.Cnt;
 
         // Create the visual GameObject
         GameObject go = new(colliderVisualName);
+
         go.transform.SetParent(bc.transform, false);
 
         LineRenderer lr = go.AddComponent<LineRenderer>();
+
 
         lr.material = new Material(Shader.Find("Sprites/Default"));
 
@@ -673,12 +680,16 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
         lr.positionCount = linePoints.Length;
         lr.SetPositions(linePoints);
+
+        lr.enabled = false;
+
+        lr.enabled = true;
+
     }
 
 
     void OnDestroy()
-    {
-        Destroy(gameObject.GetNamedChild(colliderVisualName)); //no problem if its null
+    {  
         SetLayerRecursively(gameObject, 0);
         DestroyAllHandles();
     }

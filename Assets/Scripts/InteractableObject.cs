@@ -1,36 +1,37 @@
+using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
-public class InteractableObject : MonoBehaviour
+public class InteractableObject : Interactable
 {
     private Material selectedMaterial;
     private Material baseMaterial;
-
     private RightPanel rightPanel;
 
     void Awake()
     {
         rightPanel = FindAnyObjectByType<RightPanel>();
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
-        baseMaterial = gameObject.GetComponent<Renderer>().material;
+        baseMaterial = gameObject.GetComponent<MeshRenderer>().material;
     }
 
-
-    public void OnSelected()
+    public override void OnSelect()
     {
-
-        gameObject.GetComponent<Renderer>().material = selectedMaterial;
-
+        gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
-
         rightPanel.Visible(true, rgt);
     }
 
-    public void OnDeselected()
+    public override void OnDeselect()
     {
-        gameObject.GetComponent<Renderer>().material = baseMaterial;
+        if (gameObject.TryGetComponent<MeshRenderer>(out var mesh))
+        {
+            mesh.material = baseMaterial;
+        }
 
+        var collVisual = gameObject.GetNamedChild(RuntimeGizmoTransform.colliderVisualName);
+        Destroy(collVisual);
         Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
-
         rightPanel.Visible(false);
     }
 }
