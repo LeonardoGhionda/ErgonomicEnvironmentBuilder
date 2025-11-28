@@ -6,11 +6,11 @@ public class InteractableObject : Interactable
 {
     private Material selectedMaterial;
     private Material baseMaterial;
-    private RightPanel rightPanel;
+    private BuildingUi bui;
 
     void Awake()
     {
-        rightPanel = FindAnyObjectByType<RightPanel>();
+        bui = FindAnyObjectByType<BuildingUi>();
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
         baseMaterial = gameObject.GetComponent<MeshRenderer>().material;
     }
@@ -19,7 +19,7 @@ public class InteractableObject : Interactable
     {
         gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
-        rightPanel.Visible(true, rgt);
+        bui.OpenSelectionPanel(rgt);
     }
 
     public override void OnDeselect()
@@ -32,7 +32,7 @@ public class InteractableObject : Interactable
         var collVisual = gameObject.GetNamedChild(RuntimeGizmoTransform.colliderVisualName);
         Destroy(collVisual);
         Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
-        rightPanel.Visible(false);
+        bui.CloseMenu();
     }
 }
 

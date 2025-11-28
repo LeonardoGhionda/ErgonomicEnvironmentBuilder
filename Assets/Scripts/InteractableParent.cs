@@ -6,11 +6,11 @@ public class InteractableParent : Interactable
 {
     private Material selectedMaterial;
     private Dictionary<int, Material> materialsMap;
-    private RightPanel rightPanel;
+    private BuildingUi bui;
 
     void Awake()
     {
-        rightPanel = FindAnyObjectByType<RightPanel>();
+        bui = FindAnyObjectByType<BuildingUi>();
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
         materialsMap = new();
     }
@@ -53,7 +53,7 @@ public class InteractableParent : Interactable
 
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
 
-        rightPanel.Visible(true, rgt);
+        bui.OpenSelectionPanel(rgt);
     }
 
     public override void OnDeselect()
@@ -72,6 +72,6 @@ public class InteractableParent : Interactable
         Destroy(collVisual);
         Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
         Destroy(gameObject.GetComponent<BoxCollider>());
-        rightPanel.Visible(false);
+        bui.CloseMenu();
     }
 }

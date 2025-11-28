@@ -176,7 +176,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Menu",
+                    "name": "ModelsMenu",
                     "type": "Button",
                     "id": "d2d95400-7932-4053-9ef9-6c01b2e075ce",
                     "expectedControlType": "",
@@ -224,6 +224,15 @@
                     "name": "Select",
                     "type": "Button",
                     "id": "c215d3ce-3495-4ee8-8362-27bfdea907fa",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "e133225f-a958-4810-8848-982097da72a4",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -293,7 +302,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Menu",
+                    "action": "ModelsMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -349,6 +358,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "136ea3c2-e2fd-4252-be34-0049b2402413",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

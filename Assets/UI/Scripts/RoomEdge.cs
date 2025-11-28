@@ -62,7 +62,7 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     void Update()
     {
         
-        UpdateText(); //Can't be called only when position changes due to the scale selector not updating the text otherwise
+        UpdateText(); //Can't be called only when position changes due to the scale selector not updating the selectedName otherwise
 
         //Only update if one of the connected dots is being moved (held by the mouse)
         if (c1.IsHeld || c2.IsHeld)

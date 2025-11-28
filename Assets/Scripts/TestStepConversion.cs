@@ -45,7 +45,7 @@ public class FileBrowserTest : MonoBehaviour
         // Show a load file dialog and wait for a response from user
         // Load file/folder: file, Allow multiple selection: true
         // Initial path: default (Documents), Initial filename: empty
-        // Title: "Load File", Submit button text: "Load"
+        // Title: "Load File", Submit button selectedName: "Load"
         yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, true, null, null, "Select Files", "Load");
 
         // Dialog is closed

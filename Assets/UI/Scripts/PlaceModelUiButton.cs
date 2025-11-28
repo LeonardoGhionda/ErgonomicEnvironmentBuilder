@@ -41,10 +41,10 @@ public class PlaceModelUiButton : MonoBehaviour
         GameObject obj = loader.Load(OBJPath);
         SetUpModel(obj);
 
-        LeftPanel uiManager = FindFirstObjectByType<LeftPanel>();
+        BuildingUi uiManager = FindFirstObjectByType<BuildingUi>();
         if (uiManager != null)
         {
-            uiManager.ChangeState();
+            uiManager.CloseMenu();
         }
 
         selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableObject>());
@@ -52,7 +52,7 @@ public class PlaceModelUiButton : MonoBehaviour
 
     private void SetUpModel(GameObject parent)
     {
-        parent.name = $"[PARENT] {parent.name}";
+        parent.name = $"[P] {parent.name}";
         parent.tag = SelectionManager.parentTag;
 
         parent.AddComponent<InteractableParent>();
