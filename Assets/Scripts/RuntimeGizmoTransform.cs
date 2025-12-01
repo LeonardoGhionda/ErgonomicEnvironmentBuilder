@@ -43,6 +43,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
             //and recreating the handles
             CreateHandles(meshes[currentMode]);
         }
+        get { return localTranform; }
     }
 
     //INPUT 
@@ -575,7 +576,10 @@ public class RuntimeGizmoTransform : MonoBehaviour
         GizmoMode = newMode;
         CreateHandles(meshes[currentMode]);
         if (currentMode == GizmoMode.None)
+        {
             gizmoActionMap.Disable();
+            enableCameraAction.Enable();
+        }
         else
             gizmoActionMap.Enable();
         ShowAllHandles();

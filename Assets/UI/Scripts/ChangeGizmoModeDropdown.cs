@@ -1,47 +1,68 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(TMP_Dropdown))]
 public class ChangeGizmoModeDropdown : MonoBehaviour
 {
-
     private TMP_Dropdown dropdown;
 
     private RuntimeGizmoTransform target;
     public RuntimeGizmoTransform Target
-    { set { target = value; } }
+    {
+        set
+        {
+            // disconnect old target
+            if (target != null)
+                target.OnModeChanged -= OnModeChangedHandler;
+
+            target = value;
+
+            // connect new target
+            if (target != null)
+            {
+                target.OnModeChanged += OnModeChangedHandler;
+                ApplyMode(target.GizmoMode);
+            }
+        }
+    }
 
     private Vector3 lScale;
 
-    void Start()
+    void Awake()
     {
-        //save scale to recover it later
         lScale = transform.localScale;
-        //start hidden because default mode is None 
         transform.localScale = Vector3.zero;
-        
-        dropdown = GetComponent<TMP_Dropdown>();
-        dropdown.onValueChanged.AddListener(index =>
-        {
-            switch (index)
-            {
-                case 0://Local
-                    target.LocalTranform = true;
-                    break;
-                case 1://Global
-                    target.LocalTranform = false;
-                    break;
-            }
-        });
 
-        target.OnModeChanged += gm =>
+        dropdown = GetComponent<TMP_Dropdown>();
+        dropdown.onValueChanged.AddListener(OnDropdownChanged);
+    }
+
+    private void OnDropdownChanged(int index)
+    {
+        if (target == null) return;
+
+        switch (index)
         {
-            //hide dropdown if mode is none
-            if (gm == GizmoMode.None)
-                transform.localScale = Vector3.zero;
-            else
-                transform.localScale = lScale;
-        };
+            case 0:
+                target.LocalTranform = true;
+                break;
+            case 1:
+                target.LocalTranform = false;
+                break;
+        }
+    }
+
+    private void OnModeChangedHandler(GizmoMode gm)
+    {
+        ApplyMode(gm);
+    }
+
+    private void ApplyMode(GizmoMode gm)
+    {
+        Debug.Log("Apply mode: " + gm.ToString());
+        if (gm == GizmoMode.None)
+            transform.localScale = Vector3.zero;
+        else
+            transform.localScale = lScale;
     }
 }

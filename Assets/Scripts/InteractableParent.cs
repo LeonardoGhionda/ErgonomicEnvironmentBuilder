@@ -35,7 +35,6 @@ public class InteractableParent : Interactable
             else
             {
                 combinedBounds.Encapsulate(mr.bounds);
-                Debug.Log(combinedBounds.size);
             }
 
             //set material
