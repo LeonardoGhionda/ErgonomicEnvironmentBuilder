@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +8,7 @@ public class SelectionManager : MonoBehaviour
 
     private InputAction selectAction;
     private InputAction deselectAction;
+    private InputAction deleteAction;
 
     private Interactable selected;
 
@@ -24,12 +26,19 @@ public class SelectionManager : MonoBehaviour
     {
         selectAction = InputSystem.actions["RoomBuilderControl/Select"];
         deselectAction = InputSystem.actions["Ui/Close"];
+        deleteAction = InputSystem.actions["RoomBuilderControl/Delete"];
 
         parentID = -1;
     }
 
     void Update()
     {
+        if (deleteAction.WasPressedThisFrame())
+        {
+            DeleteSelected();
+            return;
+        }
+
         // Deselect object
         if (deselectAction.WasPressedThisFrame() && selected != null)
         {
@@ -113,5 +122,36 @@ public class SelectionManager : MonoBehaviour
         }
 
         return null; // not found
+    }
+
+    public void DeleteSelected()
+    {
+        if (selected != null)
+        {
+            var obj = selected.gameObject;
+            //select parent
+            var newSelection = obj.transform.GetComponentInParent<InteractableParent>();
+
+            if (newSelection.gameObject.GetInstanceID() == obj.gameObject.GetInstanceID()) 
+                newSelection = null;
+
+            if (newSelection != null)
+            {
+                //if parent don't have any children delete parent too
+                int childrenN = newSelection.transform.GetComponentsInChildren<Interactable>().Count();
+                if (childrenN <= 2) //the parent itself and the object just deleted
+                {
+                    Destroy(newSelection.gameObject);
+                    newSelection = null;
+                }
+            }
+
+            //to avoid wrong Box Collider in the parent
+            obj.transform.SetParent(null, false);
+
+            Destroy(obj);
+ 
+            ChangeSelectedObject(newSelection);
+        }
     }
 }

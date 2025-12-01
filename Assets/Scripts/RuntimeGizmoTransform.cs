@@ -52,6 +52,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
     private InputAction mousePosAction;
     private InputAction enableCameraAction;
     private InputAction snapAction;
+    private InputAction deleteAction;
 
     private Camera cam;
     private FreeCameraController fCam;
@@ -90,6 +91,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
         mousePosAction = gizmoActionMap.FindAction("MousePosition");
         enableCameraAction = gizmoActionMap.FindAction("EnableCamera");
         snapAction = gizmoActionMap.FindAction("TranslationSnapping");
+        deleteAction = gizmoActionMap.FindAction("Delete");
 
         //Loading meshes
         meshes = new()
@@ -112,6 +114,13 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
     private void Update()
     {
+        if(deleteAction.WasPressedThisFrame())
+        {
+            SelectionManager selectionManager = FindAnyObjectByType<SelectionManager>();
+            selectionManager.DeleteSelected();
+            return;
+        }
+
         if (enableCameraAction.IsInProgress())
         {
             fCam.enabled = true;
@@ -579,6 +588,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
         {
             gizmoActionMap.Disable();
             enableCameraAction.Enable();
+            deleteAction.Enable();
         }
         else
             gizmoActionMap.Enable();
