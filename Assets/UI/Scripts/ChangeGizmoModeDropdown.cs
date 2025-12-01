@@ -59,7 +59,6 @@ public class ChangeGizmoModeDropdown : MonoBehaviour
 
     private void ApplyMode(GizmoMode gm)
     {
-        Debug.Log("Apply mode: " + gm.ToString());
         if (gm == GizmoMode.None)
             transform.localScale = Vector3.zero;
         else

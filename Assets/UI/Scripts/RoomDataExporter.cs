@@ -104,7 +104,15 @@ public static class ValidationErrors
 static public class RoomDataExporter
 {
 
-    public const string roomsFolderPath = "Assets\\Rooms Saved";
+    public static readonly string roomsFolderPath =
+        Path.Combine(Application.persistentDataPath, "Rooms Saved");
+
+    //Runs automatically the first time the class is accessed
+    static RoomDataExporter()
+    {
+        if (!Directory.Exists(roomsFolderPath))
+            Directory.CreateDirectory(roomsFolderPath);
+    }
 
     /// <summary>
     /// Generates a RoomData that contains the minimum required information to save
