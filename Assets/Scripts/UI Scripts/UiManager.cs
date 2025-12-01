@@ -6,6 +6,7 @@ public class UiManager : MonoBehaviour
 
     //singleton beheviour
     public static UiManager Instance { get; private set; }
+    public string roomName = "";
 
     [SerializeField] private Canvas startingScreen;
     private System.Collections.Generic.Stack<Canvas> previousScreen;

@@ -79,6 +79,8 @@ public class ImportLayout : MonoBehaviour
 
         RoomDataExporter.CreateRoom(name);
 
-        UiManager.Instance.ChangeScreen(builder_Ui);
+        var um = UiManager.Instance;
+        um.roomName = name;
+        um.ChangeScreen(builder_Ui);
     }
 }

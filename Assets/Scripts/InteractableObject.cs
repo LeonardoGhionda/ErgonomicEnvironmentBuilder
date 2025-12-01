@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 
@@ -10,7 +9,6 @@ public class InteractableObject : Interactable
 
     void Awake()
     {
-        bui = FindAnyObjectByType<BuildingUi>();
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
         baseMaterial = gameObject.GetComponent<MeshRenderer>().material;
     }
@@ -19,6 +17,8 @@ public class InteractableObject : Interactable
     {
         gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
+        if (bui == null)
+            bui = FindAnyObjectByType<BuildingUi>();
         bui.OpenSelectionPanel(rgt);
     }
 

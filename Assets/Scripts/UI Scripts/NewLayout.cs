@@ -42,8 +42,9 @@ public class NewLayout: MonoBehaviour
                 RoomDataExporter.SaveRoom(rbm.RoomName, rbm, overwrite);
                 RoomDataExporter.CreateRoom(rbm.RoomName);
                 //hide ui 
-                UiManager.Instance.ChangeScreen(nextScreen);
-
+                var um = UiManager.Instance;
+                um.roomName = rbm.RoomName;
+                um.ChangeScreen(nextScreen);
             }
             catch (Exception e) 
             {
@@ -55,6 +56,7 @@ public class NewLayout: MonoBehaviour
                 return;
             }
         });
+
         ChangeZoomText(0f);
 
         goBackAction = InputSystem.actions.FindAction("Ui/Close");

@@ -50,5 +50,349 @@
             "rotz": 0.0,
             "width": 700.0
         }
+    ],
+    "objects": [
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Pyramid\\Pyramid.obj",
+            "transform": {
+                "position": {
+                    "x": -4.993902683258057,
+                    "y": 2.0,
+                    "z": -3.264401912689209
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Pyramid",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Pyramid\\Pyramid.obj",
+            "transform": {
+                "position": {
+                    "x": -4.993902683258057,
+                    "y": 1.0,
+                    "z": -1.2644020318984986
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Pyramid",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Textured Cube\\Untitled.obj",
+            "transform": {
+                "position": {
+                    "x": -4.290824890136719,
+                    "y": 2.0,
+                    "z": 1.4596953392028809
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.3062642514705658,
+                    "z": 0.0,
+                    "w": 0.9519465565681458
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Cube",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Pyramid\\Pyramid.obj",
+            "transform": {
+                "position": {
+                    "x": -6.350919723510742,
+                    "y": 2.0,
+                    "z": -1.624322533607483
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Pyramid",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Pyramid\\Pyramid.obj",
+            "transform": {
+                "position": {
+                    "x": -4.993902683258057,
+                    "y": 0.9999998807907105,
+                    "z": -6.6909918785095219
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Pyramid",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Textured Cube\\Untitled.obj",
+            "transform": {
+                "position": {
+                    "x": -4.290824890136719,
+                    "y": 2.0,
+                    "z": 1.4596953392028809
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.3062642514705658,
+                    "z": 0.0,
+                    "w": 0.9519465565681458
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Cube",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        }
     ]
 }

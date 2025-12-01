@@ -1,9 +1,9 @@
+using Dummiesman;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [Serializable]
 public struct RoomDotData
@@ -22,12 +22,75 @@ public struct RoomEdgeData
 }
 
 [Serializable]
+public class TransformData
+{
+    public Vector3 position;
+    public Quaternion rotation;
+    public Vector3 scale;
+
+    public void LoadFrom(Transform transform)
+    {
+        position = transform.localPosition;
+        rotation = transform.localRotation;
+        scale = transform.localScale;
+    }
+
+    public void ApplyTo(Transform transform)
+    {
+        transform.localPosition = position;
+        transform.localRotation = rotation;
+        transform.localScale = scale;
+    }
+}
+
+[Serializable]
+public class BoxColliderData
+{
+    public Vector3 center;
+    public Vector3 size;
+    public bool isTrigger;
+
+    public void LoadFrom(BoxCollider bc)
+    {
+        center = bc.center;
+        size = bc.size;
+        isTrigger = bc.isTrigger;
+    }
+
+    public void ApplyTo(BoxCollider bc)
+    {
+        bc.center = center;
+        bc.size = size;
+        bc.isTrigger = isTrigger;
+    }
+}
+
+[Serializable]
+public class ChildrenData
+{
+    public string name;
+    public TransformData transform;
+    public BoxColliderData colliderData;
+}
+
+[Serializable]
+public class ObjectData
+{
+    public string objFilePath;
+    public TransformData transform;
+    public List<ChildrenData> children;
+}
+
+[Serializable]
 public class RoomData
 {
+    //room layout (walls, column)
     public float scale, scaleBase, wallHeigth, wallThickness;
     public Vector2 maxSize;
     public List<RoomDotData> dots = new();
     public List<RoomEdgeData> edges = new();
+    //rooms objects 
+    public List<ObjectData> objects = new();
 }
 
 public static class ValidationErrors
@@ -47,7 +110,7 @@ static public class RoomDataExporter
     /// Generates a RoomData that contains the minimum required information to save
     /// a room layout 
     /// </summary>
-    /// <param name="rbm"> RoomBuilderManager used to generate the room layot</param>
+    /// <param roomName="rbm"> RoomBuilderManager used to generate the room layot</param>
     /// <returns>Json that contains all the data</returns>
     static public string SaveRoomLayout(RoomBuilderManager rbm)
     {
@@ -91,6 +154,57 @@ static public class RoomDataExporter
         return ExportToJson(rd);
     }
 
+    static public void Save(string roomName)
+    {
+
+        string path = Path.Combine(roomsFolderPath, roomName + ".room");
+        //open file 
+        string json = LoadJson(path);
+        //get old data 
+        RoomData roomData = JsonUtility.FromJson<RoomData>(json);
+        roomData.objects.Clear(); //avoid duplicate objects
+        //Add new data
+        //serialize objects
+        var container = GameObject.Find("Objects Container");
+        if (container == null) Debug.LogError("[RoomDataExporter: SaveRoomObjects()] Cannot find Objects Container");
+        foreach (Transform parent in container.transform)
+        {
+            ObjectData objData = new()
+            {
+                objFilePath = parent.GetComponent<InteractableParent>().path,
+                transform = new(),
+                children = new()
+            };
+            objData.transform.LoadFrom(parent.transform);
+
+            foreach (Transform go in parent.transform)
+            {
+                ChildrenData data = new()
+                {
+                    name = go.name,
+                    transform = new(),
+                    colliderData = new(),
+                };
+
+                data.transform.LoadFrom(go.transform);
+                data.colliderData.LoadFrom(go.GetComponent<BoxCollider>());
+
+                objData.children.Add(data);
+            }
+            roomData.objects.Add(objData);
+        }
+        //save file (overwrite)
+        try
+        {
+            json = ExportToJson(roomData);
+            File.WriteAllText(path, json);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[RoomDataExporter]: failed to save room: " + ex.ToString());
+        }
+    }
+
     /// <summary>
     /// From Room data to Json
     /// </summary>
@@ -116,7 +230,7 @@ static public class RoomDataExporter
             string json = File.ReadAllText(filepath);
             return json;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError($"Failed to read file: {ex.Message}");
             return null;
@@ -128,7 +242,7 @@ static public class RoomDataExporter
     /// Edges -> walls
     /// Dot -> Columns
     /// Size is determinated by the scale value
-    /// <param name="name">file name without extension</param>
+    /// <param roomName="name">file roomName without extension</param>
     /// </summary>
     /// 
     static public void CreateRoom(string name)
@@ -142,6 +256,7 @@ static public class RoomDataExporter
         var edges = data.edges;
         var dots = data.dots;
 
+        GameObject roomContainer = GameObject.Find("Room Container");
 
         GameObject baseWallPivot = Resources.Load<GameObject>("Base Wall Pivot");
         if (baseWallPivot == null)
@@ -172,6 +287,7 @@ static public class RoomDataExporter
         foreach (var e in edges)
         {
             var wallPivot = UnityEngine.Object.Instantiate(baseWallPivot);
+            wallPivot.transform.SetParent(roomContainer.transform, true);
             wallPivot.SetActive(true);
             float wallLength = e.width / data.scaleBase * data.scale;
             wallPivot.transform.position = new Vector3(
@@ -187,10 +303,12 @@ static public class RoomDataExporter
             );
             wallPivot.transform.RotateAround(rotCenter, Vector3.up, -e.rotz);
         }
+
         //create columns
         foreach (var d in dots)
         {
             var column = UnityEngine.Object.Instantiate(baseColumnPivot);
+            column.transform.SetParent(roomContainer.transform, true);
 
             column.SetActive(true);
             column.transform.position = new Vector3(
@@ -202,25 +320,53 @@ static public class RoomDataExporter
         }
 
         //create roof and ground
-        UnityEngine.Object.Instantiate(ground);
+        var groundInstance = UnityEngine.Object.Instantiate(ground);
+        groundInstance.transform.SetParent(roomContainer.transform, true);
         var roofInstance = UnityEngine.Object.Instantiate(roof);
+        roofInstance.transform.SetParent(roomContainer.transform, true);
         roofInstance.transform.localScale = new Vector3(
             (data.maxSize.x / data.scaleBase * data.scale / 10),
             1f,
             (data.maxSize.y / data.scaleBase * data.scale / 10)
         );
         roofInstance.transform.position = new Vector3(0f, data.wallHeigth, 0f);
-        //roof.transform.Rotate(new Vector3(180f, 0f, 0f));
+
+        GameObject objectsContainer = GameObject.Find("Objects Container");
+        if (objectsContainer == null)
+        {
+            Debug.LogError("[RoomDataExporter: CreateRoom]: Cannot find Objects Container");
+            return;
+        }
+
+        //create objects
+        ObjectData[] objsData = data.objects.ToArray();
+        foreach (ObjectData parentData in objsData)
+        {
+            //load obj file and setup children
+            OBJLoader loader = new();
+            GameObject parent = loader.Load(parentData.objFilePath);
+            PlaceModelUiButton.SetUpModel(parent, parentData.objFilePath, objectsContainer);
+
+            parentData.transform.ApplyTo(parent.transform);
+
+            ChildrenData[] children = parentData.children.ToArray();
+            foreach (ChildrenData childData in children)
+            {
+                var child = parent.transform.Find(childData.name);
+                childData.transform.ApplyTo(child.transform);
+                childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
+            }
+        }
     }
 
     /// <summary>
     /// Save a room as a .room file with a json format 
     /// </summary>
-    /// <param name="name"> file name without extension</param>
-    /// <param name="rbm"> Room buoilder manager used to generate the layout</param>
+    /// <param roomName="name"> file roomName without extension</param>
+    /// <param roomName="rbm"> Room buoilder manager used to generate the layout</param>
     static public void SaveRoom(string name, RoomBuilderManager rbm, bool overwrite = false)
     {
-        //validate new room name
+        //validate new room roomName
         ValidateRoomName(name, overwrite);
 
         //create a json with room informations
@@ -232,8 +378,8 @@ static public class RoomDataExporter
     }
 
     /// <summary>
-    /// Validate room name 
-    /// throw exception if name not valid 
+    /// Validate room roomName 
+    /// throw exception if roomName not valid 
     /// </summary>
     static private void ValidateRoomName(string name, bool overwrite = false)
     {

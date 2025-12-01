@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class InteractableParent : Interactable
 {
+    public string path;
     private Material selectedMaterial;
     private Dictionary<int, Material> materialsMap;
     private BuildingUi bui;
 
     void Awake()
     {
-        bui = FindAnyObjectByType<BuildingUi>();
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
         materialsMap = new();
     }
@@ -35,6 +35,7 @@ public class InteractableParent : Interactable
             else
             {
                 combinedBounds.Encapsulate(mr.bounds);
+                Debug.Log(combinedBounds.size);
             }
 
             //set material
@@ -44,15 +45,18 @@ public class InteractableParent : Interactable
 
         if (hasBounds)
         {
-            parentCollider.size = combinedBounds.size;
-            // The center must be offset relative to the parent's pivot
-            parentCollider.center = gameObject.transform.InverseTransformPoint(combinedBounds.center);
+            Vector3 localSize = gameObject.transform.InverseTransformVector(combinedBounds.size);
+            Vector3 localCenter = gameObject.transform.InverseTransformPoint(combinedBounds.center);
+
+            parentCollider.size = localSize;
+            parentCollider.center = localCenter;
         }
 
         parentCollider.enabled = false;
 
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
 
+        if (bui == null) bui = FindAnyObjectByType<BuildingUi>();
         bui.OpenSelectionPanel(rgt);
     }
 

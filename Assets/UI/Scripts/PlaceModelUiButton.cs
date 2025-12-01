@@ -14,6 +14,9 @@ public class PlaceModelUiButton : MonoBehaviour
     private string OBJPath;
 
     private SelectionManager selectionManager;
+
+    GameObject container;
+
     //its better to set this from outside to avoid searching for it every time
     public void SetSelectionManager(SelectionManager sm)
     {
@@ -23,12 +26,18 @@ public class PlaceModelUiButton : MonoBehaviour
     void Start()
     {
         button = GetComponent<Button>();
-        button.onClick.AddListener(PlaceObj);
+        button.onClick.AddListener(PlaceObjFromUi);
         var folderPath = Path.Combine(GetModelUi.ModelsFolder, gameObject.name);
         OBJPath = Directory.GetFiles(folderPath, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+
+        container = GameObject.Find("Objects Container");
+        if (container == null)
+        {
+            Debug.LogError("Can't find objects container");
+        }
     }
 
-    void PlaceObj()
+    void PlaceObjFromUi()
     {
         Assert.NotNull(selectionManager, "Selection manager not set in PlaceModelUiButton");
 
@@ -39,7 +48,7 @@ public class PlaceModelUiButton : MonoBehaviour
         }
         OBJLoader loader = new();
         GameObject obj = loader.Load(OBJPath);
-        SetUpModel(obj);
+        SetUpModel(obj, OBJPath, container);
 
         BuildingUi uiManager = FindFirstObjectByType<BuildingUi>();
         if (uiManager != null)
@@ -50,12 +59,12 @@ public class PlaceModelUiButton : MonoBehaviour
         selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableObject>());
     }
 
-    private void SetUpModel(GameObject parent)
+    public static void SetUpModel(GameObject parent, string path, GameObject container)
     {
         parent.name = $"[P] {parent.name}";
         parent.tag = SelectionManager.parentTag;
 
-        parent.AddComponent<InteractableParent>();
+        parent.AddComponent<InteractableParent>().path = path;
 
         parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
 
@@ -66,5 +75,7 @@ public class PlaceModelUiButton : MonoBehaviour
             var childCollider = mr.gameObject.AddComponent<BoxCollider>();
             mr.gameObject.AddComponent<InteractableObject>();
         }
+
+        parent.transform.SetParent(container.transform, true);
     }
 }

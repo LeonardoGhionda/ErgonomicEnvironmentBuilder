@@ -1,7 +1,7 @@
 {
-    "scale": 4.0,
+    "scale": 5.699999809265137,
     "scaleBase": 100.0,
-    "wallHeigth": 3.0,
+    "wallHeigth": 4.0,
     "wallThickness": 0.5,
     "maxSize": {
         "x": 1368.0,
@@ -13,7 +13,7 @@
             "apy": 800.0
         },
         {
-            "apx": 1000.0,
+            "apx": 1029.267333984375,
             "apy": 800.0
         },
         {
@@ -21,34 +21,358 @@
             "apy": 300.0
         },
         {
-            "apx": 1000.0,
+            "apx": 1044.41943359375,
             "apy": 300.0
+        },
+        {
+            "apx": 877.7452392578125,
+            "apy": 536.7531127929688
+        },
+        {
+            "apx": 661.2852783203125,
+            "apy": 932.8748779296875
+        },
+        {
+            "apx": 674.2728881835938,
+            "apy": 179.5941162109375
+        },
+        {
+            "apx": 150.439697265625,
+            "apy": 541.082275390625
+        },
+        {
+            "apx": 300.0,
+            "apy": 458.8275146484375
+        },
+        {
+            "apx": 300.0,
+            "apy": 621.1724853515625
         }
     ],
     "edges": [
         {
-            "apx": 650.0,
-            "apy": 800.0,
-            "rotz": 0.0,
-            "width": 700.0
+            "apx": 480.64263916015627,
+            "apy": 866.4374389648438,
+            "rotz": 20.192705154418947,
+            "width": 384.9451599121094
         },
         {
             "apx": 300.0,
-            "apy": 550.0,
+            "apy": 710.5862426757813,
             "rotz": 270.0,
-            "width": 500.0
+            "width": 178.8275146484375
         },
         {
-            "apx": 1000.0,
-            "apy": 550.0,
-            "rotz": 270.0,
-            "width": 500.0
+            "apx": 845.2763061523438,
+            "apy": 866.4374389648438,
+            "rotz": 160.1458282470703,
+            "width": 391.2371826171875
         },
         {
-            "apx": 650.0,
-            "apy": 300.0,
-            "rotz": 0.0,
-            "width": 700.0
+            "apx": 953.5062866210938,
+            "apy": 668.3765869140625,
+            "rotz": 240.0757293701172,
+            "width": 303.73980712890627
+        },
+        {
+            "apx": 300.0,
+            "apy": 379.41375732421877,
+            "rotz": 90.0,
+            "width": 158.8275146484375
+        },
+        {
+            "apx": 487.1364440917969,
+            "apy": 239.79705810546876,
+            "rotz": 342.16668701171877,
+            "width": 393.1637878417969
+        },
+        {
+            "apx": 961.0823364257813,
+            "apy": 418.3765563964844,
+            "rotz": 125.14553833007813,
+            "width": 289.5381164550781
+        },
+        {
+            "apx": 859.34619140625,
+            "apy": 239.79705810546876,
+            "rotz": 198.01931762695313,
+            "width": 389.2377624511719
+        },
+        {
+            "apx": 225.2198486328125,
+            "apy": 581.1273803710938,
+            "rotz": 28.169246673583986,
+            "width": 169.65472412109376
+        },
+        {
+            "apx": 225.2198486328125,
+            "apy": 499.95489501953127,
+            "rotz": 331.1902160644531,
+            "width": 170.68722534179688
+        }
+    ],
+    "objects": [
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Multiple Mesh\\DoubleCube.obj",
+            "transform": {
+                "position": {
+                    "x": 1.29595947265625,
+                    "y": 2.287827491760254,
+                    "z": 4.875295162200928
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Blue_Cube",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 1.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                },
+                {
+                    "name": "Red_Cube",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": -1.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Pyramid\\Pyramid.obj",
+            "transform": {
+                "position": {
+                    "x": 3.0872201919555666,
+                    "y": 2.2361559867858888,
+                    "z": -8.604252815246582
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Pyramid",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Cylinder\\Cylinder.obj",
+            "transform": {
+                "position": {
+                    "x": -18.48138427734375,
+                    "y": 2.0647294521331789,
+                    "z": 1.5114415884017945
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.8182379007339478,
+                    "z": 1.0
+                }
+            },
+            "children": [
+                {
+                    "name": "Cylinder",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
+        },
+        {
+            "objFilePath": "C:/Users/TesistaDigital001/AppData/LocalLow/DefaultCompany/NetCode HelloWorld\\Ready Models\\Textured Cube\\Untitled.obj",
+            "transform": {
+                "position": {
+                    "x": -11.86686897277832,
+                    "y": 1.2116047143936158,
+                    "z": -6.814742565155029
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 3.732788324356079
+                }
+            },
+            "children": [
+                {
+                    "name": "Cube",
+                    "transform": {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 0.45945698022842409,
+                            "z": 1.0
+                        }
+                    },
+                    "colliderData": {
+                        "center": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "size": {
+                            "x": 2.0,
+                            "y": 2.0,
+                            "z": 2.0
+                        },
+                        "isTrigger": false
+                    }
+                }
+            ]
         }
     ]
 }

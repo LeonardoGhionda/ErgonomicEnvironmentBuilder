@@ -2,6 +2,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class BuildingUi : MonoBehaviour
 {
@@ -15,7 +16,10 @@ public class BuildingUi : MonoBehaviour
     [SerializeField] RectTransform exitMenu;
     [SerializeField] RectTransform modelsMenu;
     [SerializeField] RectTransform selectedMenu;
+
     [SerializeField] private TextMeshProUGUI selectedName;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Button saveButton;
 
     private void Awake()
     {
@@ -35,6 +39,23 @@ public class BuildingUi : MonoBehaviour
 
         //stop FreeCameraController when a menu is open
         fCam = Camera.main.GetComponent<FreeCameraController>();
+
+        string roomName = UiManager.Instance.roomName;
+
+        if (string.IsNullOrEmpty(roomName))
+            Debug.LogError("[BuildingUi: Start()] roomName is null or empty");
+
+        quitButton.onClick.AddListener(() =>
+        {
+            //save and quit
+            RoomDataExporter.Save(roomName);
+            QuitRoom();
+        });
+        saveButton.onClick.AddListener(() =>
+        {
+            //save
+            RoomDataExporter.Save(roomName);
+        });
     }
 
     private void OnEnable()
@@ -96,7 +117,7 @@ public class BuildingUi : MonoBehaviour
         uiActionMap.Enable();
         modelsMenuAction.Disable();
         menuAction.Disable();
-        selectedName.text = target != null? target.gameObject.name : null;
+        selectedName.text = target != null ? target.gameObject.name : null;
         ChangeGizmoTarget(target);
     }
 
@@ -125,4 +146,29 @@ public class BuildingUi : MonoBehaviour
         uiActionMap.Disable();
     }
 
+
+    public static void QuitRoom()
+    {
+        GameObject rContainer = GameObject.Find("Room Container");
+        if (rContainer == null)
+        {
+            Debug.LogError("Room Container not found");
+        }
+
+        foreach (Transform o in rContainer.transform)
+        {
+            Destroy(o.gameObject);
+        }
+
+        GameObject oContainer = GameObject.Find("Objects Container");
+        if (rContainer == null)
+        {
+            Debug.LogError("Objects Container not found");
+        }
+
+        foreach (Transform o in oContainer.transform)
+        {
+            Destroy(o.gameObject);
+        }
+    }
 }
