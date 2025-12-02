@@ -27,7 +27,7 @@ public class InteractableParent : Interactable
         BoxCollider parentCollider = gameObject.AddComponent<BoxCollider>();
         MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
 
-        Bounds combinedLocalBounds = new Bounds(Vector3.zero, Vector3.zero);
+        Bounds combinedLocalBounds = new(Vector3.zero, Vector3.zero);
         bool hasBounds = false;
 
         foreach (var mr in childrenMRs)

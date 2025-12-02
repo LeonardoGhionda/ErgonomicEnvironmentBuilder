@@ -79,14 +79,12 @@ public class FreeCameraController : MonoBehaviour
                 Debug.LogWarning("Trying to set roof multiple times");
                 return;
             }
-
             roof = value;
-
-            var bc = roof.GetComponent<BoxCollider>();
-            cameraComponent.orthographicSize =
-                bc.bounds.size.MaxComponent() / 10f * 2f * 1.15f;
-
-            defaultOrthoSize = cameraComponent.orthographicSize;
+            float meshSize = roof.GetComponent<MeshRenderer>().bounds.size.z;
+            float size = (meshSize / 2f) * 1.2f /*padding*/;
+            size = Mathf.Clamp(size, minSize, maxSize);
+            defaultOrthoSize = size;
+            cameraComponent.orthographicSize = defaultOrthoSize;
             roof.SetActive(false);
         }
     }
