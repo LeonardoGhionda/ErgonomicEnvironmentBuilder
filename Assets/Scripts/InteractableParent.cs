@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class InteractableParent : Interactable
 {
-    public string path;
+
+    private string path;
+    public string Path
+    {
+        get { return path;  }
+        set { path = value; }
+    }
+
     private Material selectedMaterial;
     private Dictionary<int, Material> materialsMap;
     private BuildingUi bui;
@@ -20,35 +27,36 @@ public class InteractableParent : Interactable
         BoxCollider parentCollider = gameObject.AddComponent<BoxCollider>();
         MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
 
-        Bounds combinedBounds = new Bounds(gameObject.transform.position, Vector3.zero);
+        Bounds combinedLocalBounds = new Bounds(Vector3.zero, Vector3.zero);
         bool hasBounds = false;
 
         foreach (var mr in childrenMRs)
         {
-            //calculate bounds
+            // compute LOCAL bounds
+            Bounds localB = mr.localBounds;
+
+            // convert child-local bounds into parent-local space
+            Matrix4x4 childToParent = gameObject.transform.worldToLocalMatrix * mr.transform.localToWorldMatrix;
+            Bounds b = TransformBounds(childToParent, localB);
+
             if (!hasBounds)
             {
-                //bound initialization
-                combinedBounds = mr.bounds;
+                combinedLocalBounds = b;
                 hasBounds = true;
             }
             else
             {
-                combinedBounds.Encapsulate(mr.bounds);
+                combinedLocalBounds.Encapsulate(b);
             }
 
-            //set material
             materialsMap.Add(mr.GetInstanceID(), mr.material);
             mr.material = selectedMaterial;
         }
 
         if (hasBounds)
         {
-            Vector3 localSize = gameObject.transform.InverseTransformVector(combinedBounds.size);
-            Vector3 localCenter = gameObject.transform.InverseTransformPoint(combinedBounds.center);
-
-            parentCollider.size = localSize;
-            parentCollider.center = localCenter;
+            parentCollider.center = combinedLocalBounds.center;
+            parentCollider.size = combinedLocalBounds.size;
         }
 
         parentCollider.enabled = false;
@@ -58,6 +66,26 @@ public class InteractableParent : Interactable
         if (bui == null) bui = FindAnyObjectByType<BuildingUi>();
         bui.OpenSelectionPanel(rgt);
     }
+
+    static Bounds TransformBounds(Matrix4x4 m, Bounds b)
+    {
+        Vector3 center = m.MultiplyPoint3x4(b.center);
+
+        // extents transform via absolute matrix
+        Vector3 extents = b.extents;
+        Vector3 axisX = m.MultiplyVector(new Vector3(extents.x, 0, 0));
+        Vector3 axisY = m.MultiplyVector(new Vector3(0, extents.y, 0));
+        Vector3 axisZ = m.MultiplyVector(new Vector3(0, 0, extents.z));
+
+        extents = new Vector3(
+            Mathf.Abs(axisX.x) + Mathf.Abs(axisY.x) + Mathf.Abs(axisZ.x),
+            Mathf.Abs(axisX.y) + Mathf.Abs(axisY.y) + Mathf.Abs(axisZ.y),
+            Mathf.Abs(axisX.z) + Mathf.Abs(axisY.z) + Mathf.Abs(axisZ.z)
+        );
+
+        return new Bounds(center, 2f * extents);
+    }
+
 
     public override void OnDeselect()
     {

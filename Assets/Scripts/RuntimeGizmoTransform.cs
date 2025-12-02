@@ -24,6 +24,10 @@ public class RuntimeGizmoTransform : MonoBehaviour
         get { return currentMode; }
         set
         {
+            if (value == GizmoMode.Scale)
+            {
+                LocalTranform = true;
+            }
             currentMode = value;
             OnModeChanged?.Invoke(currentMode);
         }
@@ -36,6 +40,11 @@ public class RuntimeGizmoTransform : MonoBehaviour
         set
         {
             localTranform = value;
+
+            if(GizmoMode == GizmoMode.Scale)
+            {
+                LocalTranform = true;
+            }
 
             //adapt gizmo to current mode
             //by destroing
@@ -239,50 +248,18 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 //-------------------------------
                 if (currentMode == GizmoMode.Scale)
                 {
-                    if (localTranform)
-                    {
-                        //local scale 
-                        float scaleAmount = projected * worldScale * 0.1f;
-                        Vector3 direction = new();
+                    //local scale 
+                    float scaleAmount = projected * worldScale * 0.1f;
+                    Vector3 direction = new();
 
-                        if (currentHandle.name.Contains("X", StringComparison.OrdinalIgnoreCase))
-                            direction = new(1, 0, 0);
-                        else if (currentHandle.name.Contains("Y", StringComparison.OrdinalIgnoreCase))
-                            direction = new(0, 1, 0);
-                        else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
-                            direction = new(0, 0, 1);
+                    if (currentHandle.name.Contains("X", StringComparison.OrdinalIgnoreCase))
+                        direction = new(1, 0, 0);
+                    else if (currentHandle.name.Contains("Y", StringComparison.OrdinalIgnoreCase))
+                        direction = new(0, 1, 0);
+                    else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
+                        direction = new(0, 0, 1);
 
-                        transform.localScale += scaleAmount * direction;
-                    }
-                    else
-                    {
-                        //global scale
-                        float scaleAmount = projected * worldScale * 0.01f;
-                        Vector3 axis = currentHandle.up.normalized;
-                        float amount = projected * worldScale * 0.1f;
-
-                        // Build current transform matrix
-                        Matrix4x4 m = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
-
-                        // Build world-space scale matrix
-                        Matrix4x4 s = Matrix4x4.identity;
-                        s.m00 += axis.x * amount;
-                        s.m11 += axis.y * amount;
-                        s.m22 += axis.z * amount;
-
-                        // Apply world-axis scaling
-                        m = s * m;
-
-                        // Decompose back into position, rotation, scale
-                        transform.position = m.GetColumn(3);
-                        Vector3 right = m.GetColumn(0);
-                        Vector3 up = m.GetColumn(1);
-                        Vector3 forward = m.GetColumn(2);
-
-                        transform.rotation = Quaternion.LookRotation(forward, up);
-                        transform.localScale = new Vector3(right.magnitude, up.magnitude, forward.magnitude);
-                        transform.localPosition = xHandle.transform.localPosition;
-                    }
+                    transform.localScale += scaleAmount * direction;
                 }
             }
 

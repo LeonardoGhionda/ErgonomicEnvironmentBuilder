@@ -37,8 +37,7 @@ public class TransformData
 
     public void ApplyTo(Transform transform)
     {
-        transform.localPosition = position;
-        transform.localRotation = rotation;
+        transform.SetLocalPositionAndRotation(position, rotation);
         transform.localScale = scale;
     }
 }
@@ -179,7 +178,7 @@ static public class RoomDataExporter
         {
             ObjectData objData = new()
             {
-                objFilePath = parent.GetComponent<InteractableParent>().path,
+                objFilePath = parent.GetComponent<InteractableParent>().Path,
                 transform = new(),
                 children = new()
             };
@@ -338,6 +337,9 @@ static public class RoomDataExporter
             (data.maxSize.y / data.scaleBase * data.scale / 10)
         );
         roofInstance.transform.position = new Vector3(0f, data.wallHeigth, 0f);
+
+        FreeCameraController fcam = GameObject.FindAnyObjectByType<FreeCameraController>();
+        fcam.Roof = roofInstance;
 
         GameObject objectsContainer = GameObject.Find("Objects Container");
         if (objectsContainer == null)

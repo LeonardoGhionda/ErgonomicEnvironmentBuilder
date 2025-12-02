@@ -64,7 +64,7 @@ public class PlaceModelUiButton : MonoBehaviour
         parent.name = $"[P] {parent.name}";
         parent.tag = SelectionManager.parentTag;
 
-        parent.AddComponent<InteractableParent>().path = path;
+        parent.AddComponent<InteractableParent>().Path = path;
 
         parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
 
@@ -72,7 +72,7 @@ public class PlaceModelUiButton : MonoBehaviour
 
         foreach (var mr in childrenMRs)
         {
-            var childCollider = mr.gameObject.AddComponent<BoxCollider>();
+            mr.gameObject.AddComponent<BoxCollider>();
             mr.gameObject.AddComponent<InteractableObject>();
         }
 

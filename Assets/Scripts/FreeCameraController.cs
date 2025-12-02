@@ -1,19 +1,25 @@
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
 public class FreeCameraController : MonoBehaviour
 {
-
-    private InputAction moveAction;
-    private InputAction viewAction;
-    private InputAction upAction;
-    private InputAction downAction;
-    private InputAction sprintAction;
+    //input
+    InputActionMap rbmActionMap;
+    InputAction moveAction;
+    InputAction viewAction;
+    InputAction upAction;
+    InputAction downAction;
+    InputAction sprintAction;
+    InputAction switchCameraAction;
+    InputAction zoomInAction;
+    InputAction zoomOutAction;
 
     //dot
     [SerializeField] private Texture2D dot;
-    [SerializeField] private int size = 4;
-    private bool showDot = true;
+    [SerializeField] private int dotSize = 4;
+    private bool showDot = false;
 
     public float moveSpeed = 5f;
     public float sprintMultiplier = 2f;
@@ -22,51 +28,125 @@ public class FreeCameraController : MonoBehaviour
     float yaw;
     float pitch;
 
-    InputActionMap rbmActionMap;
 
-    CharacterController controller;
+    //ortho
+    public float zoomSpeed = 2f;
+    readonly float maxSize = 55f;
+    readonly float minSize = 4f;
+    float defaultOrthoSize = 0f;
+    bool ortho = true;
+    public bool Ortho
+    {
+        get => ortho;
+        set
+        {
+            ortho = value;
+            cameraComponent.orthographic = ortho;
+            roof.SetActive(!ortho);
+
+            if (ortho)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                showDot = false;
+
+                cameraComponent.orthographicSize = defaultOrthoSize;
+                transform.SetPositionAndRotation(Vector3.up * 20f, Quaternion.Euler(90f, 0f, 0f));
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                showDot = true;
+
+                transform.SetPositionAndRotation(Vector3.up * 1.7f, Quaternion.identity);
+            }
+        }
+    }
+
+    Quaternion targetRotation;
+
+    Camera cameraComponent;
+    Rigidbody rb;
+    GameObject roof;
+    public GameObject Roof
+    {
+        get => roof;
+        set
+        {
+            if (roof != null)
+            {
+                Debug.LogWarning("Trying to set roof multiple times");
+                return;
+            }
+
+            roof = value;
+
+            var bc = roof.GetComponent<BoxCollider>();
+            cameraComponent.orthographicSize =
+                bc.bounds.size.MaxComponent() / 10f * 2f * 1.15f;
+
+            defaultOrthoSize = cameraComponent.orthographicSize;
+            roof.SetActive(false);
+        }
+    }
 
     void Awake()
     {
-        controller = GetComponent<CharacterController>();
-        if (controller == null)
-            controller = gameObject.AddComponent<CharacterController>();
-
-        controller.height = 1.7f;
-        controller.radius = 0.3f;
 
         rbmActionMap = InputSystem.actions.FindActionMap("RoomBuilderControl");
-        if (rbmActionMap == null)
-        {
-            Debug.LogError("Input action map 'RoomBuilderControl' not found.");
-            return;
-        }
         moveAction = rbmActionMap.FindAction("Move");
         viewAction = rbmActionMap.FindAction("View");
         upAction = rbmActionMap.FindAction("Up");
         downAction = rbmActionMap.FindAction("Down");
         sprintAction = rbmActionMap.FindAction("Sprint");
+        switchCameraAction = rbmActionMap.FindAction("SwitchView");
+        zoomInAction = rbmActionMap.FindAction("OrthoZoomIn");
+        zoomOutAction = rbmActionMap.FindAction("OrthoZoomOut");
+
+        rb = GetComponent<Rigidbody>();
+        cameraComponent = GetComponent<Camera>();
     }
 
     void OnGUI()
     {
         if (!showDot) return;
 
-        int x = (Screen.width - size) / 2;
-        int y = (Screen.height - size) / 2;
-        GUI.DrawTexture(new Rect(x, y, size, size), dot);
+        int x = (Screen.width - dotSize) / 2;
+        int y = (Screen.height - dotSize) / 2;
+        GUI.DrawTexture(new Rect(x, y, dotSize, dotSize), dot);
     }
 
     void Update()
     {
+        if (switchCameraAction.WasPressedThisFrame())
+            Ortho = !Ortho;
+
+        if (ortho)
+        {
+            float zIn = zoomInAction.ReadValue<float>();
+            float zOut = zoomOutAction.ReadValue<float>();
+            float zoom = zIn - zOut;
+
+            cameraComponent.orthographicSize += zoom * zoomSpeed;
+            cameraComponent.orthographicSize = Mathf.Clamp(cameraComponent.orthographicSize, minSize, maxSize);
+            return;
+        }
+
         // Look
         Vector2 viewValue = viewAction.ReadValue<Vector2>();
         yaw += viewValue.x * lookSpeed;
         pitch -= viewValue.y * lookSpeed;
         pitch = Mathf.Clamp(pitch, -89f, 89f);
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0);
 
-        // Movement input
+        targetRotation = Quaternion.Euler(pitch, yaw, 0);
+    }
+
+    void FixedUpdate()
+    {
+        if (ortho) return;
+
+        //Move
         Vector2 mv = moveAction.ReadValue<Vector2>();
         float x = mv.x;
         float z = mv.y;
@@ -75,24 +155,32 @@ public class FreeCameraController : MonoBehaviour
         if (upAction.IsPressed()) y += 1f;
         if (downAction.IsPressed()) y -= 1f;
 
-        Vector3 move = (transform.right * x) +
-                       (transform.forward * z) +
-                       (transform.up * y);
+        Vector3 move =
+            transform.right * x +
+            transform.forward * z +
+            transform.up * y;
 
-        move = move.normalized;
+        move.Normalize();
 
         float speed = moveSpeed;
         if (sprintAction.IsPressed())
             speed *= sprintMultiplier;
 
-        controller.Move(speed * Time.deltaTime * move);
+        rb.MovePosition(rb.position + speed * Time.fixedDeltaTime * move);
+
+
+        // Look
+        rb.MoveRotation(targetRotation);
     }
 
     private void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        showDot = true;
+        if (!cameraComponent.orthographic)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            showDot = true;
+        }
         rbmActionMap.Enable();
     }
 

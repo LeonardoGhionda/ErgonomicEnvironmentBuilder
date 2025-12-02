@@ -40,7 +40,7 @@ public class BuildingUi : MonoBehaviour
         //stop FreeCameraController when a menu is open
         fCam = Camera.main.GetComponent<FreeCameraController>();
 
-        string roomName = UiManager.Instance.roomName;
+        string roomName = UiManager.Instance.RoomName;
 
         if (string.IsNullOrEmpty(roomName))
             Debug.LogError("[BuildingUi: Start()] roomName is null or empty");

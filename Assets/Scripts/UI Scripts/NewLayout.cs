@@ -43,7 +43,7 @@ public class NewLayout: MonoBehaviour
                 RoomDataExporter.CreateRoom(rbm.RoomName);
                 //hide ui 
                 var um = UiManager.Instance;
-                um.roomName = rbm.RoomName;
+                um.RoomName = rbm.RoomName;
                 um.ChangeScreen(nextScreen);
             }
             catch (Exception e) 

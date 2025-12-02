@@ -59,7 +59,7 @@ public class ChangeGizmoModeDropdown : MonoBehaviour
 
     private void ApplyMode(GizmoMode gm)
     {
-        if (gm == GizmoMode.None)
+        if (gm == GizmoMode.None || gm == GizmoMode.Scale)
             transform.localScale = Vector3.zero;
         else
             transform.localScale = lScale;
