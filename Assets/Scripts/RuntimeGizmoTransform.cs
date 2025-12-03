@@ -668,7 +668,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
         lr.material = new Material(Shader.Find("Sprites/Default"));
 
         lr.loop = false;
-        lr.widthMultiplier = 0.02f;
+        lr.widthMultiplier = 0.08f;
 
 
         lr.useWorldSpace = false;
