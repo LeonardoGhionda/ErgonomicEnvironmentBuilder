@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
 public class FreeCameraController : MonoBehaviour
 {
-    //input
+    // Input
     InputActionMap rbmActionMap;
     InputAction moveAction;
     InputAction viewAction;
@@ -16,24 +16,26 @@ public class FreeCameraController : MonoBehaviour
     InputAction zoomInAction;
     InputAction zoomOutAction;
 
-    //dot
+    // GUI
     [SerializeField] private Texture2D dot;
     [SerializeField] private int dotSize = 4;
     private bool showDot = false;
 
+    // Movement
     public float moveSpeed = 5f;
+    public float orthoMoveSpeed = 5f;
     public float sprintMultiplier = 2f;
     public float lookSpeed = 0.1f;
 
     float yaw;
     float pitch;
 
-
-    //ortho
+    // Ortho
     public float zoomSpeed = 2f;
     readonly float maxSize = 55f;
     readonly float minSize = 4f;
     float defaultOrthoSize = 0f;
+
     bool ortho = true;
     public bool Ortho
     {
@@ -42,7 +44,10 @@ public class FreeCameraController : MonoBehaviour
         {
             ortho = value;
             cameraComponent.orthographic = ortho;
-            roof.SetActive(!ortho);
+            if (roof != null) roof.SetActive(!ortho);
+
+            Vector3 targetPos;
+            Quaternion targetRot;
 
             if (ortho)
             {
@@ -51,7 +56,8 @@ public class FreeCameraController : MonoBehaviour
                 showDot = false;
 
                 cameraComponent.orthographicSize = defaultOrthoSize;
-                transform.SetPositionAndRotation(Vector3.up * 20f, Quaternion.Euler(90f, 0f, 0f));
+                targetPos = Vector3.up * 20f;
+                targetRot = Quaternion.Euler(90f, 0f, 0f);
             }
             else
             {
@@ -59,15 +65,27 @@ public class FreeCameraController : MonoBehaviour
                 Cursor.visible = false;
                 showDot = true;
 
-                transform.SetPositionAndRotation(Vector3.up * 1.7f, Quaternion.identity);
+                targetPos = Vector3.up * 1.7f;
+                targetRot = Quaternion.identity;
+
+                yaw = 0f;
+                pitch = 0f;
+                targetRotation = targetRot;
             }
+
+            transform.SetPositionAndRotation(targetPos, targetRot);
+            rb.position = targetPos;
+            rb.rotation = targetRot;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
     }
 
     Quaternion targetRotation;
-
     Camera cameraComponent;
     Rigidbody rb;
+
+
     GameObject roof;
     public GameObject Roof
     {
@@ -81,7 +99,7 @@ public class FreeCameraController : MonoBehaviour
             }
             roof = value;
             float meshSize = roof.GetComponent<MeshRenderer>().bounds.size.z;
-            float size = (meshSize / 2f) * 1.2f /*padding*/;
+            float size = (meshSize / 2f) * 1.2f;
             size = Mathf.Clamp(size, minSize, maxSize);
             defaultOrthoSize = size;
             cameraComponent.orthographicSize = defaultOrthoSize;
@@ -91,7 +109,6 @@ public class FreeCameraController : MonoBehaviour
 
     void Awake()
     {
-
         rbmActionMap = InputSystem.actions.FindActionMap("RoomBuilderControl");
         moveAction = rbmActionMap.FindAction("Move");
         viewAction = rbmActionMap.FindAction("View");
@@ -104,12 +121,18 @@ public class FreeCameraController : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         cameraComponent = GetComponent<Camera>();
+
+        // Physics Setup
+        rb.useGravity = false;
+        rb.isKinematic = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     void OnGUI()
     {
         if (!showDot) return;
-
         int x = (Screen.width - dotSize) / 2;
         int y = (Screen.height - dotSize) / 2;
         GUI.DrawTexture(new Rect(x, y, dotSize, dotSize), dot);
@@ -131,7 +154,6 @@ public class FreeCameraController : MonoBehaviour
             return;
         }
 
-        // Look
         Vector2 viewValue = viewAction.ReadValue<Vector2>();
         yaw += viewValue.x * lookSpeed;
         pitch -= viewValue.y * lookSpeed;
@@ -142,33 +164,48 @@ public class FreeCameraController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (ortho) return;
+        float speed;
+        Vector3 moveDir;
 
-        //Move
-        Vector2 mv = moveAction.ReadValue<Vector2>();
-        float x = mv.x;
-        float z = mv.y;
-        float y = 0f;
+        if (ortho)
+        {
+            Vector2 moveInput = moveAction.ReadValue<Vector2>();
+            moveDir = new Vector3(moveInput.x, 0f, moveInput.y);
+            speed = orthoMoveSpeed;
+        }
+        else
+        {
+            Vector2 mv = moveAction.ReadValue<Vector2>();
+            float y = 0f;
 
-        if (upAction.IsPressed()) y += 1f;
-        if (downAction.IsPressed()) y -= 1f;
+            if (upAction.IsPressed()) y += 1f;
+            if (downAction.IsPressed()) y -= 1f;
 
-        Vector3 move =
-            transform.right * x +
-            transform.forward * z +
-            transform.up * y;
+            moveDir = transform.right * mv.x + transform.forward * mv.y + transform.up * y;
+            if (moveDir.sqrMagnitude > 1f) moveDir.Normalize();
 
-        move.Normalize();
+            speed = moveSpeed;
+            rb.MoveRotation(targetRotation);
+        }
 
-        float speed = moveSpeed;
         if (sprintAction.IsPressed())
             speed *= sprintMultiplier;
 
-        rb.MovePosition(rb.position + speed * Time.fixedDeltaTime * move);
+        //SweepTest for Anti-Tunneling
+        float distance = speed * Time.fixedDeltaTime;
 
+        // Only sweep if we are actually moving
+        if (distance > 0.001f && moveDir.sqrMagnitude > 0.001f)
+        {
+            // Predict collision before moving. 
+            if (rb.SweepTest(moveDir, out RaycastHit hitInfo, distance + 0.01f, QueryTriggerInteraction.Ignore))
+            {
+                //set position just before the collision point
+                distance = Mathf.Max(0f, hitInfo.distance - 0.01f);
+            }
+        }
 
-        // Look
-        rb.MoveRotation(targetRotation);
+        rb.MovePosition(rb.position + moveDir * distance);
     }
 
     private void OnEnable()

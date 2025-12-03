@@ -66,14 +66,25 @@ public class PlaceModelUiButton : MonoBehaviour
 
         parent.AddComponent<InteractableParent>().Path = path;
 
-        parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
+        parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;    
 
         MeshRenderer[] childrenMRs = parent.GetComponentsInChildren<MeshRenderer>();
 
+        float minY = 0.0f;
+
         foreach (var mr in childrenMRs)
         {
-            mr.gameObject.AddComponent<BoxCollider>();
+            var bc = mr.gameObject.AddComponent<BoxCollider>();
+            var bottom = (bc.center.y - bc.size.y / 2f);
+            if (bottom < minY) minY = bottom;
             mr.gameObject.AddComponent<InteractableObject>();
+        }
+
+        Debug.Log(Camera.main.GetComponent<FreeCameraController>().Ortho);
+        if (Camera.main.GetComponent<FreeCameraController>().Ortho)
+        {
+            parent.transform.position = Vector3.Scale(parent.transform.position, new Vector3(1f, 0f, 1f));
+            parent.transform.position = parent.transform.position - Vector3.up * minY;
         }
 
         parent.transform.SetParent(container.transform, true);

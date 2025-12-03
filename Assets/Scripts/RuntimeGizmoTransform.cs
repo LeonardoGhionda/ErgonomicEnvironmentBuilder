@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -123,6 +124,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
     private void Update()
     {
+
+        ScaleHandlesByCameraDistance();
+
         if(deleteAction.WasPressedThisFrame())
         {
             SelectionManager selectionManager = FindAnyObjectByType<SelectionManager>();
@@ -259,7 +263,8 @@ public class RuntimeGizmoTransform : MonoBehaviour
                     else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
                         direction = new(0, 0, 1);
 
-                    transform.localScale += scaleAmount * direction;
+                    var newScale = transform.localScale + scaleAmount * direction;
+                    transform.localScale = newScale.Abs();
                 }
             }
 
@@ -516,6 +521,27 @@ public class RuntimeGizmoTransform : MonoBehaviour
         xHandle.gameObject.SetActive(true);
         yHandle.gameObject.SetActive(true);
         zHandle.gameObject.SetActive(true);
+    }
+
+    void ScaleHandlesByCameraDistance()
+    {
+        float scaleFactor;
+        if (fCam.Ortho)
+        {
+            float size = cam.orthographicSize;
+            scaleFactor = size / 4;
+        }
+        else
+        {
+            float distance = Vector3.Distance(transform.position, fCam.transform.position);
+            scaleFactor = distance / 8;
+        }
+        if (xHandle != null)
+            xHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        if (yHandle != null)
+            yHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        if (zHandle != null)
+            zHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
     }
 
     //----------------------------------------------------------

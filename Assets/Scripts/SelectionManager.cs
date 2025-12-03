@@ -106,7 +106,7 @@ public class SelectionManager : MonoBehaviour
     Transform FindParentWithTag(Transform child, string tag)
     {
 
-        if(child.tag == tag)
+        if(child.CompareTag(tag))
             return child;
 
         Transform current = child.parent;
@@ -132,7 +132,7 @@ public class SelectionManager : MonoBehaviour
             //select parent
             var newSelection = obj.transform.GetComponentInParent<InteractableParent>();
 
-            if (newSelection.gameObject.GetInstanceID() == obj.gameObject.GetInstanceID()) 
+            if (newSelection.gameObject.GetInstanceID() == obj.GetInstanceID())
                 newSelection = null;
 
             if (newSelection != null)
