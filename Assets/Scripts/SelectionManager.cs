@@ -50,6 +50,9 @@ public class SelectionManager : MonoBehaviour
         if (selectAction.WasPressedThisFrame())
         {
             Vector2 rayStart =
+                cam.orthographic ?
+                //selection from current mouse position
+                Mouse.current.position.ReadValue() :  
                 //selection from screen center of the camera
                 new(Screen.width * 0.5f, Screen.height * 0.5f);
 
