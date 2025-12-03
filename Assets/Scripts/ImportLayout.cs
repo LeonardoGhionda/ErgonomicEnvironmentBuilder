@@ -20,10 +20,7 @@ public class ImportLayout : MonoBehaviour
         CleanMetaFiles();
         //Show a select file dialog using coroutine approach
         StartCoroutine(ShowLoadDialogCoroutine());
-    }
 
-    void Start()
-    {
         //Shows only .room files 
         FileBrowser.SetFilters(false,
             new FileBrowser.Filter("Room", ".room"));
@@ -82,5 +79,10 @@ public class ImportLayout : MonoBehaviour
         var um = UiManager.Instance;
         um.RoomName = name;
         um.ChangeScreen(builder_Ui);
+    }
+
+    private void OnDisable()
+    {
+        StopCoroutine(ShowLoadDialogCoroutine());
     }
 }

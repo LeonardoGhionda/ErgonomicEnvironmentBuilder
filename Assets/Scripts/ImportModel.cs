@@ -17,12 +17,10 @@ public class ImportModel : MonoBehaviour
     {
         //Show a select file dialog using coroutine approach
         StartCoroutine(ShowLoadDialogCoroutine());
-    }
 
-    void Start()
-    {
-        //Shows only .room files 
+        //Shows only files 
         FileBrowser.SetFilters(false,
+            new FileBrowser.Filter("All", ".obj", ".stp"),
             new FileBrowser.Filter("Wavefront", ".obj"),
             new FileBrowser.Filter("Step", ".stp"));
 
@@ -33,7 +31,7 @@ public class ImportModel : MonoBehaviour
         FileBrowser.AddQuickLink("Downloads", System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile) + "\\Downloads", null);
         FileBrowser.AddQuickLink("Models", Path.Combine(Application.persistentDataPath, GetModelUi.ModelsFolder), null);
 
-        FileBrowser.SetDefaultFilter("Wavefront");
+        FileBrowser.SetDefaultFilter("All");
     }
 
     IEnumerator ShowLoadDialogCoroutine()
@@ -76,11 +74,12 @@ public class ImportModel : MonoBehaviour
         //convert to .obj
         if (ext == ".stp")
         {
-            if (!StepToObjWrapper.Convert(filePath))
+            if (!StepToObjWrapper.Convert(filePath, 0.001f))
             {
                 enabled = false;
                 return;
             }
+            filePath = Path.ChangeExtension(filePath, "obj");
         }
 
         //move file into the models folder
@@ -88,7 +87,7 @@ public class ImportModel : MonoBehaviour
             filePath, 
             Path.Combine(
                 destDir,
-                $"{name}.obj"),
+                Path.GetFileName(filePath)),
             true
         );
 
@@ -107,5 +106,11 @@ public class ImportModel : MonoBehaviour
 
         getModelUi.AddUiElement(destDir);
         enabled = false;
+    }
+
+    private void OnDisable()
+    {
+        //Show a select file dialog using coroutine approach
+        StopCoroutine(ShowLoadDialogCoroutine());
     }
 }

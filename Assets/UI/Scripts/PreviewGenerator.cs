@@ -45,14 +45,6 @@ public static class PreviewGenerator
         {
             GameObject go = t.gameObject;
             go.layer = LayerMask.NameToLayer(layerName);
-            /*
-            if (go.GetComponent<MeshRenderer>() != null)
-            {
-                GameObject instance = GameObject.Instantiate(go);
-                instance.layer = LayerMask.NameToLayer(layerName);
-                childrens.Add(instance);
-            }
-            */
         }
         
         // Center camera on prefab

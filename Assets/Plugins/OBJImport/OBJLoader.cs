@@ -127,7 +127,7 @@ namespace Dummiesman
             setCurrentObjectFunc.Invoke("default");
 
 			//var buffer = new DoubleBuffer(reader, 256 * 1024);
-			var buffer = new CharWordReader(reader, 4 * 1024);
+			var buffer = new CharWordReader(reader, 256 * 1024);
 
 			//do the reading
 			while (true)
@@ -341,6 +341,11 @@ namespace Dummiesman
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(string path)
         {
+            string mtlPath = Path.ChangeExtension(path, "mtl");
+            if (File.Exists(mtlPath))
+            {
+                return Load(path, mtlPath);
+            }
             return Load(path, null);
         }
     }

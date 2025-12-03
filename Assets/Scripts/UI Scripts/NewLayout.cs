@@ -105,4 +105,9 @@ public class NewLayout: MonoBehaviour
     {
         rect.localScale = Vector3.one * ( 1 + value);
     }
+
+    private void OnDisable()
+    {
+        goBackData = null;
+    }
 }

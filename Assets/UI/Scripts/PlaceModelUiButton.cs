@@ -80,7 +80,6 @@ public class PlaceModelUiButton : MonoBehaviour
             mr.gameObject.AddComponent<InteractableObject>();
         }
 
-        Debug.Log(Camera.main.GetComponent<FreeCameraController>().Ortho);
         if (Camera.main.GetComponent<FreeCameraController>().Ortho)
         {
             parent.transform.position = Vector3.Scale(parent.transform.position, new Vector3(1f, 0f, 1f));

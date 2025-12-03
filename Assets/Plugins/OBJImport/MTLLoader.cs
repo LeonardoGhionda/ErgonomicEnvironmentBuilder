@@ -127,11 +127,7 @@ public class MTLLoader {
         return texturePath;
     }
 
-    /// <summary>
-    /// Loads a *.mtl file
-    /// </summary>
-    /// <param name="input">The input stream from the MTL file</param>
-    /// <returns>Dictionary containing loaded materials</returns>
+    //I made some changes to make this compatible with urp
     public Dictionary<string, Material> Load(Stream input)
     {
         var inputReader = new StreamReader(input);
@@ -142,100 +138,89 @@ public class MTLLoader {
 
         for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
         {
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            if (string.IsNullOrWhiteSpace(line)) continue;
 
             string processedLine = line.Clean();
             string[] splitLine = processedLine.Split(' ');
 
-            //blank or comment
-            if (splitLine.Length < 2 || processedLine[0] == '#')
-                continue;
+            if (splitLine.Length < 2 || processedLine[0] == '#') continue;
 
-            //newmtl
             if (splitLine[0] == "newmtl")
             {
                 string materialName = processedLine.Substring(7);
-
+                // URP Lit Shader
                 var newMtl = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = materialName };
                 mtlDict[materialName] = newMtl;
                 currentMaterial = newMtl;
-
                 continue;
             }
 
-            //anything past here requires a material instance
-            if (currentMaterial == null)
-                continue;
+            if (currentMaterial == null) continue;
 
-            //diffuse color
+            // Diffuse color
             if (splitLine[0] == "Kd" || splitLine[0] == "kd")
             {
-                var currentColor = currentMaterial.GetColor("_Color");
+                // FIX 1: GetColor must use "_BaseColor" (was "_Color")
+                var currentColor = currentMaterial.GetColor("_BaseColor");
                 var kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
 
-                currentMaterial.SetColor("_Color", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
+                currentMaterial.SetColor("_BaseColor", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
                 continue;
             }
 
-            //diffuse map
+            // Diffuse map
             if (splitLine[0] == "map_Kd" || splitLine[0] == "map_kd")
             {
                 string texturePath = GetTexPathFromMapStatement(processedLine, splitLine);
-                if(texturePath == null)
-                {
-                    continue; //invalid args or sth
-                }
+                if (texturePath == null) continue;
 
                 var KdTexture = TryLoadTexture(texturePath);
 
-                //currentMaterial.SetTexture("_MainTex", KdTexture);
+                // Correct for URP
                 currentMaterial.SetTexture("_BaseMap", KdTexture);
 
-                //set transparent mode if the texture has transparency
                 if (KdTexture != null && (KdTexture.format == TextureFormat.DXT5 || KdTexture.format == TextureFormat.ARGB32))
                 {
                     OBJLoaderHelper.EnableMaterialTransparency(currentMaterial);
                 }
 
-                //flip texture if this is a dds
-                if(Path.GetExtension(texturePath).ToLower() == ".dds")
+                if (Path.GetExtension(texturePath).ToLower() == ".dds")
                 {
                     currentMaterial.mainTextureScale = new Vector2(1f, -1f);
                 }
-
                 continue;
             }
 
-            //bump map
+            // Bump map
             if (splitLine[0] == "map_Bump" || splitLine[0] == "map_bump")
             {
                 string texturePath = GetTexPathFromMapStatement(processedLine, splitLine);
-                if(texturePath == null)
-                {
-                    continue; //invalid args or sth
-                }
+                if (texturePath == null) continue;
 
                 var bumpTexture = TryLoadTexture(texturePath, true);
                 float bumpScale = GetArgValue(splitLine, "-bm", 1.0f);
 
-                if (bumpTexture != null) {
+                if (bumpTexture != null)
+                {
                     currentMaterial.SetTexture("_BumpMap", bumpTexture);
                     currentMaterial.SetFloat("_BumpScale", bumpScale);
                     currentMaterial.EnableKeyword("_NORMALMAP");
                 }
-
                 continue;
             }
 
-            //specular color
+            // Specular color
             if (splitLine[0] == "Ks" || splitLine[0] == "ks")
             {
                 currentMaterial.SetColor("_SpecColor", OBJLoaderHelper.ColorFromStrArray(splitLine));
+                // FIX 2: URP Lit defaults to Metallic. We must enable Specular setup to use _SpecColor.
+                currentMaterial.EnableKeyword("_SPECULAR_SETUP");
                 continue;
             }
 
-            //emission color
+            // Emission color
+            // Note: MTL usually uses 'Ke' for emission, 'Ka' for Ambient. 
+            // If your files use Ka for emission, keep this, otherwise check for Ke.
             if (splitLine[0] == "Ka" || splitLine[0] == "ka")
             {
                 currentMaterial.SetColor("_EmissionColor", OBJLoaderHelper.ColorFromStrArray(splitLine, 0.05f));
@@ -243,50 +228,51 @@ public class MTLLoader {
                 continue;
             }
 
-            //emission map
+            // Emission map
             if (splitLine[0] == "map_Ka" || splitLine[0] == "map_ka")
             {
                 string texturePath = GetTexPathFromMapStatement(processedLine, splitLine);
-                if(texturePath == null)
-                {
-                    continue; //invalid args or sth
-                }
+                if (texturePath == null) continue;
 
                 currentMaterial.SetTexture("_EmissionMap", TryLoadTexture(texturePath));
+                // URP typically needs emission color to be white for the map to show if not already set
+                currentMaterial.SetColor("_EmissionColor", Color.white);
+                currentMaterial.EnableKeyword("_EMISSION");
                 continue;
             }
 
-            //alpha
+            // Alpha
             if (splitLine[0] == "d" || splitLine[0] == "Tr")
             {
                 float visibility = OBJLoaderHelper.FastFloatParse(splitLine[1]);
-                
-                //tr statement is just d inverted
-                if(splitLine[0] == "Tr")
-                    visibility = 1f - visibility;  
 
-                if(visibility < (1f - Mathf.Epsilon))
+                if (splitLine[0] == "Tr") visibility = 1f - visibility;
+
+                if (visibility < (1f - Mathf.Epsilon))
                 {
-                    var currentColor = currentMaterial.GetColor("_Color");
+                    // FIX 3: Change "_Color" to "_BaseColor" for both Get and Set
+                    var currentColor = currentMaterial.GetColor("_BaseColor");
 
                     currentColor.a = visibility;
-                    currentMaterial.SetColor("_Color", currentColor);
+                    currentMaterial.SetColor("_BaseColor", currentColor);
 
                     OBJLoaderHelper.EnableMaterialTransparency(currentMaterial);
                 }
                 continue;
             }
 
-            //glossiness
+            // Glossiness / Smoothness
             if (splitLine[0] == "Ns" || splitLine[0] == "ns")
             {
                 float Ns = OBJLoaderHelper.FastFloatParse(splitLine[1]);
+                // MTL Ns is usually 0-1000. URP Smoothness is 0.0 - 1.0.
                 Ns = (Ns / 1000f);
-                currentMaterial.SetFloat("_Glossiness", Ns);
+
+                // FIX 4: URP uses "_Smoothness", not "_Glossiness"
+                currentMaterial.SetFloat("_Smoothness", Ns);
             }
         }
 
-        //return our dict
         return mtlDict;
     }
 
