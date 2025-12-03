@@ -315,8 +315,11 @@ public class RuntimeGizmoTransform : MonoBehaviour
                     Physics.Raycast(ray, out RaycastHit hit);
                     //Find best face to snap by the distance from the object 
 
+                    if (hit.collider == null)
+                        continue;
+
                     //skips hits with object it's currently already snapping
-                    if(hit.collider is BoxCollider && snappedObjectColliders.Contains(hit.collider))
+                    if (hit.collider is BoxCollider && snappedObjectColliders.Contains(hit.collider))
                         continue;
 
                     if (first)
@@ -334,7 +337,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
                 //SNAP is possible 
                 if (hitFound && bestHit.collider != null && bestHit.distance < minDistanceToSnap + bc.size.MaxComponent()) 
-                { 
+                {
+                    Debug.Log("snap is possible");
+                    
                     hitNormal = bestHit.normal;
                     hitPoint = bestHit.point;
 
@@ -358,7 +363,6 @@ public class RuntimeGizmoTransform : MonoBehaviour
                     //execute the snap
                     if (angle < minAngleToSnap)
                     {
-
                         //Size of the object along the best match normal
                         float sizeAlongNormal = GetColliderSizeAlongNormal(bc, bestMatchNormal);
 
