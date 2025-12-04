@@ -21,6 +21,8 @@ public class BuildingUi : MonoBehaviour
     [SerializeField] private Button quitButton;
     [SerializeField] private Button saveButton;
 
+    GameObject selected;
+
     private void Awake()
     {
         //open exit menu
@@ -119,6 +121,8 @@ public class BuildingUi : MonoBehaviour
         menuAction.Disable();
         selectedName.text = target != null ? target.gameObject.name : null;
         ChangeGizmoTarget(target);
+
+        selected = target == null? null : target.gameObject;
     }
 
     /// <summary>

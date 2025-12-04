@@ -67,6 +67,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
     private Camera cam;
     private FreeCameraController fCam;
     private Transform xHandle, yHandle, zHandle;
+    private Transform uniformScaleHandle;
     private Transform currentHandle;
 
     private Vector2 lastMousePos;
@@ -160,13 +161,15 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 .First(h =>
                 h.transform == xHandle ||
                 h.transform == yHandle ||
-                h.transform == zHandle
-            );
+                h.transform == zHandle ||
+                (uniformScaleHandle != null && h.transform == uniformScaleHandle)
+                );            
             }
             catch
             {
                 foundHit = false;
             }
+
 
             Array.Clear(raycastHits, 0, raycastHits.Length);
 
@@ -178,10 +181,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
             }
         }
 
+
         if (selectAction.IsPressed() && currentHandle != null && currentMode != GizmoMode.None)
         {
-
-
             Vector2 mousePos = mousePosAction.ReadValue<Vector2>();
             var (warped, newPos) = WarpMouse(mousePos);
 
@@ -198,7 +200,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
             //screen-space direction of the axis
             Vector2 axisScreen = (screenP1 - screenP0);
 
-            if (axisScreen.sqrMagnitude > 0.0001f)
+            if (axisScreen.sqrMagnitude > 0.0001f || (cam.orthographic && currentHandle == yHandle))
             {
                 //scalar amount of movement along the axis.
                 float projected = Vector2.Dot(delta, axisScreen.normalized);
@@ -206,13 +208,26 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 float distance = (transform.position - cam.transform.position).magnitude;
                 float worldScale = distance * 0.001f;
 
+                if (currentHandle == yHandle && cam.orthographic)
+                {
+                    projected = Vector2.Distance(mousePos, lastMousePos);
+                    worldScale = cam.orthographicSize * 0.001f;
+
+                    var mouseWC = cam.WorldToScreenPoint(mousePos);
+                    mouseWC.y = transform.position.y;
+                    var lastMouseWC = cam.WorldToScreenPoint(lastMousePos);
+                    lastMouseWC.y = transform.position.y;
+
+                    if (Vector3.Distance(mouseWC, transform.position) < Vector3.Distance(lastMouseWC, transform.position))
+                        projected *= -1;
+                }
+
                 //TRANSLATION
                 //--------------------------------
                 if (currentMode == GizmoMode.Translate)
                 {
                     var translation = projected * worldScale * currentHandle.up;
                     transform.Translate(translation, Space.World);
-
                     if (translation.magnitude > 0.0001f)
                     {
                         translationThisFrame = true;
@@ -256,15 +271,23 @@ public class RuntimeGizmoTransform : MonoBehaviour
                     float scaleAmount = projected * worldScale * 0.1f;
                     Vector3 direction = new();
 
-                    if (currentHandle.name.Contains("X", StringComparison.OrdinalIgnoreCase))
-                        direction = new(1, 0, 0);
-                    else if (currentHandle.name.Contains("Y", StringComparison.OrdinalIgnoreCase))
-                        direction = new(0, 1, 0);
-                    else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
-                        direction = new(0, 0, 1);
+                    if(currentHandle == uniformScaleHandle)
+                    {
+                        float factor = 1 + scaleAmount;       
+                        transform.localScale *= Mathf.Abs(factor);
+                    }
+                    else
+                    {
+                        if (currentHandle.name.Contains("X", StringComparison.OrdinalIgnoreCase))
+                            direction = new(1, 0, 0);
+                        else if (currentHandle.name.Contains("Y", StringComparison.OrdinalIgnoreCase))
+                            direction = new(0, 1, 0);
+                        else if (currentHandle.name.Contains("Z", StringComparison.OrdinalIgnoreCase))
+                            direction = new(0, 0, 1);
 
-                    var newScale = transform.localScale + scaleAmount * direction;
-                    transform.localScale = newScale.Abs();
+                        var newScale = transform.localScale + scaleAmount * direction;
+                        transform.localScale = newScale.Abs();
+                    }
                 }
             }
 
@@ -430,6 +453,18 @@ public class RuntimeGizmoTransform : MonoBehaviour
         xHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Red_AlwaysOnTop"), Vector3.right);
         yHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Green_AlwaysOnTop"), Vector3.up);
         zHandle = CreateHandle(mesh, Resources.Load<Material>("Materials/Blue_AlwaysOnTop"), Vector3.forward);
+
+        //create uniform scale handle 
+        uniformScaleHandle = null;
+        if(GizmoMode == GizmoMode.Scale)
+        {
+            var cube  = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.AddComponent<CapsuleCollider>().isTrigger = true;
+            cube.name = "Handle_uniform";
+            cube.transform.localPosition = transform.position;
+            cube.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/Magenta_AlwaysOnTop");
+            uniformScaleHandle = cube.transform;
+        }
     }
 
     /// <summary>
@@ -505,6 +540,8 @@ public class RuntimeGizmoTransform : MonoBehaviour
             Destroy(yHandle.gameObject);
         if (zHandle != null)
             Destroy(zHandle.gameObject);
+        if(uniformScaleHandle != null)
+            Destroy(uniformScaleHandle.gameObject); 
     }
 
     void HideNonSelectedHandle()
@@ -514,6 +551,10 @@ public class RuntimeGizmoTransform : MonoBehaviour
         xHandle.gameObject.SetActive(currentHandle == xHandle);
         yHandle.gameObject.SetActive(currentHandle == yHandle);
         zHandle.gameObject.SetActive(currentHandle == zHandle);
+
+        if(uniformScaleHandle != null)
+            uniformScaleHandle.gameObject.SetActive(currentHandle == uniformScaleHandle);
+
     }
 
     void ShowAllHandles()
@@ -523,6 +564,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
         xHandle.gameObject.SetActive(true);
         yHandle.gameObject.SetActive(true);
         zHandle.gameObject.SetActive(true);
+
+        if(uniformScaleHandle != null)
+            uniformScaleHandle.gameObject.SetActive(true);
     }
 
     void ScaleHandlesByCameraDistance()
@@ -539,11 +583,16 @@ public class RuntimeGizmoTransform : MonoBehaviour
             scaleFactor = distance / 8;
         }
         if (xHandle != null)
-            xHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+            xHandle.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
         if (yHandle != null)
-            yHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+            yHandle.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
         if (zHandle != null)
-            zHandle.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+            zHandle.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        if (uniformScaleHandle != null)
+        {
+            scaleFactor *= 0.4f;
+            uniformScaleHandle.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        }
     }
 
     //----------------------------------------------------------

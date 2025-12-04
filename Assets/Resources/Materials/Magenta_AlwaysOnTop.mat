@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ColliderVisualMat
-  m_Shader: {fileID: 4800000, guid: 6f05167d85cf08a4a92da2d2922be09e, type: 3}
+  m_Name: Magenta_AlwaysOnTop
+  m_Shader: {fileID: 4800000, guid: 7b9124734ba50d244b4c6ebddf253fe8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -24,10 +24,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats:
-    - _Gloss: 1
-    - _Intensity: 2
+    m_Floats: []
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 1, g: 0, b: 0.8499999, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
