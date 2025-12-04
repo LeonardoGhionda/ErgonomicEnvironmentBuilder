@@ -308,7 +308,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 for (int i = 0; i < normals.Length; i++)
                 {
                     Ray ray = new(
-                            bc.bounds.center,
+                            bc.transform.TransformPoint(bc.center),
                             normals[i]
                         );
 
@@ -372,7 +372,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
                             //if anchor is not in the Box collider center
                             Quaternion rotationDelta = Quaternion.FromToRotation(bestMatchNormal, -hitNormal);
                             Quaternion finalRotation = rotationDelta * transform.rotation;
-                            Vector3 pivotToCenter = bc.bounds.center - transform.position;
+                            Vector3 pivotToCenter = bc.transform.TransformPoint(bc.center) - transform.position;
                             Vector3 rotatedPivotToCenter = rotationDelta * pivotToCenter;
                             Vector3 targetCenterPosition = hitPoint + (hitNormal * sizeAlongNormal);
                             Vector3 finalPosition = targetCenterPosition - rotatedPivotToCenter;
