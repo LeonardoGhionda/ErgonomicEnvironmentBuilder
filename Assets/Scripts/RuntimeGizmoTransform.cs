@@ -703,6 +703,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
         lr.SetPositions(linePoints);
         lr.enabled = true;
 
+        lr.widthMultiplier = 0f;
         lr.AddComponent<ColliderVisualWidthHandler>();
     }
 

@@ -24,6 +24,6 @@ public class ColliderVisualWidthHandler : MonoBehaviour
         if (cam.orthographic)
             lineRenderer.widthMultiplier = cam.orthographicSize * thicknessO;
         else
-            lineRenderer.widthMultiplier = Vector3.Distance(cam.transform.position, transform.forward) * thicknessP;
+            lineRenderer.widthMultiplier = Vector3.Distance(cam.transform.position, transform.position) * thicknessP;
     }
 }
