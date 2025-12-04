@@ -337,14 +337,12 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
                 //SNAP is possible 
                 if (hitFound && bestHit.collider != null && bestHit.distance < minDistanceToSnap + bc.size.MaxComponent()) 
-                {
-                    Debug.Log("snap is possible");
-                    
+                {                    
                     hitNormal = bestHit.normal;
                     hitPoint = bestHit.point;
 
                     Vector3 bestMatchNormal = Vector3.zero;
-                    float bestDot = -2f; // Il dot product va da -1 a 1, quindi partiamo più bassi
+                    float bestDot = -2f;
 
                     // Find best normal by highest dot product because normals are in the opposite direction
                     foreach (var normal in normals)
@@ -665,12 +663,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
         LineRenderer lr = go.AddComponent<LineRenderer>();
 
 
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.material = Resources.Load<Material>("Materials/ColliderVisualMat");
 
         lr.loop = false;
-        lr.widthMultiplier = 0.08f;
-
-
         lr.useWorldSpace = false;
 
         Vector3 c = bc.center;
@@ -706,11 +701,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
         lr.positionCount = linePoints.Length;
         lr.SetPositions(linePoints);
-
-        lr.enabled = false;
-
         lr.enabled = true;
 
+        lr.AddComponent<ColliderVisualWidthHandler>();
     }
 
 
