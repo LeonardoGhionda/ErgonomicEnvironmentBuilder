@@ -19,6 +19,20 @@ public class SelectionManager : MonoBehaviour
     private int parentID;
 
     static private int m_cnt = 0;
+
+    bool selectionEnabled = true;
+
+    public bool SelectionEnabled
+    {
+        get { return selectionEnabled; }
+        set 
+        { 
+            selectionEnabled = value;
+            if (!selectionEnabled)
+                ChangeSelectedObject(null);
+        }
+    }
+
     public static int Cnt {
         get { return m_cnt++; }
     }
@@ -34,6 +48,8 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
+        if (selectionEnabled == false) return;
+
         if (deleteAction.WasPressedThisFrame())
         {
             DeleteSelected();
