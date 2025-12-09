@@ -36,6 +36,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
     private bool localTranform = true;
     private Dictionary<GizmoMode, Mesh> meshes;
+
     public bool LocalTranform
     {
         set
@@ -200,7 +201,10 @@ public class RuntimeGizmoTransform : MonoBehaviour
             //screen-space direction of the axis
             Vector2 axisScreen = (screenP1 - screenP0);
 
-            if (axisScreen.sqrMagnitude > 0.0001f || (cam.orthographic && currentHandle == yHandle))
+            //handles that in ortho alligned pefectly with view so need different handling in ortho
+            bool specialHandle = currentHandle == yHandle || currentHandle == uniformScaleHandle;
+
+            if (axisScreen.sqrMagnitude > 0.0001f || (cam.orthographic && specialHandle))
             {
                 //scalar amount of movement along the axis.
                 float projected = Vector2.Dot(delta, axisScreen.normalized);
@@ -208,7 +212,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
                 float distance = (transform.position - cam.transform.position).magnitude;
                 float worldScale = distance * 0.001f;
 
-                if (currentHandle == yHandle && cam.orthographic)
+                if (cam.orthographic && specialHandle)
                 {
                     projected = Vector2.Distance(mousePos, lastMousePos);
                     worldScale = cam.orthographicSize * 0.001f;
@@ -289,6 +293,9 @@ public class RuntimeGizmoTransform : MonoBehaviour
                         transform.localScale = newScale.Abs();
                     }
                 }
+
+                //update ui
+                FindAnyObjectByType<SelectionManager>().UpdateTransformBox();
             }
 
             // Warp cursor to wrapped position
@@ -298,6 +305,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
             // Update last
             lastMousePos = mousePos;
         }
+
         //SNAP LOGIC
         //-------------------------------------
         if (snapAction.IsInProgress() &&
@@ -321,6 +329,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
             if (bc != null)
             {
+                Debug.Log("box not null");
 
                 Vector3[] normals = GetBoxNormals(bc);
                 RaycastHit bestHit = new();
@@ -360,7 +369,7 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
                 //SNAP is possible 
                 if (hitFound && bestHit.collider != null && bestHit.distance < minDistanceToSnap + bc.size.MaxComponent()) 
-                {                    
+                {
                     hitNormal = bestHit.normal;
                     hitPoint = bestHit.point;
 
@@ -429,7 +438,6 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
             currentHandle = null;
             ShowAllHandles();
-
         }
 
         translationThisFrame = false;
@@ -437,6 +445,12 @@ public class RuntimeGizmoTransform : MonoBehaviour
 
     //HANDLES FUNCTIONS
     //----------------------------------
+    public void ResetHandles()
+    {
+        DestroyAllHandles();
+        CreateHandles(meshes[currentMode]);
+    }
+
     private void CreateHandles(Mesh mesh)
     {
 

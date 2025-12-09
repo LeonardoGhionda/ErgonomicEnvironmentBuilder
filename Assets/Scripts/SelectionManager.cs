@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 
 public class SelectionManager : MonoBehaviour
 {
+    //to apply selected object
+    [SerializeField] TransformBoxUi transformBoxUi;
+    
     public Camera cam;
 
     private InputAction selectAction;
@@ -19,8 +22,6 @@ public class SelectionManager : MonoBehaviour
     public static int Cnt {
         get { return m_cnt++; }
     }
-
-
 
     private void Start()
     {
@@ -98,6 +99,16 @@ public class SelectionManager : MonoBehaviour
             selected = obj;
         }
         selected.OnSelect();
+
+        UpdateTransformBox();
+    }
+
+    /// <summary>
+    /// Update ui showing transform values
+    /// </summary>
+    public void UpdateTransformBox()
+    {
+        transformBoxUi.Selected = selected == null ? null : selected.transform;
     }
 
     /// <summary>
