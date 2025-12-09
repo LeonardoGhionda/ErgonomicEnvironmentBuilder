@@ -3,12 +3,8 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
-enum TransformType
-{
-    T,
-    R,
-    S
-}
+// Enum and Struct definitions remain the same...
+enum TransformType { LT, LR, LS, GT, GR }
 
 struct TransformBox
 {
@@ -16,18 +12,18 @@ struct TransformBox
     public TMP_InputField[] fields;
 }
 
-/// <summary>
-/// make transform box value and selected model transform match
-/// </summary>
 public class TransformBoxUi : MonoBehaviour
 {
-    [SerializeField] private RectTransform translateBox;
-    [SerializeField] private RectTransform rotateBox;
-    [SerializeField] private RectTransform scaleBox;
+    [Header("Local")]
+    [SerializeField] private RectTransform LTranslateBox;
+    [SerializeField] private RectTransform LRotateBox;
+    [SerializeField] private RectTransform LScaleBox;
+    [Header("Global")]
+    [SerializeField] private RectTransform GTranslateBox;
+    [SerializeField] private RectTransform GRotateBox;
 
     TransformBox[] transformBoxes;
-
-    private readonly int fieldCount = 3;
+    private readonly int fieldCount = 5;
 
     private Transform selected;
     public Transform Selected
@@ -36,139 +32,112 @@ public class TransformBoxUi : MonoBehaviour
         set
         {
             selected = value;
-
-            //write in ui selected transform values
-            foreach (var b in transformBoxes)
-            {
-                switch (b.type)
-                {
-                    case TransformType.T:
-                        b.fields[0].text = selected.transform.localPosition.x.ToString("F1");
-                        b.fields[1].text = selected.transform.localPosition.y.ToString("F1");
-                        b.fields[2].text = selected.transform.localPosition.z.ToString("F1");
-                        break;
-                    case TransformType.R:
-                        b.fields[0].text = selected.transform.eulerAngles.x.ToString("F1");
-                        b.fields[1].text = selected.transform.eulerAngles.y.ToString("F1");
-                        b.fields[2].text = selected.transform.eulerAngles.z.ToString("F1");
-                        break;
-                    case TransformType.S:
-                        b.fields[0].text = selected.transform.localScale.x.ToString("F1");
-                        b.fields[1].text = selected.transform.localScale.y.ToString("F1");
-                        b.fields[2].text = selected.transform.localScale.z.ToString("F1");
-                        break;
-                }
-            }
+            UpdateUiFromTransform(); 
         }
     }
 
     private void Awake()
     {
-        //initialize array 
         transformBoxes = new TransformBox[fieldCount];
 
-        //TRANSLATE
-        //--------------------
-        {
-            var unorderedFields = translateBox.GetComponentsInChildren<TMP_InputField>().ToList();
-            var x = unorderedFields.Find(a => a.name.Contains("x"));
-            var y = unorderedFields.Find(a => a.name.Contains("y"));
-            var z = unorderedFields.Find(a => a.name.Contains("z"));
+        // LOCAL
+        transformBoxes[0] = CreateBox(LTranslateBox, TransformType.LT);
+        transformBoxes[1] = CreateBox(LRotateBox, TransformType.LR);
+        transformBoxes[2] = CreateBox(LScaleBox, TransformType.LS);
+        // GLOBAL
+        transformBoxes[3] = CreateBox(GTranslateBox, TransformType.GT);
+        transformBoxes[4] = CreateBox(GRotateBox, TransformType.GR);
 
-            TMP_InputField[] fields = { x, y, z };
-
-            transformBoxes[0] = new TransformBox
-            {
-                type = TransformType.T,
-                fields = fields,
-            };
-        }
-
-        //ROTATE
-        //--------------------
-        {
-            var unorderedFields = rotateBox.GetComponentsInChildren<TMP_InputField>().ToList();
-            TMP_InputField x = unorderedFields.Find(a => a.name.Contains("x"));
-            TMP_InputField y = unorderedFields.Find(a => a.name.Contains("y"));
-            TMP_InputField z = unorderedFields.Find(a => a.name.Contains("z"));
-
-            TMP_InputField[] fields = { x, y, z };
-            transformBoxes[1] = new TransformBox
-            {
-                type = TransformType.R,
-                fields = fields,
-            };
-        }
-
-        //SCALE
-        //--------------------
-        {
-            var unorderedFields = scaleBox.GetComponentsInChildren<TMP_InputField>().ToList();
-            TMP_InputField x = unorderedFields.Find(a => a.name.Contains("x"));
-            TMP_InputField y = unorderedFields.Find(a => a.name.Contains("y"));
-            TMP_InputField z = unorderedFields.Find(a => a.name.Contains("z"));
-
-            TMP_InputField[] fields = { x, y, z };
-
-            transformBoxes[2] = new TransformBox
-            {
-                type = TransformType.S,
-                fields = fields,
-            };
-        }
-
-        //change to a culture that separate decimal with period instead of commas 
+        // Culture Setup ( italy use comma instead of period to separete devimal :P )
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
         CultureInfo.CurrentUICulture = new CultureInfo("en-US");
 
+        // Event Listeners
         foreach (var b in transformBoxes)
         {
+            var currentBox = b;
+
             foreach (var field in b.fields)
             {
                 field.contentType = TMP_InputField.ContentType.DecimalNumber;
                 field.ForceLabelUpdate();
-                field.onEndEdit.AddListener(OnValueChanged);
+                field.onEndEdit.AddListener((val) => OnBoxValueChanged(currentBox, val));
             }
         }
     }
 
+    // Helper to cleanup Awake and reduce boilerplate
+    private TransformBox CreateBox(RectTransform parent, TransformType type)
+    {
+        var unorderedFields = parent.GetComponentsInChildren<TMP_InputField>().ToList();
+        var x = unorderedFields.Find(a => a.name.Contains("x"));
+        var y = unorderedFields.Find(a => a.name.Contains("y"));
+        var z = unorderedFields.Find(a => a.name.Contains("z"));
+        return new TransformBox { type = type, fields = new TMP_InputField[] { x, y, z } };
+    }
+
     /// <summary>
-    /// Set inputted values in the selected object
+    /// Reads the actual Transform values and updates all Text Inputs
     /// </summary>
-    /// <param name="_">only there to make the function usable</param>
-    private void OnValueChanged(string _)
+    private void UpdateUiFromTransform()
     {
         if (selected == null) return;
 
         foreach (var b in transformBoxes)
         {
-            if (selected == null)
-            {
-                Debug.LogError("Selected is null");
-                return;
-            }
-
-            Vector3 values = Vector3.zero;
-            if (float.TryParse(b.fields[0].text, out float f))
-                values.x = f;
-            if (float.TryParse(b.fields[1].text, out f))
-                values.y = f;
-            if (float.TryParse(b.fields[2].text, out f))
-                values.z = f;
-
+            Vector3 val = Vector3.zero;
             switch (b.type)
             {
-                case TransformType.T:
-                    selected.localPosition = values;
-                    break;
-                case TransformType.R:
-                    selected.eulerAngles = values;
-                    break;
-                case TransformType.S:
-                    selected.localScale = values;
-                    break;
+                case TransformType.LT: val = selected.localPosition; break;
+                case TransformType.LR: val = selected.localEulerAngles; break;
+                case TransformType.LS: val = selected.localScale; break;
+                case TransformType.GT: val = selected.position; break;
+                case TransformType.GR: val = selected.eulerAngles; break;
             }
+
+            // Update text without triggering onEndEdit events
+            b.fields[0].SetTextWithoutNotify(val.x.ToString("F1"));
+            b.fields[1].SetTextWithoutNotify(val.y.ToString("F1"));
+            b.fields[2].SetTextWithoutNotify(val.z.ToString("F1"));
         }
-        selected.GetComponent<RuntimeGizmoTransform>().ResetHandles();
+    }
+
+    /// <summary>
+    /// Only updates the specific property that was changed
+    /// </summary>
+    private void OnBoxValueChanged(TransformBox box, string _)
+    {
+        if (selected == null) return;
+
+        Vector3 values = Vector3.zero;
+        float f;
+        if (float.TryParse(box.fields[0].text, out f)) values.x = f;
+        if (float.TryParse(box.fields[1].text, out f)) values.y = f;
+        if (float.TryParse(box.fields[2].text, out f)) values.z = f;
+
+        switch (box.type)
+        {
+            case TransformType.LT:
+                selected.localPosition = values;
+                break;
+            case TransformType.LR:
+                selected.localEulerAngles = values;
+                break;
+            case TransformType.LS:
+                selected.localScale = values;
+                break;
+            case TransformType.GT:
+                selected.position = values;
+                break;
+            case TransformType.GR:
+                selected.eulerAngles = values;
+                break;
+        }
+
+        UpdateUiFromTransform();
+
+        // Update Gizmos
+        if (selected.GetComponent<RuntimeGizmoTransform>() != null)
+            selected.GetComponent<RuntimeGizmoTransform>().ResetHandles();
     }
 }
