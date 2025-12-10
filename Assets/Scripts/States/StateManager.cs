@@ -1,0 +1,65 @@
+using System;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class StateManager : MonoBehaviour
+{
+
+    // Singleton Instance
+    public static StateManager Instance { get; private set; }
+    IAppState currentState;
+
+    public AppActions AppInput => _appInput;
+    AppActions _appInput;
+
+    [Header("UI Pages")]
+    [SerializeField] private MainMenuUI mainMenuUI;
+    [SerializeField] private NewRoomUI NewRoomUI;
+
+    [Header("Managers")]
+    [SerializeField] private RoomBuilderManager roomBuilderManager;
+
+    //---STATES---
+    public MainMenuState MainMenu { get; private set; }
+    public NewRoomState NewRoom {  get; private set; }
+    public LoadRoomState LoadRoom { get; private set; }
+    public OptionState Option { get; private set; }
+    public PauseMenuState Pause { get; private set; }
+    public RoomEditorState RoomEditor { get; private set; }
+
+    private void Awake()
+    {
+        // Singleton Setup
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        // Initialize Input
+        _appInput = new AppActions();
+    }
+
+    private void Start()
+    {
+        //---STATES SETUP---
+        MainMenu = new(this, AppInput, mainMenuUI);
+        NewRoom =  new(this, AppInput, NewRoomUI, roomBuilderManager);
+        LoadRoom = new(this, AppInput);
+        Option =   new(this, AppInput);
+        Pause =    new(this, AppInput);
+
+        //first state iniziaization
+        currentState = MainMenu;
+        currentState.Enter();
+    }
+
+    internal void ChangeState(IAppState newState)
+    {
+        currentState?.Exit();
+        currentState = newState;
+        currentState?.Enter();
+    }
+}

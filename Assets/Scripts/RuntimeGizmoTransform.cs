@@ -706,8 +706,6 @@ public class RuntimeGizmoTransform : MonoBehaviour
     //------------------------------------------
     //END SNAP FUNCTIONS
 
-    int cnt;
-
     public void ShowBoxCollider(BoxCollider bc)
     {
         if (bc == null)
@@ -715,8 +713,6 @@ public class RuntimeGizmoTransform : MonoBehaviour
             Debug.LogWarning("ShowBoxCollider: collider not found for go: " + gameObject.name);
             return;
         }
-
-        cnt = SelectionManager.Cnt;
 
         // Create the visual GameObject
         GameObject go = new(colliderVisualName);

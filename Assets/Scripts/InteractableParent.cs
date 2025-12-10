@@ -14,7 +14,7 @@ public class InteractableParent : Interactable
 
     private Material selectedMaterial;
     private Dictionary<int, Material> materialsMap;
-    private BuildingUi bui;
+    private RoomEditHUD bui;
 
     void Awake()
     {
@@ -63,7 +63,7 @@ public class InteractableParent : Interactable
 
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
 
-        if (bui == null) bui = FindAnyObjectByType<BuildingUi>();
+        if (bui == null) bui = FindAnyObjectByType<RoomEditHUD>();
         bui.OpenSelectionPanel(rgt);
     }
 

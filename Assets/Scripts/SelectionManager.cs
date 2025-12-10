@@ -4,67 +4,57 @@ using UnityEngine.InputSystem;
 
 public class SelectionManager : MonoBehaviour
 {
-    //to apply selected object
+    Interactable selected;
+
+    //Ui element that can modify selected object transform
     [SerializeField] TransformBoxUi transformBoxUi;
     
-    public Camera cam;
+    //---CAMERA---
+    readonly Camera cam;
 
-    private InputAction selectAction;
-    private InputAction deselectAction;
-    private InputAction deleteAction;
+    //---INPUT---
+    AppActions input;
 
-    private Interactable selected;
-
+    //---PARENT SELECTION---
     public static readonly string parentTag = "Parent";
     private int parentID;
 
-    static private int m_cnt = 0;
-
-    bool selectionEnabled = true;
-
-    public bool SelectionEnabled
-    {
-        get { return selectionEnabled; }
-        set 
-        { 
-            selectionEnabled = value;
-            if (!selectionEnabled)
-                ChangeSelectedObject(null);
-        }
-    }
-
-    public static int Cnt {
-        get { return m_cnt++; }
-    }
-
     private void Start()
     {
-        selectAction = InputSystem.actions["RoomBuilderControl/Select"];
-        deselectAction = InputSystem.actions["Ui/Close"];
-        deleteAction = InputSystem.actions["RoomBuilderControl/Delete"];
-
+        input = new AppActions();
         parentID = -1;
     }
 
     void Update()
     {
-        if (selectionEnabled == false) return;
 
-        if (deleteAction.WasPressedThisFrame())
+        if 
+        (
+            input.RoomEditOrtho.Select.WasPressedThisFrame() ||
+            input.RoomEditPerspective.Select.WasPressedThisFrame()
+        )
         {
             DeleteSelected();
             return;
         }
 
         // Deselect object
-        if (deselectAction.WasPressedThisFrame() && selected != null)
+        if
+        (
+            ( input.RoomEditOrtho.Select.WasPressedThisFrame() ||
+              input.RoomEditPerspective.Select.WasPressedThisFrame()) &&
+            selected != null)
         {
             ChangeSelectedObject(null);
             return;
         }
 
         // Select object
-        if (selectAction.WasPressedThisFrame())
+        if
+        (
+            input.RoomEditOrtho.Select.WasPressedThisFrame() ||
+            input.RoomEditPerspective.Select.WasPressedThisFrame()
+        )
         {
             Vector2 rayStart =
                 cam.orthographic ?

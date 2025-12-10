@@ -1,41 +1,45 @@
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
 public class FreeCameraController : MonoBehaviour
 {
-    // Input
-    InputActionMap rbmActionMap;
-    InputAction moveAction;
-    InputAction viewAction;
-    InputAction upAction;
-    InputAction downAction;
-    InputAction sprintAction;
-    InputAction switchCameraAction;
-    InputAction zoomInAction;
-    InputAction zoomOutAction;
 
-    // GUI
+    //---CAMERA ELEMENTS---------------
+    Camera cameraComponent;
+    Rigidbody rb;
     [SerializeField] private Texture2D dot;
     [SerializeField] private int dotSize = 4;
     private bool showDot = false;
 
-    // Movement
+    //---PERSPECTIVE MOVEMENT---------
     public float moveSpeed = 5f;
     public float orthoMoveSpeed = 5f;
     public float sprintMultiplier = 2f;
     public float lookSpeed = 0.1f;
-
     float yaw;
     float pitch;
+    Quaternion targetRotation;
 
-    // Ortho
+    //----ORTHO MOVEMENT
     public float zoomSpeed = 2f;
-    readonly float maxSize = 55f;
-    readonly float minSize = 4f;
-    float defaultOrthoSize = 0f;
+    readonly float maxOrthoSize = 55f;
+    readonly float minOrthoSize = 4f;
+    readonly float defaultOrthoSize = 0f;
 
+    //------ROOF--------
+    private GameObject roof;
+    public GameObject Roof { set { roof = value; } }
+
+    //-------INPUT----------
+    AppActions input;
+    AppActions.RoomEditPerspectiveActions pActions;
+    AppActions.RoomEditOrthoActions oActions;
+    
+
+    //----ORTHOGRAPHIC / PERSPECTIVE---------
     bool ortho = true;
     public bool Ortho
     {
@@ -81,57 +85,32 @@ public class FreeCameraController : MonoBehaviour
         }
     }
 
-    Quaternion targetRotation;
-    Camera cameraComponent;
-    Rigidbody rb;
-
-
-    GameObject roof;
-    public GameObject Roof
-    {
-        get => roof;
-        set
-        {
-            if (roof != null)
-            {
-                Debug.LogWarning("Trying to set roof multiple times");
-                return;
-            }
-            roof = value;
-            float meshSize = roof.GetComponent<MeshRenderer>().bounds.size.z;
-            float size = (meshSize / 2f) * 1.2f;
-            size = Mathf.Clamp(size, minSize, maxSize);
-            defaultOrthoSize = size;
-            cameraComponent.orthographicSize = defaultOrthoSize;
-            roof.SetActive(false);
-        }
-    }
-
     void Awake()
     {
-        rbmActionMap = InputSystem.actions.FindActionMap("RoomBuilderControl");
-        moveAction = rbmActionMap.FindAction("Move");
-        viewAction = rbmActionMap.FindAction("View");
-        upAction = rbmActionMap.FindAction("Up");
-        downAction = rbmActionMap.FindAction("Down");
-        sprintAction = rbmActionMap.FindAction("Sprint");
-        switchCameraAction = rbmActionMap.FindAction("SwitchView");
-        zoomInAction = rbmActionMap.FindAction("OrthoZoomIn");
-        zoomOutAction = rbmActionMap.FindAction("OrthoZoomOut");
-
+        //camera elements setup
         rb = GetComponent<Rigidbody>();
         cameraComponent = GetComponent<Camera>();
+        cameraComponent.orthographic = true;
+        cameraComponent.orthographicSize = (maxOrthoSize - minOrthoSize) / 2f;
 
-        // Physics Setup
+        //physics setup
         rb.useGravity = false;
         rb.isKinematic = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+        //input setup
+        input = new AppActions();
+        pActions = input.RoomEditPerspective;
+        oActions = input.RoomEditOrtho;
+        input.RoomEditOrtho.Enable();
+
     }
 
     void OnGUI()
     {
+        //draw dot
         if (!showDot) return;
         int x = (Screen.width - dotSize) / 2;
         int y = (Screen.height - dotSize) / 2;
@@ -140,90 +119,119 @@ public class FreeCameraController : MonoBehaviour
 
     void Update()
     {
-        if (switchCameraAction.WasPressedThisFrame())
-            Ortho = !Ortho;
-
         if (ortho)
         {
-            float zIn = zoomInAction.ReadValue<float>();
-            float zOut = zoomOutAction.ReadValue<float>();
+            //switch to the other camera
+            if(oActions.SwitchView.WasPressedThisFrame()) Ortho = false;
+
+            //read zoom input 
+            float zIn = oActions.ZoomIn.ReadValue<float>();
+            float zOut = oActions.ZoomOut.ReadValue<float>();
             float zoom = zIn - zOut;
 
+            //apply zoom
             cameraComponent.orthographicSize += zoom * zoomSpeed;
-            cameraComponent.orthographicSize = Mathf.Clamp(cameraComponent.orthographicSize, minSize, maxSize);
-            return;
+            cameraComponent.orthographicSize = Mathf.Clamp(cameraComponent.orthographicSize, minOrthoSize, maxOrthoSize);
         }
+        else
+        {
+            //switch to the other camera
+            if (pActions.SwitchView.WasPressedThisFrame()) Ortho = true;
 
-        Vector2 viewValue = viewAction.ReadValue<Vector2>();
-        yaw += viewValue.x * lookSpeed;
-        pitch -= viewValue.y * lookSpeed;
-        pitch = Mathf.Clamp(pitch, -89f, 89f);
+            //read movement input (Shouldn't be read on FixedUpdate)
+            Vector2 viewValue = pActions.View.ReadValue<Vector2>();
+            yaw += viewValue.x * lookSpeed;
+            pitch -= viewValue.y * lookSpeed;
+            pitch = Mathf.Clamp(pitch, -89f, 89f);
 
-        targetRotation = Quaternion.Euler(pitch, yaw, 0);
+            //rotation will later be applyed in fixedUpdate
+            targetRotation = Quaternion.Euler(pitch, yaw, 0);
+        }
+            
     }
 
     void FixedUpdate()
     {
-        float speed;
-        Vector3 moveDir;
-
         if (ortho)
         {
-            Vector2 moveInput = moveAction.ReadValue<Vector2>();
+            Vector3 moveDir;
+
+            //read horizontal input
+            Vector2 moveInput = oActions.Move.ReadValue<Vector2>();
             moveDir = new Vector3(moveInput.x, 0f, moveInput.y);
-            speed = orthoMoveSpeed;
+
+
+            //apply movement
+            rb.MovePosition(rb.position + moveDir * orthoMoveSpeed);
         }
         else
         {
-            Vector2 mv = moveAction.ReadValue<Vector2>();
+            float speed;
+            Vector3 moveDir;
+
+            //read horizontal movement
+            Vector2 moveInput = pActions.Move.ReadValue<Vector2>();
+
+            //read vertical movement
             float y = 0f;
+            if (pActions.Up.IsPressed()) y += 1f;
+            if (pActions.Down.IsPressed()) y -= 1f;
 
-            if (upAction.IsPressed()) y += 1f;
-            if (downAction.IsPressed()) y -= 1f;
-
-            moveDir = transform.right * mv.x + transform.forward * mv.y + transform.up * y;
+            //get direction
+            moveDir = transform.right * moveInput.x + transform.forward * moveInput.y + transform.up * y;
             if (moveDir.sqrMagnitude > 1f) moveDir.Normalize();
 
+            //read sprint action
             speed = moveSpeed;
+            if (pActions.Sprint.IsPressed())
+                speed *= sprintMultiplier;
+
+            //sweep test 
+            float distance = speed * Time.fixedDeltaTime;
+            //treshold to avoid useless co,mputation
+            if (distance > 0.001f && moveDir.sqrMagnitude > 0.001f)
+            {
+                //predict collision before moving. 
+                if (rb.SweepTest(moveDir, out RaycastHit hitInfo, distance + 0.01f, QueryTriggerInteraction.Ignore))
+                {
+                    //set position just before the collision point
+                    distance = Mathf.Max(0f, hitInfo.distance - 0.01f);
+                }
+            }
+
+            //translate
+            rb.MovePosition(rb.position + moveDir * distance);
+
+            //rotate 
             rb.MoveRotation(targetRotation);
         }
-
-        if (sprintAction.IsPressed())
-            speed *= sprintMultiplier;
-
-        //SweepTest for Anti-Tunneling
-        float distance = speed * Time.fixedDeltaTime;
-
-        // Only sweep if we are actually moving
-        if (distance > 0.001f && moveDir.sqrMagnitude > 0.001f)
-        {
-            // Predict collision before moving. 
-            if (rb.SweepTest(moveDir, out RaycastHit hitInfo, distance + 0.01f, QueryTriggerInteraction.Ignore))
-            {
-                //set position just before the collision point
-                distance = Mathf.Max(0f, hitInfo.distance - 0.01f);
-            }
-        }
-
-        rb.MovePosition(rb.position + moveDir * distance);
     }
 
     private void OnEnable()
     {
-        if (!cameraComponent.orthographic)
+        //enable current used inut
+        if (ortho)
         {
+            oActions.Enable();
+        }
+        else
+        {
+            pActions.Enable();
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             showDot = true;
         }
-        rbmActionMap.Enable();
     }
 
     private void OnDisable()
     {
+        //enable mouse
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         showDot = false;
-        rbmActionMap.Disable();
+
+        //disable input
+        oActions.Disable();
+        pActions.Disable();
     }
 }

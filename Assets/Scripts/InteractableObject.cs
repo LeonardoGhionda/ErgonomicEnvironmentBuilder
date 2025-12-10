@@ -5,7 +5,7 @@ public class InteractableObject : Interactable
 {
     private Material selectedMaterial;
     private Material baseMaterial;
-    private BuildingUi bui;
+    private RoomEditHUD bui;
 
     void Awake()
     {
@@ -18,7 +18,7 @@ public class InteractableObject : Interactable
         gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
         var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
         if (bui == null)
-            bui = FindAnyObjectByType<BuildingUi>();
+            bui = FindAnyObjectByType<RoomEditHUD>();
         bui.OpenSelectionPanel(rgt);
     }
 
