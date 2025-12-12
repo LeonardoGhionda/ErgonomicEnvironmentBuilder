@@ -4,8 +4,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class TransformTypeButton : MonoBehaviour
 {
-    [SerializeField] private GizmoType _gizmoMode;
-    public GizmoType Mode => _gizmoMode;
+    [SerializeField] private TransformMode _gizmoMode;
+    public TransformMode Mode => _gizmoMode;
 
     private GizmoManager target;
     public GizmoManager Target

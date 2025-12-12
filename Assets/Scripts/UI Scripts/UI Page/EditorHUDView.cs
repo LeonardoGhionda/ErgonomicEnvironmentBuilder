@@ -29,7 +29,7 @@ public class EditorHUDView : MonoBehaviour
     public event Action OnQuitClicked;
     public event Action OnSaveClicked;
     public event Action<string> OnModelButtonClicked;
-    public event Action<GizmoType> OnTranformButtonClicked;
+    public event Action<TransformMode> OnTranformButtonClicked;
 
     private void Start()
     {
@@ -40,6 +40,10 @@ public class EditorHUDView : MonoBehaviour
         translateButton.GetComponent<Button>().onClick.AddListener(() => OnTranformButtonClicked?.Invoke(translateButton.Mode));
         rotateButton.GetComponent<Button>().onClick.AddListener(() => OnTranformButtonClicked?.Invoke(rotateButton.Mode));
         scaleButton.GetComponent<Button>().onClick.AddListener(() => OnTranformButtonClicked?.Invoke(scaleButton.Mode));
+
+        //generate model buttons
+        var modelButtons = ModelButtonGenerator.Init(modelButtonContainer);
+        modelButtonPopulate(modelButtons);
 
         // Default state
         HideAllMenus();

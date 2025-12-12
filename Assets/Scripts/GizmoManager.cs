@@ -1,100 +1,96 @@
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum GizmoType
+public enum TransformMode
 {
     Translate = 0,
     Rotate,
     Scale
 }
 
+enum HandleType
+{
+    X,
+    Y,
+    Z,
+    S
+}
+
+
 public class GizmoManager : MonoBehaviour
 {
-    #region Variables
+    #region Inspector Variable
+    [Header("Translate")]
+    [SerializeField] Gizmo Translate;
+
+    [Header("Rotate")]
+    [SerializeField] Gizmo Rotate;
+
+    [Header("Scale")]
+    [SerializeField] Gizmo Scale;
+    #endregion
+
+    #region Getter
+    public Gizmo[] All => new Gizmo[] { Translate, Rotate, Scale };
+    public TransformMode TransformMode => tMode;
+    public bool LocalTransform => _localTransform;
+    #endregion
+
+    #region Static Variables
+    public static readonly string ColliderVisualName = "Collider Visual";
+    public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settingsù
+    #endregion
+
+    #region Private Variables
 
     // State of gizmo
-    public GizmoType TransformType => _transformType;
-    private GizmoType _transformType;
+    private TransformMode tMode;
     private bool _localTransform;
-    public bool LocalTransform => _localTransform;
 
     // Mouse wrapping variables
     private int _mouseWrapMarginX;
     private int _mouseWrapMarginY;
     private Vector2 _lastMousePos;
 
-    [SerializeField] private Transform objectContainer;
-
-    // Switchable handlers resources 
-    private Dictionary<GizmoType, Mesh> _meshes;
-    private Dictionary<Vector3, Material> _materials;
-
-    // Handles
-    private Transform _xHandle, _yHandle, _zHandle, _sHandle;
-    // sHandle is the one that in SCALE mode make user perform uniform scaling
-
-    // currently dragged handle
-    private Transform _currentHandle;
+    // Currently dragged handle
+    private Handle _currentAxes;
+    private GameObject _currentGizmo;
 
     // Visual constants
-    public static string ColliderVisualName { get { return "Collider Visual"; } }
-    public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settings!
-
-    private bool _handlesEnabled;
 
     // Cache to avoid GC allocations
     private RaycastHit[] _raycastHitsCache = new RaycastHit[16];
+    #endregion
 
+    #region Injected variables
+    Camera _cam;
     #endregion
 
     #region Lifecycle
 
+
     /// <summary>
     /// To be called when manager start
     /// </summary>
-    public void Init()
+    public void Init(Camera cam)
     {
         enabled = true;
 
-        _transformType = GizmoType.Translate;
+        _cam = cam; 
+
+        tMode = TransformMode.Translate;
         _localTransform = false; // Default Global
 
         // setup
         _mouseWrapMarginX = Screen.width / 200;
         _mouseWrapMarginY = Screen.height / 200;
 
-        // load resources
-        _meshes = new Dictionary<GizmoType, Mesh>
+        //dafault no gizmo -> deactivate all
+        foreach (var item in All)
         {
-            { GizmoType.Translate, Resources.Load<Mesh>("Handles/Translate") },
-            { GizmoType.Rotate, Resources.Load<Mesh>("Handles/Rotation") },
-            { GizmoType.Scale, Resources.Load<Mesh>("Handles/Scale") }
-        };
-
-        _materials = new Dictionary<Vector3, Material>
-        {
-            {Vector3.right, Resources.Load<Material>("Materials/Red_AlwaysOnTop")},    // x, red
-            {Vector3.up, Resources.Load<Material>("Materials/Green_AlwaysOnTop")},     // y, green
-            {Vector3.forward, Resources.Load<Material>("Materials/Blue_AlwaysOnTop")}, // z, blue
-        };
-
-        RebuildHandles();
-        ShowHandles(false);
-    }
-
-    /// <summary>
-    /// Update call every frame
-    /// </summary>
-    public void GizmoUpdate(Camera cam, Vector2 mousePos)
-    {
-        if (Dragging())
-        {
-            HandleDragging(cam, mousePos);
+            item.SetActive(false);
         }
-
-        ScaleHandlesByCameraDistance(cam);
     }
 
     /// <summary>
@@ -102,72 +98,18 @@ public class GizmoManager : MonoBehaviour
     /// </summary>
     public void Stop()
     {
-        _currentHandle = null;
-        _meshes.Clear();
-        _materials.Clear();
-        DestroyAllHandles();
-        enabled = false;
+        foreach (var item in All)
+        {
+            item.SetActive(false);
+        }
     }
 
-    public void onRemovedSelection()
-    {
-        ShowHandles(false);
-    }
-
-    public void onNewSelection(Transform selection)
-    {
-        SetHandlesInPosition(selection);
-        ShowHandles(true);
-    }
-
-    /// <summary>
-    /// Check if the user is trying to start an handle drag
-    /// </summary>
-    /// <returns>true if handle has begin</returns>
-    public bool onStartDrag(Camera cam, Vector2 mousePos)
-    {
-        if (!TrySelectHandle(cam, mousePos)) return false;
-        HideNonDraggedHandle();
-
-        return true;
-    }
-
-    public void onEndDragging(Transform selection)
-    {
-        if (!Dragging()) return;
-
-        SetHandlesInPosition(selection);
-        ShowHandles(true);
-        _currentHandle = null; // end dragging
-    }
-
-    public void onSelectionExternallyMoved(Transform selection)
-    {
-        SetHandlesInPosition(selection);
-    }
 
     #endregion
 
     #region Handles Management 
 
-    private void ShowHandles(bool value)
-    {
-        _handlesEnabled = value;
 
-        if (_xHandle) _xHandle.gameObject.SetActive(value);
-        if (_yHandle) _yHandle.gameObject.SetActive(value);
-        if (_zHandle) _zHandle.gameObject.SetActive(value);
-        if (_sHandle) _sHandle.gameObject.SetActive(_transformType == GizmoType.Scale ? value : false);
-    }
-
-    private void HideNonDraggedHandle()
-    {
-        if (!Dragging()) return;
-        if (_xHandle && _xHandle != _currentHandle) _xHandle.gameObject.SetActive(false);
-        if (_yHandle && _yHandle != _currentHandle) _yHandle.gameObject.SetActive(false);
-        if (_zHandle && _zHandle != _currentHandle) _zHandle.gameObject.SetActive(false);
-        if (_sHandle && _sHandle != _currentHandle) _sHandle.gameObject.SetActive(false);
-    }
 
     private void SetHandlesInPosition(Transform selected)
     {
@@ -211,7 +153,7 @@ public class GizmoManager : MonoBehaviour
     /// if handles are present they should be selected even if hitted behind an occlusion, 
     /// because they always appear in front of everything
     /// </summary>
-    private bool TrySelectHandle(Camera cam, Vector2 mousePos)
+    private bool TrySelectHandle()
     {
         Ray ray = cam.ScreenPointToRay(mousePos);
 
@@ -234,7 +176,7 @@ public class GizmoManager : MonoBehaviour
             }
         }
 
-        _currentHandle = bestHit;
+        _currentAxes = bestHit;
         return true;
     }
 
@@ -252,7 +194,7 @@ public class GizmoManager : MonoBehaviour
 
         // Projection calculations
         Vector3 screenP0 = cam.WorldToScreenPoint(transform.position);
-        Vector3 screenP1 = cam.WorldToScreenPoint(transform.position + _currentHandle.up);
+        Vector3 screenP1 = cam.WorldToScreenPoint(transform.position + _currentAxes.up);
         Vector2 axisScreen = (screenP1 - screenP0).normalized;
 
         // Scalar amount of movement along the axis
@@ -267,20 +209,20 @@ public class GizmoManager : MonoBehaviour
         {
             worldScale = cam.orthographicSize * 0.002f;
             // Fix direction inversion if handle is "behind" pivot in ortho
-            if (Vector3.Dot(cam.transform.forward, _currentHandle.up) > 0)
+            if (Vector3.Dot(cam.transform.forward, _currentAxes.up) > 0)
                 projected *= 1; // Logic placeholder if needed
         }
 
         // Apply transform
-        switch (_transformType)
+        switch (tMode)
         {
-            case GizmoType.Translate:
+            case TransformMode.Translate:
                 ApplyTranslation(projected, worldScale);
                 break;
-            case GizmoType.Rotate:
+            case TransformMode.Rotate:
                 ApplyRotation(projected, worldScale);
                 break;
-            case GizmoType.Scale:
+            case TransformMode.Scale:
                 ApplyScale(projected, worldScale);
                 break;
         }
@@ -294,7 +236,7 @@ public class GizmoManager : MonoBehaviour
 
     private void ApplyTranslation(float projected, float worldScale)
     {
-        Vector3 moveDir = _currentHandle.up;
+        Vector3 moveDir = _currentAxes.up;
         Vector3 translation = moveDir * (projected * worldScale);
         transform.Translate(translation, Space.World);
     }
@@ -303,14 +245,14 @@ public class GizmoManager : MonoBehaviour
     {
         float angle = projected * worldScale * 20f; // Sensitivity multiplier
         // Rotate around handle axis
-        transform.Rotate(_currentHandle.up, -angle, Space.World);
+        transform.Rotate(_currentAxes.up, -angle, Space.World);
     }
 
     private void ApplyScale(float projected, float worldScale)
     {
         float scaleAmount = projected * worldScale * 0.5f;
 
-        if (_currentHandle == _sHandle)
+        if (_currentAxes == _sHandle)
         {
             // Uniform Scale
             float factor = 1 + scaleAmount;
@@ -322,9 +264,9 @@ public class GizmoManager : MonoBehaviour
             Vector3 scaleAxis = Vector3.zero;
 
             // Check identity based on reference or logic
-            if (_currentHandle == _xHandle) scaleAxis = Vector3.right;
-            else if (_currentHandle == _yHandle) scaleAxis = Vector3.up;
-            else if (_currentHandle == _zHandle) scaleAxis = Vector3.forward;
+            if (_currentAxes == _xHandle) scaleAxis = Vector3.right;
+            else if (_currentAxes == _yHandle) scaleAxis = Vector3.up;
+            else if (_currentAxes == _zHandle) scaleAxis = Vector3.forward;
 
             Vector3 newScale = transform.localScale + (scaleAxis * scaleAmount);
 
@@ -349,7 +291,7 @@ public class GizmoManager : MonoBehaviour
 
     private void CreateHandles()
     {
-        Mesh mesh = _meshes[_transformType];
+        Mesh mesh = _meshes[tMode];
 
         // Create handles for X, Y, Z
         _xHandle = CreateSingleHandle(mesh, Vector3.right);
@@ -358,7 +300,7 @@ public class GizmoManager : MonoBehaviour
         _sHandle = CreateUniformScaleHandle();
 
         // If not in Scale mode, hide the center cube
-        if (_sHandle) _sHandle.gameObject.SetActive(_transformType == GizmoType.Scale);
+        if (_sHandle) _sHandle.gameObject.SetActive(tMode == TransformMode.Scale);
 
         // Position them correctly immediately if we have a parent/target
         if (transform.parent != null)
@@ -390,7 +332,7 @@ public class GizmoManager : MonoBehaviour
         renderer.material = _materials[direction];
 
         // Collider: Use MeshCollider for Rotate (Rings), Capsule for Translate/Scale
-        if (_transformType == GizmoType.Rotate)
+        if (tMode == TransformMode.Rotate)
         {
             var mc = go.AddComponent<MeshCollider>();
             mc.sharedMesh = mesh; // Precise raycast on the ring
@@ -446,11 +388,11 @@ public class GizmoManager : MonoBehaviour
 
     #region Exposed Functions
 
-    public void SetMode(GizmoType newMode, Transform selected)
+    public void SetMode(TransformMode newMode, Transform selected)
     {
-        if (newMode == _transformType) return;
+        if (newMode == tMode) return;
 
-        _transformType = newMode;
+        tMode = newMode;
 
         // Rebuild to match correct colliders and meshes
         if (enabled) RebuildHandles();
@@ -462,13 +404,13 @@ public class GizmoManager : MonoBehaviour
         _localTransform = value;
 
         // Scale is always local
-        if (_transformType == GizmoType.Scale) _localTransform = true;
+        if (tMode == TransformMode.Scale) _localTransform = true;
 
         // Just reposition, no need to rebuild
         if (enabled) SetHandlesInPosition(selected);
     }
 
-    public bool Dragging() => _currentHandle != null;
+    public bool Dragging() => _currentAxes != null;
 
     public void ScaleHandlesByCameraDistance(Camera cam)
     {
@@ -509,6 +451,8 @@ public class GizmoManager : MonoBehaviour
         if (warped) Mouse.current.WarpCursorPosition(pos);
         return (warped, pos);
     }
+
+    
 
     #endregion
 }

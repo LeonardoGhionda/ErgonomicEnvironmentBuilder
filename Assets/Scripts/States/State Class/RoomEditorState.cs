@@ -11,9 +11,7 @@ public class RoomEditorState : AbsAppState
     private FreeCameraController _camController;
     private RoomBuilderManager _rbm;
     private GizmoManager _gizmoManager;
-
-    //currently selected object
-    private Interactable _selected;
+    private SelectionManager _selectionManager;
 
     private bool _uiMode = false;
 
@@ -24,13 +22,14 @@ public class RoomEditorState : AbsAppState
         AppActions input,
         EditorHUDView editorHUD,
         RoomBuilderManager roomBuilderManager,
-        GizmoManager gizmoManager) : base(manager, input)
+        GizmoManager gizmoManager,
+        SelectionManager selectionManager) : base(manager, input)
     {
         _hud = editorHUD;
         _camController = manager.cameraController;
         _rbm = roomBuilderManager;
         _gizmoManager = gizmoManager;
-        _selected = null;
+        _selectionManager = selectionManager;
     }
 
     public override void Enter()
@@ -41,15 +40,11 @@ public class RoomEditorState : AbsAppState
         _hud.ToggleModelsMenu(false);
         _hud.gameObject.SetActive(true);
 
-        // Generate, add to ui and set Events for modelButtons
-        var modelButtons = ModelButtonGenerator.Init(_hud.modelButtonContainer);
-        _hud.modelButtonPopulate(modelButtons);
-
         // UI events
         _hud.OnSaveClicked += SaveRoom;
         _hud.OnQuitClicked += QuitRoom;
         _hud.OnModelButtonClicked += PlaceModel;
-        _hud.OnTranformButtonClicked += (GizmoType mode) => ChangeTransformType(mode, _selected.transform);
+        _hud.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode, _selected.transform);
 
         // Input events
         _input.RoomEditCommon.Enable();
@@ -60,9 +55,7 @@ public class RoomEditorState : AbsAppState
         _input.RoomEditCommon.Select.performed += OnSelectActionPerformed;
         _input.RoomEditCommon.Select.canceled += OnSelectActionCanceled;
         _input.RoomEditCommon.SwitchView.performed += OnSwitchView;
-        _input.RoomEditCommon.Delete.performed += (ctx) => {
-            _selected = SelectionUtil.DeleteSelected(_selected, _gizmoManager);
-        };
+        _input.RoomEditCommon.Delete.performed += (ctx) => _selectionManager.DeleteSelected();
 
 
         _input.Ui.EnableCamera.performed += (ctx) => SetUIMode(false);
@@ -90,16 +83,14 @@ public class RoomEditorState : AbsAppState
         _hud.OnSaveClicked -= SaveRoom;
         _hud.OnQuitClicked -= QuitRoom;
         _hud.OnModelButtonClicked -= PlaceModel;
-        _hud.OnTranformButtonClicked += (GizmoType mode) => ChangeTransformType(mode, _selected.transform);
+        _hud.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode, _selected.transform);
 
         _input.RoomEditCommon.PauseMenu.performed -= OnTogglePauseMenu;
         _input.RoomEditCommon.ModelsMenu.performed -= OnToggleModels;
         _input.RoomEditCommon.Select.performed -= OnSelectActionPerformed;
         _input.RoomEditCommon.Select.canceled -= OnSelectActionCanceled;
         _input.RoomEditCommon.SwitchView.performed -= OnSwitchView;
-        _input.RoomEditCommon.Delete.performed -= (ctx) => {
-            _selected = SelectionUtil.DeleteSelected(_selected, _gizmoManager);
-        };
+        _input.RoomEditCommon.Delete.performed -= (ctx) => _selectionManager.DeleteSelected();
 
         _input.Ui.EnableCamera.performed -= (ctx) => SetUIMode(false);
         _input.Ui.EnableCamera.canceled -= (ctx) => SetUIMode(true);
@@ -140,11 +131,11 @@ public class RoomEditorState : AbsAppState
         }
 
         // get selection
-        var newSelected = SelectionUtil.GetSelection(_camController.Camera);
+        var newSelected = SelectionManager.GetSelection(_camController.Camera);
         
         // swap selected
         _selected = 
-            SelectionUtil.ChangeSelectedObject(_selected, newSelected, _gizmoManager);
+            SelectionManager.ChangeSelectedObject(_selected, newSelected, _gizmoManager);
 
         // Open/close panel
         if (_selected != null) _hud.ShowSelectionMenu(_selected.gameObject, _gizmoManager);
@@ -227,7 +218,7 @@ public class RoomEditorState : AbsAppState
         _manager.ChangeState(_manager.MainMenu);
     }
 
-    private void ChangeTransformType(GizmoType mode, Transform selected)
+    private void ChangeTransformType(TransformMode mode, Transform selected)
     {
         _gizmoManager.SetMode(mode, selected);
     }
@@ -246,7 +237,7 @@ public class RoomEditorState : AbsAppState
         _hud.HideAllMenus();
 
         _selected = 
-            SelectionUtil.ChangeSelectedObject(_selected, obj.GetComponentInChildren<InteractableObject>(), _gizmoManager);
+            SelectionManager.ChangeSelectedObject(_selected, obj.GetComponentInChildren<InteractableObject>(), _gizmoManager);
 
         _hud.ShowSelectionMenu(_selected.gameObject, _gizmoManager);
     }
