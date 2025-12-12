@@ -87,12 +87,9 @@ public class NewRoomState : AbsAppState
         {
             bool overwrite = _lastTriedRoomName == _rbm.RoomName;
 
-            // Logic moved from old script
             RoomDataExporter.SaveRoom(_rbm.RoomName, _rbm, overwrite);
             RoomDataExporter.CreateRoom(_rbm.RoomName);
 
-            // Update external managers if needed (legacy support)
-            UiManager.Instance.RoomName = _rbm.RoomName;
 
             // SUCCESS: Change State to the next step
             // Assuming you have a RoomEditor state

@@ -2,13 +2,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public class ChangeGizmoModeButton : MonoBehaviour
+public class TransformTypeButton : MonoBehaviour
 {
-    private RuntimeGizmoTransform target;
-    public RuntimeGizmoTransform Target
+    [SerializeField] private GizmoType _gizmoMode;
+    public GizmoType Mode => _gizmoMode;
+
+    private GizmoManager target;
+    public GizmoManager Target
     {
-        set 
-        { 
+        set
+        {
             target = value;
 
             GetComponent<Button>().onClick.RemoveAllListeners();
@@ -20,11 +23,8 @@ public class ChangeGizmoModeButton : MonoBehaviour
             }
 
             gameObject.SetActive(true);
-            GetComponent<Button>().onClick.AddListener(() => { target.SetMode(gizmoMode); });
+            GetComponent<Button>().onClick.AddListener(() => { target.SetMode(_gizmoMode, target.transform); });
         }
         get { return target; }
     }
-
-    [SerializeField] private GizmoMode gizmoMode;
-
 }

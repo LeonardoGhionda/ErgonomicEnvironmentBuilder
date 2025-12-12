@@ -1,4 +1,5 @@
 using Dummiesman;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
@@ -6,8 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GridLayoutGroup))]
-public class GetModelUi : MonoBehaviour
+public static class ModelButtonGenerator
 {
     private static readonly string modelsFolder = "Ready Models";
     public static string ModelsFolder => Path.Combine(Application.persistentDataPath, modelsFolder);
@@ -16,12 +16,10 @@ public class GetModelUi : MonoBehaviour
         texturePlaceholder = "Textures/Placeholder",
         previewImageName = "Preview.png";
 
-    GridLayoutGroup contentMenu;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static List<ModelButton> Init(GridLayoutGroup gridLayoutGroup)
     {
-        contentMenu = gameObject.GetComponent<GridLayoutGroup>();
+        List<ModelButton> list = new();
 
         //find or create the folder containing the models 
         string modelsPath = Path.Combine(Application.persistentDataPath, modelsFolder);
@@ -40,17 +38,12 @@ public class GetModelUi : MonoBehaviour
             {
                 Debug.Log("preview sprite null");
             }
-            CreateModelUiElement(Path.GetFileName(folderPath), previewImage);
+            ModelButton button = CreateModelUiElement(Path.GetFileName(folderPath), previewImage, gridLayoutGroup);
+            list.Add(button);
         }
+
+        return list;
     }
-
-    public void AddUiElement(string folderPath)
-    {
-        Sprite previewImage = GetSprite(folderPath);
-        CreateModelUiElement(Path.GetFileName(folderPath), previewImage);
-    }
-
-
 
     /// <summary>
     /// Find and return the image preview in the folder of the model,
@@ -59,7 +52,7 @@ public class GetModelUi : MonoBehaviour
     /// <param name="folderPath">path to the model folder (contains model + preview image)</param>
     /// <returns>Sprite of the preview</returns>
     /// <exception cref="System.Exception"></exception>
-    private Sprite GetSprite(string folderPath)
+    static private Sprite GetSprite(string folderPath)
     {
         Texture2D tex = null;
 
@@ -110,27 +103,19 @@ public class GetModelUi : MonoBehaviour
                 tex,
                 new Rect(0, 0, tex.width, tex.height),
                 new Vector2(0.5f, 0.5f));
-
     }
 
-    private Image CreateModelUiElement(string name, Sprite previewImg)
+    static private ModelButton CreateModelUiElement(string name, Sprite previewImg, GridLayoutGroup contentMenu)
     {
-        SelectionManager sm = FindFirstObjectByType<SelectionManager>();
-        Assert.IsNotNull(sm, "SelectionManager not found in scene");
-
         // Create GameObject
         GameObject go = new(
             name,
             typeof(RectTransform),
             typeof(CanvasRenderer),
             typeof(Image),
-            typeof(PlaceModelUiButton)
+            typeof(ModelButton),
+            typeof(Button)
             );
-
-        go.GetComponent<PlaceModelUiButton>().SetSelectionManager(sm);
-
-        // Set parent
-        go.transform.SetParent(contentMenu.transform, false);
 
         // Set sprite
         Image img = go.GetComponent<Image>();
@@ -160,6 +145,6 @@ public class GetModelUi : MonoBehaviour
         t.horizontalAlignment = HorizontalAlignmentOptions.Center;
         t.verticalAlignment = VerticalAlignmentOptions.Middle;
 
-        return img;
+        return go.GetComponent<ModelButton>();
     }
 }

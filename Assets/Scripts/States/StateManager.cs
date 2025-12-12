@@ -15,10 +15,16 @@ public class StateManager : MonoBehaviour
 
     [Header("UI Pages")]
     [SerializeField] private MainMenuUI mainMenuUI;
-    [SerializeField] private NewRoomUI NewRoomUI;
+    [SerializeField] private NewRoomUI newRoomUI;
+    [SerializeField] private EditorHUDView editorHUD;
 
     [Header("Managers")]
     [SerializeField] private RoomBuilderManager roomBuilderManager;
+    [SerializeField] private GizmoManager gizmoManager;
+    
+    [Header("Components")]
+    [SerializeField] public FreeCameraController cameraController;
+
 
     //---STATES---
     public MainMenuState MainMenu { get; private set; }
@@ -45,15 +51,21 @@ public class StateManager : MonoBehaviour
     private void Start()
     {
         //---STATES SETUP---
-        MainMenu = new(this, AppInput, mainMenuUI);
-        NewRoom =  new(this, AppInput, NewRoomUI, roomBuilderManager);
-        LoadRoom = new(this, AppInput);
-        Option =   new(this, AppInput);
-        Pause =    new(this, AppInput);
+        MainMenu =   new(this, AppInput, mainMenuUI);
+        NewRoom =    new(this, AppInput, newRoomUI, roomBuilderManager);
+        LoadRoom =   new(this, AppInput);
+        Option =     new(this, AppInput);
+        Pause =      new(this, AppInput);
+        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager);
 
         //first state iniziaization
         currentState = MainMenu;
         currentState.Enter();
+    }
+
+    private void Update()
+    {
+        currentState.UpdateState();
     }
 
     internal void ChangeState(IAppState newState)

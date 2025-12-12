@@ -14,7 +14,7 @@ public class InteractableParent : Interactable
 
     private Material selectedMaterial;
     private Dictionary<int, Material> materialsMap;
-    private RoomEditHUD bui;
+    private EditorHUDView bui;
 
     void Awake()
     {
@@ -61,10 +61,7 @@ public class InteractableParent : Interactable
 
         parentCollider.enabled = false;
 
-        var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
-
-        if (bui == null) bui = FindAnyObjectByType<RoomEditHUD>();
-        bui.OpenSelectionPanel(rgt);
+        if (bui == null) bui = FindAnyObjectByType<EditorHUDView>();
     }
 
     static Bounds TransformBounds(Matrix4x4 m, Bounds b)
@@ -99,10 +96,9 @@ public class InteractableParent : Interactable
 
         materialsMap.Clear();
 
-        var collVisual = gameObject.GetNamedChild(RuntimeGizmoTransform.colliderVisualName);
+        var collVisual = gameObject.GetNamedChild(GizmoManager.ColliderVisualName);
         Destroy(collVisual);
-        Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
         Destroy(gameObject.GetComponent<BoxCollider>());
-        bui.CloseMenu();
+        //bui.Hid();
     }
 }

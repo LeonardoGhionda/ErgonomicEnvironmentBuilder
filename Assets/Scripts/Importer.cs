@@ -1,22 +1,55 @@
-using Dummiesman;
+/*
 using SimpleFileBrowser;
 using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public class ImportModel : MonoBehaviour
+
+public enum ImporterOf
 {
+    Rooms,
+    Objects,
+}
 
-    [SerializeField] private GetModelUi getModelUi;
+public class Importer : MonoBehaviour
+{
+    public Importer Init(ImporterOf type)
+    {
+        switch (type)
+        {
+            case ImporterOf.Objects:
+                SetUpRoomImporter(type);
+                break;
+            case ImporterOf.Rooms:
+                SetUpRoomImporter(type);
+                break;
+        }
+        return this;
+    }
 
-    // Warning: paths returned by FileBrowser dialogs do not contain a trailing '\' character
-    // Warning: FileBrowser can only show 1 dialog at a time
+    // --- IMPORTER SETUP ---
+    private void SetUpRoomImporter(ImporterOf type)
+    {
+        //due to a bug .meta files are also shown in the browser, so we delete them here
+        CleanMetaFiles();
+        //Show a select file dialog using coroutine approach
+        StartCoroutine(RoomImporterCoroutine());
 
-    private void OnEnable()
+        //Shows only .room files 
+        FileBrowser.SetFilters(false,
+            new FileBrowser.Filter("Room", ".room"));
+        FileBrowser.SetDefaultFilter(".room");
+
+        FileBrowser.ClearQuickLinks();
+        FileBrowser.AddQuickLink("Rooms", RoomDataExporter.roomsFolderPath, null);
+        FileBrowser.SetDefaultFilter("Room");
+    }
+
+    private void SetUpObjectImporter(ImporterOf type)
     {
         //Show a select file dialog using coroutine approach
-        StartCoroutine(ShowLoadDialogCoroutine());
+        StartCoroutine(ObjectImporterCoroutine());
 
         //Shows only files 
         FileBrowser.SetFilters(false,
@@ -33,8 +66,40 @@ public class ImportModel : MonoBehaviour
 
         FileBrowser.SetDefaultFilter("All");
     }
+    // ------
+    // ------
 
-    IEnumerator ShowLoadDialogCoroutine()
+    private void CleanMetaFiles()
+    {
+        Directory.EnumerateFiles(RoomDataExporter.roomsFolderPath, "*.meta", SearchOption.AllDirectories)
+            .ToList()
+            .ForEach(File.Delete);
+    }
+
+    // --- COROUTINES ---
+    IEnumerator RoomImporterCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(
+            FileBrowser.PickMode.Files, 
+            false, 
+            RoomDataExporter.roomsFolderPath,
+            null, 
+            "Select the room you want to edit", 
+            "Load"
+            );
+
+
+        if (FileBrowser.Success)
+        {
+            OnRoomSelected(FileBrowser.Result); // FileBrowser.Result is null, if FileBrowser.Success is false
+        }
+        else
+        {
+            UiManager.Instance.GoToPreviousScreen();
+        }
+    }
+
+    IEnumerator ObjectImporterCoroutine()
     {
         // Show a load file dialog and wait for a response from user
         // Load file/folder: file, Allow multiple selection: true
@@ -44,18 +109,42 @@ public class ImportModel : MonoBehaviour
 
         if (FileBrowser.Success)
         {
-            OnFilesSelected(FileBrowser.Result); // FileBrowser.Result is null, if FileBrowser.Success is false
+            OnObjectSelected(FileBrowser.Result); // FileBrowser.Result is null, if FileBrowser.Success is false
         }
         else
         {
             enabled = false;
         }
     }
+    //--------
+    //--------
 
-    void OnFilesSelected(string[] filePaths)
+    // --- On File Selected ---
+    void OnRoomSelected(string[] filePaths)
     {
 
         if(filePaths.Count() == 0)
+        {
+            UiManager.Instance.ChangeScreen(GameObject.Find("Main Menu").GetComponent<Canvas>());
+        }
+
+        // Get the file path of the first selected file
+        string filePath = filePaths[0];
+
+        //extract name 
+        string name = Path.GetFileNameWithoutExtension(filePath);
+
+        RoomDataExporter.CreateRoom(name);
+
+        var um = UiManager.Instance;
+        um.RoomName = name;
+        um.ChangeScreen(builder_Ui);
+    }
+
+    void OnObjectSelected(string[] filePaths)
+    {
+
+        if (filePaths.Count() == 0)
         {
             enabled = false;
             return;
@@ -84,7 +173,7 @@ public class ImportModel : MonoBehaviour
 
         //move file into the models folder
         File.Copy(
-            filePath, 
+            filePath,
             Path.Combine(
                 destDir,
                 Path.GetFileName(filePath)),
@@ -106,11 +195,16 @@ public class ImportModel : MonoBehaviour
 
         getModelUi.AddUiElement(destDir);
         enabled = false;
+
+        CloseImporter(OnRoomSelected())
     }
 
-    private void OnDisable()
+    // -------
+    // -------
+
+    private void CloseImporter(Coroutine c)
     {
-        //Show a select file dialog using coroutine approach
-        StopCoroutine(ShowLoadDialogCoroutine());
+        StopCoroutine(c);
     }
 }
+*/

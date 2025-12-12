@@ -5,7 +5,7 @@ public class InteractableObject : Interactable
 {
     private Material selectedMaterial;
     private Material baseMaterial;
-    private RoomEditHUD bui;
+    private EditorHUDView hud;
 
     void Awake()
     {
@@ -16,10 +16,8 @@ public class InteractableObject : Interactable
     public override void OnSelect()
     {
         gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
-        var rgt = gameObject.AddComponent<RuntimeGizmoTransform>();
-        if (bui == null)
-            bui = FindAnyObjectByType<RoomEditHUD>();
-        bui.OpenSelectionPanel(rgt);
+        if (hud == null)
+            hud = FindAnyObjectByType<EditorHUDView>();
     }
 
     public override void OnDeselect()
@@ -29,10 +27,8 @@ public class InteractableObject : Interactable
             mesh.material = baseMaterial;
         }
 
-        var collVisual = gameObject.GetNamedChild(RuntimeGizmoTransform.colliderVisualName);
+        var collVisual = gameObject.GetNamedChild(GizmoManager.ColliderVisualName);
         Destroy(collVisual);
-        Destroy(gameObject.GetComponent<RuntimeGizmoTransform>());
-        bui.CloseMenu();
     }
 }
 

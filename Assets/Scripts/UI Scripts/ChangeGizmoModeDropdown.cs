@@ -1,3 +1,4 @@
+/*
 using TMPro;
 using UnityEngine;
 
@@ -65,3 +66,4 @@ public class ChangeGizmoModeDropdown : MonoBehaviour
             transform.localScale = lScale;
     }
 }
+*/

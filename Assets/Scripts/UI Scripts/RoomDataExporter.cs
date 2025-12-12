@@ -357,11 +357,6 @@ static public class RoomDataExporter
         //saved wall height
         roofInstance.transform.position = new Vector3(0f, data.wallHeigth, 0f);
 
-
-        //it need the roof to hide it in orthografic view
-        FreeCameraController fcam = GameObject.FindAnyObjectByType<FreeCameraController>();
-        fcam.Roof = roofInstance;
-
         //all object added at runtime are stored here
         GameObject objectsContainer = GameObject.Find("Objects Container");
 
@@ -372,7 +367,7 @@ static public class RoomDataExporter
             //load obj file
             OBJLoader loader = new();
             GameObject parent = loader.Load(parentData.objFilePath);
-            PlaceModelUiButton.SetUpModel(parent, parentData.objFilePath, objectsContainer);
+            RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer);
 
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);

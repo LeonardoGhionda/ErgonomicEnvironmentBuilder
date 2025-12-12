@@ -12,7 +12,7 @@ struct TransformBox
     public TMP_InputField[] fields;
 }
 
-public class TransformBoxUi : MonoBehaviour
+public class TransformationBox : MonoBehaviour
 {
     [Header("Local")]
     [SerializeField] private RectTransform LTranslateBox;
@@ -61,7 +61,7 @@ public class TransformBoxUi : MonoBehaviour
             {
                 field.contentType = TMP_InputField.ContentType.DecimalNumber;
                 field.ForceLabelUpdate();
-                field.onEndEdit.AddListener((val) => OnBoxValueChanged(currentBox, val));
+                //field.onEndEdit.AddListener((val) => OnBoxValueChanged(currentBox, val));
             }
         }
     }
@@ -105,7 +105,7 @@ public class TransformBoxUi : MonoBehaviour
     /// <summary>
     /// Only updates the specific property that was changed
     /// </summary>
-    private void OnBoxValueChanged(TransformBox box, string _)
+    private void OnBoxValueChanged(GizmoManager gizmoManager, TransformBox box, string _)
     {
         if (selected == null) return;
 
@@ -137,7 +137,6 @@ public class TransformBoxUi : MonoBehaviour
         UpdateUiFromTransform();
 
         // Update Gizmos
-        if (selected.GetComponent<RuntimeGizmoTransform>() != null)
-            selected.GetComponent<RuntimeGizmoTransform>().ResetHandles();
+        gizmoManager.onSelectionExternallyMoved(selected.transform);
     }
 }

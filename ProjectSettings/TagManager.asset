@@ -10,6 +10,8 @@ TagManager:
   - ROOM Edge
   - Player Spawn UI
   - Parent
+  - SceneContainer
+  - Roof
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - Water
   - UI
   - Preview
-  - 
+  - Gizmo
   - 
   - 
   - 
