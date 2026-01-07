@@ -7,8 +7,9 @@ public class SelectionManager : MonoBehaviour
     Interactable _selected;
 
     #region getter
-    bool SelectionExist => _selected != null;
-    Transform SelectionTransform => _selected.transform;
+    public bool SelectionExist => _selected != null;
+    public GameObject SelectionGO => _selected.gameObject;
+    public Transform SelectionTransform => _selected.transform;
     #endregion
 
     #region external dependency
@@ -33,7 +34,12 @@ public class SelectionManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out var hit, Mathf.Infinity))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            // Get interactable hit or return
+            if (!hit.collider.TryGetComponent(out Interactable interactable))
+            {
+                ChangeSelectedObject(null);
+                return false;
+            }
 
             //interactable is a InteractableObject
             //every InteractableObject has an InteractableParent
@@ -108,7 +114,7 @@ public class SelectionManager : MonoBehaviour
         // Deseleziona precedente
         if (_selected != null) _selected.OnDeselect();
         // Call Setup
-        if (next == null) _selected.OnSelect();
+        if (next != null) next.OnSelect();
 
         _selected = next;
     }

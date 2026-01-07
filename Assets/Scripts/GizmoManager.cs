@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,15 +7,6 @@ public enum TransformMode
     Rotate,
     Scale
 }
-
-enum HandleType
-{
-    X,
-    Y,
-    Z,
-    S
-}
-
 
 public class GizmoManager : MonoBehaviour
 {
@@ -33,29 +23,32 @@ public class GizmoManager : MonoBehaviour
 
     #region Getter
     public Gizmo[] All => new Gizmo[] { Translate, Rotate, Scale };
-    public TransformMode TransformMode => tMode;
+    public TransformMode TransformMode => _tMode;
     public bool LocalTransform => _localTransform;
     #endregion
 
     #region Static Variables
     public static readonly string ColliderVisualName = "Collider Visual";
-    public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settingsù
+    public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settings
     #endregion
 
     #region Private Variables
 
     // State of gizmo
-    private TransformMode tMode;
+    private TransformMode _tMode;
+    private TransformMode _previousMode;
     private bool _localTransform;
 
     // Mouse wrapping variables
     private int _mouseWrapMarginX;
     private int _mouseWrapMarginY;
+    
+    private bool _firstDrag = true;
     private Vector2 _lastMousePos;
 
-    // Currently dragged handle
-    private Handle _currentAxes;
-    private GameObject _currentGizmo;
+    private Gizmo _currentGizmo;
+
+
 
     // Visual constants
 
@@ -65,6 +58,7 @@ public class GizmoManager : MonoBehaviour
 
     #region Injected variables
     Camera _cam;
+    FreeCameraController _camController;
     #endregion
 
     #region Lifecycle
@@ -73,13 +67,14 @@ public class GizmoManager : MonoBehaviour
     /// <summary>
     /// To be called when manager start
     /// </summary>
-    public void Init(Camera cam)
+    public void Init(Camera cam, FreeCameraController cameraController)
     {
         enabled = true;
 
         _cam = cam; 
+        _camController = cameraController;
 
-        tMode = TransformMode.Translate;
+        _tMode = TransformMode.Translate;
         _localTransform = false; // Default Global
 
         // setup
@@ -109,53 +104,14 @@ public class GizmoManager : MonoBehaviour
 
     #region Handles Management 
 
-
-
-    private void SetHandlesInPosition(Transform selected)
-    {
-        if (!_xHandle) return;
-
-        // Position always matches selection
-        _xHandle.position = selected.position;
-        _yHandle.position = selected.position;
-        _zHandle.position = selected.position;
-        if (_sHandle) _sHandle.position = selected.position;
-
-        // Rotation depends on Local vs Global setting
-        if (_localTransform)
-        {
-            // Local: Align with object rotation
-            _xHandle.rotation = selected.rotation * Quaternion.LookRotation(Vector3.right, Vector3.up);
-            _yHandle.rotation = selected.rotation * Quaternion.LookRotation(Vector3.up, Vector3.forward);
-            _zHandle.rotation = selected.rotation * Quaternion.LookRotation(Vector3.forward, Vector3.up);
-
-            // Force exact Up vector alignment (Safer)
-            _xHandle.up = selected.right;
-            _yHandle.up = selected.up;
-            _zHandle.up = selected.forward;
-        }
-        else
-        {
-            // Global: Align with World Axes
-            _xHandle.rotation = Quaternion.identity; // Reset
-            _yHandle.rotation = Quaternion.identity;
-            _zHandle.rotation = Quaternion.identity;
-
-            _xHandle.up = Vector3.right;
-            _yHandle.up = Vector3.up;
-            _zHandle.up = Vector3.forward;
-        }
-
-        if (_sHandle) _sHandle.rotation = selected.rotation;
-    }
-
     /// <summary>
     /// if handles are present they should be selected even if hitted behind an occlusion, 
     /// because they always appear in front of everything
     /// </summary>
-    private bool TrySelectHandle()
+    public bool TrySelectHandle(Vector2 mousePos)
     {
-        Ray ray = cam.ScreenPointToRay(mousePos);
+
+        Ray ray = _cam.ScreenPointToRay(mousePos);
 
         // Only handles are visible to the ray via LayerMask
         int mask = 1 << GizmoLayer;
@@ -176,12 +132,42 @@ public class GizmoManager : MonoBehaviour
             }
         }
 
-        _currentAxes = bestHit;
+        if (bestHit != null) 
+            _currentGizmo.SelectHandle(bestHit);
+
+        _firstDrag = true;
+        _camController.MenuMode(true);
+
         return true;
     }
 
-    private void HandleDragging(Camera cam, Vector2 mousePos)
+    public void DeselectHandle(Transform selected)
     {
+        if (_currentGizmo != null)
+        {
+            _currentGizmo.DeselectHandle();
+            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+
+            //if in perspective mode hide cursor
+            if (!_cam.orthographic)
+                _camController.MenuMode(false);
+        }
+    }
+
+    #endregion
+
+    #region Objects Transformations
+    public void HandleDragging(Transform selected, Vector2 mousePos)
+    {
+        //initialize last mouse pos
+        if (_firstDrag)
+        {
+            _lastMousePos = mousePos;
+            _firstDrag = false;
+        }
+
+        if (_currentGizmo == null || !_currentGizmo.IsHandleSelected) return;
+
         // Mouse wrapping logic (infinite drag)
         var (warped, newPos) = WarpMouse(mousePos);
         if (warped)
@@ -190,249 +176,170 @@ public class GizmoManager : MonoBehaviour
             _lastMousePos = newPos; // avoid jump
         }
 
-        Vector2 delta = mousePos - _lastMousePos;
-
-        // Projection calculations
-        Vector3 screenP0 = cam.WorldToScreenPoint(transform.position);
-        Vector3 screenP1 = cam.WorldToScreenPoint(transform.position + _currentAxes.up);
-        Vector2 axisScreen = (screenP1 - screenP0).normalized;
-
-        // Scalar amount of movement along the axis
-        float projected = Vector2.Dot(delta, axisScreen);
-
-        // Make movement in world space proportional to distance from camera
-        float distance = (transform.position - cam.transform.position).magnitude;
-        float worldScale = distance * 0.001f;
-
-        // Fix for Ortho Camera
-        if (cam.orthographic)
+        float projected = 0f;
+        float dot = Mathf.Abs(Vector3.Dot(_cam.transform.forward.normalized, _currentGizmo.SelectedDirection().normalized));
+        float trashold = 0.02f;
+        // the other method won't work well when the axis is almost perpendicular to the camera view direction
+        if (dot >= 1f - trashold && dot <= 1f + trashold)
         {
-            worldScale = cam.orthographicSize * 0.002f;
-            // Fix direction inversion if handle is "behind" pivot in ortho
-            if (Vector3.Dot(cam.transform.forward, _currentAxes.up) > 0)
-                projected *= 1; // Logic placeholder if needed
+            //right positive / left negative 
+            float screenSign = mousePos.x > Screen.width / 2 ? 1 : -1;
+
+            //farther positive / closer negative
+            Vector2 objScreenPos = _cam.WorldToScreenPoint(selected.position);
+            float moveSign = Vector2.Distance(objScreenPos, mousePos) >
+                             Vector2.Distance(objScreenPos, _lastMousePos) ? 1 : -1;
+
+            projected = Vector2.Distance(mousePos, _lastMousePos) * screenSign * moveSign;
+        }
+        else
+        {
+            Vector2 delta = mousePos - _lastMousePos;
+
+            // Projection calculations
+            Vector3 screenP0 = _cam.WorldToScreenPoint(selected.position);
+            Vector3 screenP1 = _cam.WorldToScreenPoint(selected.position + _currentGizmo.SelectedDirection());
+            Vector2 axisScreen = (screenP1 - screenP0).normalized;
+
+            // Scalar amount of movement along the axis
+            projected = Vector2.Dot(delta, axisScreen);
+
         }
 
+        // Make movement in world space proportional to distance from camera
+        float distance = (selected.position - _cam.transform.position).magnitude;
+        float worldScale = distance * 0.001f;
+
         // Apply transform
-        switch (tMode)
+        switch (_tMode)
         {
             case TransformMode.Translate:
-                ApplyTranslation(projected, worldScale);
+                ApplyTranslation(selected, projected, worldScale);
                 break;
             case TransformMode.Rotate:
-                ApplyRotation(projected, worldScale);
+                ApplyRotation(selected, projected, worldScale);
                 break;
             case TransformMode.Scale:
-                ApplyScale(projected, worldScale);
+                ApplyScale(selected, projected, worldScale);
                 break;
         }
 
         _lastMousePos = mousePos;
+
+        _currentGizmo.SetHandlesInPosition(selected, _localTransform);
     }
 
-    #endregion
-
-    #region Transformations
-
-    private void ApplyTranslation(float projected, float worldScale)
+    private void ApplyTranslation(Transform selected, float projected, float worldScale)
     {
-        Vector3 moveDir = _currentAxes.up;
+        Vector3 moveDir = _currentGizmo.SelectedDirection();
         Vector3 translation = moveDir * (projected * worldScale);
-        transform.Translate(translation, Space.World);
+        selected.Translate(translation, Space.World);
     }
 
-    private void ApplyRotation(float projected, float worldScale)
+    private void ApplyRotation(Transform selected, float projected, float worldScale)
     {
         float angle = projected * worldScale * 20f; // Sensitivity multiplier
         // Rotate around handle axis
-        transform.Rotate(_currentAxes.up, -angle, Space.World);
+        selected.Rotate(_currentGizmo.SelectedDirection(), -angle, Space.World);
     }
 
-    private void ApplyScale(float projected, float worldScale)
+    private void ApplyScale(Transform selected, float projected, float worldScale)
     {
         float scaleAmount = projected * worldScale * 0.5f;
 
-        if (_currentAxes == _sHandle)
-        {
-            // Uniform Scale
-            float factor = 1 + scaleAmount;
-            transform.localScale *= factor;
-        }
-        else
-        {
-            // Axial Scale
-            Vector3 scaleAxis = Vector3.zero;
+        Vector3 direction = _currentGizmo.SelectedDirection();
 
-            // Check identity based on reference or logic
-            if (_currentAxes == _xHandle) scaleAxis = Vector3.right;
-            else if (_currentAxes == _yHandle) scaleAxis = Vector3.up;
-            else if (_currentAxes == _zHandle) scaleAxis = Vector3.forward;
+        Vector3 newScale = selected.localScale + (direction * scaleAmount);
 
-            Vector3 newScale = transform.localScale + (scaleAxis * scaleAmount);
+        float minScale = 0.04f;
+        // Prevent negative or zero scale
+        if (newScale.x <= minScale || newScale.y < minScale || newScale.z < minScale)
+            return;
 
-            // Avoid zero scale
-            if (Mathf.Abs(newScale.x) < 0.01f) newScale.x = 0.01f;
-            if (Mathf.Abs(newScale.y) < 0.01f) newScale.y = 0.01f;
-            if (Mathf.Abs(newScale.z) < 0.01f) newScale.z = 0.01f;
-
-            transform.localScale = newScale;
-        }
-    }
-
-    #endregion
-
-    #region Handle Lifecycle
-
-    private void RebuildHandles()
-    {
-        DestroyAllHandles();
-        CreateHandles();
-    }
-
-    private void CreateHandles()
-    {
-        Mesh mesh = _meshes[tMode];
-
-        // Create handles for X, Y, Z
-        _xHandle = CreateSingleHandle(mesh, Vector3.right);
-        _yHandle = CreateSingleHandle(mesh, Vector3.up);
-        _zHandle = CreateSingleHandle(mesh, Vector3.forward);
-        _sHandle = CreateUniformScaleHandle();
-
-        // If not in Scale mode, hide the center cube
-        if (_sHandle) _sHandle.gameObject.SetActive(tMode == TransformMode.Scale);
-
-        // Position them correctly immediately if we have a parent/target
-        if (transform.parent != null)
-            SetHandlesInPosition(transform);
-
-        ShowHandles(true);
-    }
-
-    private Transform CreateSingleHandle(Mesh mesh, Vector3 direction)
-    {
-        string name = "Error";
-        if (direction == Vector3.right) name = "X";
-        else if (direction == Vector3.up) name = "Y";
-        else if (direction == Vector3.forward) name = "Z";
-
-        // GameObject setup
-        GameObject go = new GameObject($"Handle_{name}");
-        go.layer = GizmoLayer;
-        go.transform.SetParent(objectContainer);
-        go.transform.position = transform.position;
-        go.transform.up = direction; // Orient mesh
-
-        // Mesh
-        var filter = go.AddComponent<MeshFilter>();
-        filter.mesh = mesh;
-
-        // Renderer
-        var renderer = go.AddComponent<MeshRenderer>();
-        renderer.material = _materials[direction];
-
-        // Collider: Use MeshCollider for Rotate (Rings), Capsule for Translate/Scale
-        if (tMode == TransformMode.Rotate)
-        {
-            var mc = go.AddComponent<MeshCollider>();
-            mc.sharedMesh = mesh; // Precise raycast on the ring
-            // Note: If raycast fails, ensure 'convex' is false (ok for static raycast) 
-            // or true (if using Physics triggers)
-        }
-        else
-        {
-            var col = go.AddComponent<CapsuleCollider>();
-            col.isTrigger = true;
-            col.radius = 0.1f;
-            col.height = 2f;
-            col.direction = 1; // Y-Axis (matches transform.up)
-        }
-
-        return go.transform;
-    }
-
-    private Transform CreateUniformScaleHandle()
-    {
-        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.name = "Handle_Uniform";
-        go.layer = GizmoLayer;
-        go.transform.SetParent(objectContainer);
-        go.transform.position = transform.position;
-        go.transform.localScale = Vector3.one * 0.1f; // Small center cube
-
-        Destroy(go.GetComponent<BoxCollider>()); // Remove default
-        var col = go.AddComponent<BoxCollider>();
-        col.isTrigger = true;
-
-        var renderer = go.GetComponent<Renderer>();
-        renderer.material = Resources.Load<Material>("Materials/Magenta_AlwaysOnTop"); // Ensure this material exists
-
-        return go.transform;
-    }
-
-    private void DestroyAllHandles()
-    {
-        ShowHandles(false);
-        if (_xHandle) Destroy(_xHandle.gameObject);
-        if (_yHandle) Destroy(_yHandle.gameObject);
-        if (_zHandle) Destroy(_zHandle.gameObject);
-        if (_sHandle) Destroy(_sHandle.gameObject);
-
-        _xHandle = null;
-        _yHandle = null;
-        _zHandle = null;
-        _sHandle = null;
+        selected.localScale = newScale;
     }
 
     #endregion
 
     #region Exposed Functions
 
-    public void SetMode(TransformMode newMode, Transform selected)
+    public void SetGizmoActive(bool value, Transform selectedObject)
     {
-        if (newMode == tMode) return;
+        if (_currentGizmo != null)
+        {
+            SetMode(_previousMode, selectedObject);
+            _currentGizmo.SetActive(value);
+            _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
+        }
+    }
 
-        tMode = newMode;
+    public void SetMode(TransformMode newMode, Transform selectedObject)
+    {
+        // Check and switch
+        if (newMode == _tMode && _currentGizmo != null) return;
 
-        // Rebuild to match correct colliders and meshes
-        if (enabled) RebuildHandles();
-        SetHandlesInPosition(selected);
+        _tMode = newMode;
+
+        // Change current gizmo
+        if (_currentGizmo != null)
+            _currentGizmo.SetActive(false);
+
+        switch (_tMode)
+        {
+            case TransformMode.Translate:
+                _currentGizmo = Translate;
+                break;
+            case TransformMode.Rotate:
+                _currentGizmo = Rotate;
+                break;
+            case TransformMode.Scale:
+                _currentGizmo = Scale;
+                break;
+        }
+        _currentGizmo.SetActive(true);
+        _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
+    }
+
+    public void RemoveGizmo()
+    {
+        if (_currentGizmo != null)
+        {
+            _currentGizmo.SetActive(false);
+            _currentGizmo = null;
+        }
     }
 
     public void SetLocal(bool value, Transform selected)
     {
         _localTransform = value;
-
         // Scale is always local
-        if (tMode == TransformMode.Scale) _localTransform = true;
-
-        // Just reposition, no need to rebuild
-        if (enabled) SetHandlesInPosition(selected);
+        if (_tMode == TransformMode.Scale) _localTransform = true;
+        
+        if(_currentGizmo != null)
+            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
     }
 
-    public bool Dragging() => _currentAxes != null;
+    public bool Dragging() => _currentGizmo != null && _currentGizmo.IsHandleSelected;
 
-    public void ScaleHandlesByCameraDistance(Camera cam)
+    public void ScaleHandlesByCameraDistance()
     {
-        if (!_handlesEnabled || !_xHandle) return;
-
+        if (_currentGizmo == null) return;
+        
         float scale;
-        if (cam.orthographic)
+        
+        if (_cam.orthographic)
         {
-            scale = cam.orthographicSize * 0.3f;
+            scale = _cam.orthographicSize * 0.3f;
         }
         else
         {
-            float dist = Vector3.Distance(transform.position, cam.transform.position);
-            scale = dist * 0.15f;
+            float dist = Vector3.Distance(transform.position, _cam.transform.position);
+            scale = dist * 0.05f;
         }
 
         Vector3 scale3 = Vector3.one * scale;
+        _currentGizmo.ScaleHandles(scale3);
 
-        if (_xHandle) _xHandle.localScale = scale3;
-        if (_yHandle) _yHandle.localScale = scale3;
-        if (_zHandle) _zHandle.localScale = scale3;
-        if (_sHandle) _sHandle.localScale = scale3 * 0.5f;
     }
 
     #endregion
@@ -451,8 +358,5 @@ public class GizmoManager : MonoBehaviour
         if (warped) Mouse.current.WarpCursorPosition(pos);
         return (warped, pos);
     }
-
-    
-
     #endregion
 }

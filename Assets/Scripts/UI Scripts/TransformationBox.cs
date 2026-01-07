@@ -137,6 +137,6 @@ public class TransformationBox : MonoBehaviour
         UpdateUiFromTransform();
 
         // Update Gizmos
-        gizmoManager.onSelectionExternallyMoved(selected.transform);
+        //gizmoManager.onSelectionExternallyMoved(selected.transform);
     }
 }

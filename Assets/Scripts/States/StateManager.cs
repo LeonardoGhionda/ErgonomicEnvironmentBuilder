@@ -1,7 +1,4 @@
-using System;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class StateManager : MonoBehaviour
 {
@@ -21,7 +18,8 @@ public class StateManager : MonoBehaviour
     [Header("Managers")]
     [SerializeField] private RoomBuilderManager roomBuilderManager;
     [SerializeField] private GizmoManager gizmoManager;
-    
+    [SerializeField] private SelectionManager selectionManager;
+
     [Header("Components")]
     [SerializeField] public FreeCameraController cameraController;
 
@@ -56,7 +54,7 @@ public class StateManager : MonoBehaviour
         LoadRoom =   new(this, AppInput);
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
-        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager);
+        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, selectionManager);
 
         //first state iniziaization
         currentState = MainMenu;

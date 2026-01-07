@@ -30,6 +30,7 @@ public class FreeCameraController : MonoBehaviour
     private float _yaw, _pitch;
     private Quaternion _targetRotation;
     private bool _showDot = false;
+    private bool _lockMove;
     private const float MIN_ORTHO = 4f;
     private const float MAX_ORTHO = 55f;
 
@@ -102,6 +103,7 @@ public class FreeCameraController : MonoBehaviour
             Debug.LogError("Missing Camera Initialization!!");
             return;
         }
+        if (_lockMove) return;
 
         if (_ortho)
         {
@@ -124,7 +126,7 @@ public class FreeCameraController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized || _lockMove) return;
 
         Vector3 moveDir = Vector3.zero;
         float currentSpeed = _ortho ? orthoMoveSpeed : moveSpeed;
@@ -195,7 +197,7 @@ public class FreeCameraController : MonoBehaviour
         }
     }
 
-    void SetFPCursor(bool enable)
+    private void SetFPCursor(bool enable)
     {
         if (enable)
         {
@@ -209,5 +211,11 @@ public class FreeCameraController : MonoBehaviour
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
+    }
+
+    public void MenuMode(bool enable)
+    {
+        _lockMove = enable; 
+        SetFPCursor(!_ortho && !enable);
     }
 }

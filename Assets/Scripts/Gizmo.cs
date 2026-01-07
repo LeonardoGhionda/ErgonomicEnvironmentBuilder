@@ -2,14 +2,31 @@ using System;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Control handles for a transformation 
+/// </summary>
 public class Gizmo : MonoBehaviour
 {
-    Handle[] _handles;
-    private Handle _selected;
+    [SerializeField] Transform xHandle;
+    [SerializeField] Transform yHandle;
+    [SerializeField] Transform zHandle;
+    // Optional Center Handle (for Scale)
+    [SerializeField] Transform cHandle;
+
+    // Currently visible handles 
+    Transform[] _handles;
+    // Currently selected handle
+    private Transform _selected;
+
+    public bool IsHandleSelected => _selected != null;
+    public Transform SelectedHandle => _selected;
 
     void Start()
     {
-        _handles = GetComponentsInChildren<Handle>();
+        if (cHandle != null)
+            _handles = new Transform[] { xHandle, yHandle, zHandle, cHandle };
+        else 
+            _handles = new Transform[] { xHandle, yHandle, zHandle };
     }
 
     public void SetActive(bool value)
@@ -18,13 +35,8 @@ public class Gizmo : MonoBehaviour
         gameObject.SetActive(value);
     }
 
-    public void SelectHandle(Handle handle)
+    public void SelectHandle(Transform handle)
     {
-        if(!_handles.Contains(handle))
-        {
-            Debug.LogError("Handle not part of gizmo");
-        }
-
         foreach (var item in _handles)
             item.gameObject.SetActive(false);
 
@@ -34,7 +46,49 @@ public class Gizmo : MonoBehaviour
 
     public void DeselectHandle()
     {
-        _selected?.gameObject.SetActive(false);
         _selected = null;
+        foreach (var item in _handles)
+            item.gameObject.SetActive(true);
+    }
+
+    public void SetHandlesInPosition(Transform selectedObj, bool local)
+    {
+        foreach (var handle in _handles)
+        {
+            handle.transform.position = selectedObj.position;
+        }
+
+        // Rotation depends on Local vs Global setting
+        if (local)
+        {
+            // Local: Align with object rotation
+            xHandle.up = selectedObj.right;
+            yHandle.up = selectedObj.up;
+            zHandle.up = selectedObj.forward;
+        }
+        else
+        {
+            // Global: Align with World Axes
+            xHandle.up = Vector3.right;
+            yHandle.up = Vector3.up;
+            zHandle.up = Vector3.forward;
+        }
+    }
+
+    public Vector3 SelectedDirection()
+    {
+        if(_selected == null) return Vector3.zero;
+        if (_selected != xHandle &&
+            _selected != yHandle &&
+            _selected != zHandle) return Vector3.one;
+        return _selected.up;
+    }
+
+    public void ScaleHandles(Vector3 scale)
+    {
+        foreach (var handle in _handles)
+        {
+            handle.localScale = scale;
+        }
     }
 }

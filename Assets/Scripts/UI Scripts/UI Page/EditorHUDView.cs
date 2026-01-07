@@ -86,13 +86,6 @@ public class EditorHUDView : MonoBehaviour
 
     private void UpdateGizmoReferences(GizmoManager target)
     {
-        // Button Logic
-        var gizmoButtons = selectedMenu.gameObject.GetComponentsInChildren<TransformTypeButton>();
-        foreach (var button in gizmoButtons)
-        {
-            button.Target = target;
-        }
-
         Debug.LogWarning("TODO:Implement");
         // Dropdown Logic
         //var gizmoDropdown = gameObject.GetComponentInChildren<ChangeGizmoModeDropdown>(true);
