@@ -50,13 +50,16 @@ public class FreeCameraController : MonoBehaviour
     }
 
     // --- INITIALIZATION (Called by State) ---
-    public void Init(AppActions inputInstance)
+    public void InitOrtho(AppActions inputInstance, Vector3 startPos, float orthoSize)
     {
         _input = inputInstance;
         _isInitialized = true;
 
         roof = GameObject.FindWithTag("Roof");
         SetOrtho(true);
+
+        _cam.orthographicSize = orthoSize;
+        _rb.MovePosition(startPos);
     }
 
     // --- LOGIC ---

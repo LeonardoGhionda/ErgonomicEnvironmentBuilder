@@ -46,22 +46,20 @@ public class SelectionManager : MonoBehaviour
             Interactable parent = interactable.transform.GetComponentInParent<InteractableParent>();
 
             //no past selection -> select parent 
-            if (_selected == null) _selected = parent;
+            if (_selected == null) ChangeSelectedObject(parent);
             //if past selection is not null check if its parent
             else
             {
                 //parent of the currently selected Interactable 
                 Interactable currentParent = _selected.transform.GetComponentInParent<InteractableParent>();
 
-                _selected.OnDeselect();
                 // parent is selected -> select child
-                if (_selected == parent) _selected = interactable;
+                if (_selected == parent) ChangeSelectedObject(interactable);
                 // sibling is selected -> select child 
-                else if(currentParent == parent) _selected = interactable;
+                else if(currentParent == parent) ChangeSelectedObject(interactable);
                 //fisrt time selecting this "family" -> parent selected
-                else _selected = parent;
+                else ChangeSelectedObject(parent);
             }
-            _selected.OnSelect();
             //selection found
             return true;
         }
@@ -115,7 +113,6 @@ public class SelectionManager : MonoBehaviour
         if (_selected != null) _selected.OnDeselect();
         // Call Setup
         if (next != null) next.OnSelect();
-
         _selected = next;
     }
 }

@@ -1,3 +1,7 @@
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,6 +31,45 @@ public class GizmoManager : MonoBehaviour
     public bool LocalTransform => _localTransform;
     #endregion
 
+    #region Setters
+    public void SetMode(TransformMode newMode, Transform selectedObject)
+    {
+        // Check and switch
+        if (newMode == _tMode && _currentGizmo != null) return;
+
+        _tMode = newMode;
+
+        // Change current gizmo
+        if (_currentGizmo != null)
+            _currentGizmo.SetActive(false);
+
+        switch (_tMode)
+        {
+            case TransformMode.Translate:
+                _currentGizmo = Translate;
+                break;
+            case TransformMode.Rotate:
+                _currentGizmo = Rotate;
+                break;
+            case TransformMode.Scale:
+                _currentGizmo = Scale;
+                break;
+        }
+        _currentGizmo.SetActive(true);
+        _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
+    }
+
+    public void SetLocal(bool value, Transform selected)
+    {
+        _localTransform = value;
+        // Scale is always local
+        if (_tMode == TransformMode.Scale) _localTransform = true;
+
+        if (_currentGizmo != null)
+            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+    }
+    #endregion
+
     #region Static Variables
     public static readonly string ColliderVisualName = "Collider Visual";
     public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settings
@@ -35,8 +78,7 @@ public class GizmoManager : MonoBehaviour
     #region Private Variables
 
     // State of gizmo
-    private TransformMode _tMode;
-    private TransformMode _previousMode;
+    private TransformMode _tMode = TransformMode.Translate;
     private bool _localTransform;
 
     // Mouse wrapping variables
@@ -48,9 +90,7 @@ public class GizmoManager : MonoBehaviour
 
     private Gizmo _currentGizmo;
 
-
-
-    // Visual constants
+    private SnapTool _snapTool = new();
 
     // Cache to avoid GC allocations
     private RaycastHit[] _raycastHitsCache = new RaycastHit[16];
@@ -80,12 +120,6 @@ public class GizmoManager : MonoBehaviour
         // setup
         _mouseWrapMarginX = Screen.width / 200;
         _mouseWrapMarginY = Screen.height / 200;
-
-        //dafault no gizmo -> deactivate all
-        foreach (var item in All)
-        {
-            item.SetActive(false);
-        }
     }
 
     /// <summary>
@@ -157,7 +191,7 @@ public class GizmoManager : MonoBehaviour
     #endregion
 
     #region Objects Transformations
-    public void HandleDragging(Transform selected, Vector2 mousePos)
+    public void HandleDragging(Transform selected, Vector2 mousePos, bool snap)
     {
         //initialize last mouse pos
         if (_firstDrag)
@@ -215,6 +249,7 @@ public class GizmoManager : MonoBehaviour
         {
             case TransformMode.Translate:
                 ApplyTranslation(selected, projected, worldScale);
+                if(snap && _snapTool.TrySnap(selected)) DeselectHandle(selected);
                 break;
             case TransformMode.Rotate:
                 ApplyRotation(selected, projected, worldScale);
@@ -261,41 +296,11 @@ public class GizmoManager : MonoBehaviour
 
     #endregion
 
-    #region Exposed Functions
+    #region Gizmo Management
 
-    public void SetGizmoActive(bool value, Transform selectedObject)
+    public void NewTarget(Transform selectedObject)
     {
-        if (_currentGizmo != null)
-        {
-            SetMode(_previousMode, selectedObject);
-            _currentGizmo.SetActive(value);
-            _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
-        }
-    }
-
-    public void SetMode(TransformMode newMode, Transform selectedObject)
-    {
-        // Check and switch
-        if (newMode == _tMode && _currentGizmo != null) return;
-
-        _tMode = newMode;
-
-        // Change current gizmo
-        if (_currentGizmo != null)
-            _currentGizmo.SetActive(false);
-
-        switch (_tMode)
-        {
-            case TransformMode.Translate:
-                _currentGizmo = Translate;
-                break;
-            case TransformMode.Rotate:
-                _currentGizmo = Rotate;
-                break;
-            case TransformMode.Scale:
-                _currentGizmo = Scale;
-                break;
-        }
+        SetMode(_tMode, selectedObject);
         _currentGizmo.SetActive(true);
         _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
     }
@@ -308,18 +313,6 @@ public class GizmoManager : MonoBehaviour
             _currentGizmo = null;
         }
     }
-
-    public void SetLocal(bool value, Transform selected)
-    {
-        _localTransform = value;
-        // Scale is always local
-        if (_tMode == TransformMode.Scale) _localTransform = true;
-        
-        if(_currentGizmo != null)
-            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
-    }
-
-    public bool Dragging() => _currentGizmo != null && _currentGizmo.IsHandleSelected;
 
     public void ScaleHandlesByCameraDistance()
     {

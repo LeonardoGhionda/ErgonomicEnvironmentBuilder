@@ -1,4 +1,5 @@
 ﻿using Dummiesman;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -65,7 +66,8 @@ public class RoomEditorState : AbsAppState
 
         // Start Camera
         _camController.enabled = true;
-        _camController.Init(_input);
+        Vector3 camParams = GetCameraParameters();
+        _camController.InitOrtho(_input, new Vector3(camParams.x, 50f, camParams.y), camParams.z);
 
         // Ui Action always enabled
         _input.Ui.Enable();
@@ -114,9 +116,11 @@ public class RoomEditorState : AbsAppState
     public override void UpdateState()
     {
         if (_selectionManager.SelectionExist)
-            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, mousePos);
+        {
+            _gizmoManager.ScaleHandlesByCameraDistance();
+            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, mousePos, _input.RoomEditCommon.Snap.IsPressed());
+        }
         
-        _gizmoManager.ScaleHandlesByCameraDistance();
     }
 
     // --- INPUT HANDLERS ---
@@ -139,7 +143,7 @@ public class RoomEditorState : AbsAppState
         if (_selectionManager.SelectionExist)
         {
             _hud.ShowSelectionMenu(_selectionManager.SelectionGO, _gizmoManager);
-            _gizmoManager.SetGizmoActive(true, _selectionManager.SelectionTransform);
+            _gizmoManager.NewTarget(_selectionManager.SelectionTransform);
         }
         else
         {
@@ -242,7 +246,8 @@ public class RoomEditorState : AbsAppState
         _hud.HideAllMenus();
 
         
-        _selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableObject>());
+        _selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableParent>());
+        _gizmoManager.NewTarget(_selectionManager.SelectionTransform);
 
         _hud.ShowSelectionMenu(_selectionManager.SelectionGO, _gizmoManager);
     }
@@ -274,5 +279,73 @@ public class RoomEditorState : AbsAppState
         }
 
         parent.transform.SetParent(container.transform, true);
+    }
+
+    //UTILS 
+    //-------------
+
+    /// <summary>
+    /// Gets the initialization camera parameters that are centered on the room bounds.
+    /// </summary>
+    /// <returns>A vector 3 where (x,y) are the camera position (x,z) and z = orthograficSize</returns>
+    Vector3 GetCameraParameters()
+    {
+        Transform roomContainer = GameObject.Find("Room Container")?.transform;
+
+        if (roomContainer == null)
+        {
+            Debug.LogError("Room Container not found!");
+            return new Vector3(0, 0, 5f);
+        }
+
+        //Force Unity to update collider bounds immediately
+        Physics.SyncTransforms();
+
+        // Get relevant colliders (excluding Ground/Roof)
+        var colliders = roomContainer
+            .GetComponentsInChildren<BoxCollider>()
+            .Where(c => !c.name.Contains("Ground") && !c.name.Contains("Roof"))
+            .ToArray();
+
+        if (colliders.Length == 0) return new Vector3(0, 0, 5f);
+
+        // Calculate total bounds 
+        Bounds totalBounds = colliders[0].bounds;
+        foreach (var c in colliders)
+        {
+            totalBounds.Encapsulate(c.bounds);
+        }
+
+        // Camera calculations
+        float padding = 1.2f; // 20% margin
+        float screenAspect = Camera.main != null ? Camera.main.aspect : 1.77f;
+
+        // Dimensions
+        float roomWidth = totalBounds.size.x;
+        float roomHeight = totalBounds.size.z; // Z is height in top-down view
+        float roomAspect = roomWidth / roomHeight;
+
+        float orthoSize;
+
+        // Determine limiting dimension
+        if (screenAspect >= roomAspect)
+        {
+            // Screen is wider than room: Fit to Height (Z)
+            orthoSize = (roomHeight / 2f) * padding;
+        }
+        else
+        {
+            // Screen is narrower than room: Fit to Width (X)
+            // Formula: Size = Width / (2 * AspectRatio)
+            orthoSize = (roomWidth / (2f * screenAspect)) * padding;
+        }
+
+        // Safety clamp to prevent 0 zoom
+        orthoSize = Mathf.Max(orthoSize, 2f);
+
+
+
+        // Return: X = CenterX, Y = CenterZ, Z = OrthoSize
+        return new Vector3(totalBounds.center.x, totalBounds.center.z, orthoSize);
     }
 }

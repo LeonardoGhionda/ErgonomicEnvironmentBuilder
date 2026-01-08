@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -21,7 +19,7 @@ public class Gizmo : MonoBehaviour
     public bool IsHandleSelected => _selected != null;
     public Transform SelectedHandle => _selected;
 
-    void Start()
+    void Awake()
     {
         if (cHandle != null)
             _handles = new Transform[] { xHandle, yHandle, zHandle, cHandle };
@@ -47,12 +45,20 @@ public class Gizmo : MonoBehaviour
     public void DeselectHandle()
     {
         _selected = null;
+        if(_handles == null) return;
+
         foreach (var item in _handles)
             item.gameObject.SetActive(true);
     }
 
     public void SetHandlesInPosition(Transform selectedObj, bool local)
     {
+        if (_handles == null)
+        {
+            Debug.LogError("Gizmo: Handles not initialized!");
+            return;
+        }
+
         foreach (var handle in _handles)
         {
             handle.transform.position = selectedObj.position;
@@ -86,6 +92,8 @@ public class Gizmo : MonoBehaviour
 
     public void ScaleHandles(Vector3 scale)
     {
+        if (_handles == null) return;
+
         foreach (var handle in _handles)
         {
             handle.localScale = scale;
