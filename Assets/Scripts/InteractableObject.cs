@@ -26,9 +26,6 @@ public class InteractableObject : Interactable
         {
             mesh.material = baseMaterial;
         }
-
-        var collVisual = gameObject.GetNamedChild(GizmoManager.ColliderVisualName);
-        Destroy(collVisual);
     }
 }
 

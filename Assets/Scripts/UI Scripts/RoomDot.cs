@@ -1,12 +1,11 @@
-using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
+    [SerializeField] private RoomBuilderManager roomBuilderManager;
     [SerializeField] private Canvas canvas;
     [SerializeField] private RectTransform bgRect;
     private RectTransform rect;
@@ -40,7 +39,6 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private Timer timerClick;
     private bool timerOver = false;
 
-    private RoomBuilderManager roomBuilderManager;
     private DeleteRoomDot deleteRoomDot;
 
     InputAction snapAction;
@@ -58,16 +56,17 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             return;
         }
         rect = GetComponent<RectTransform>();
-        roomBuilderManager = canvas.GetComponentInChildren<RoomBuilderManager>();
         deleteRoomDot = canvas.GetComponentInChildren<DeleteRoomDot>();
-        snapAction = InputSystem.actions.FindAction("Ui/Snap");
 
         playerSpawn = GameObject.FindWithTag("Player Spawn UI").GetComponent<RectTransform>();
         if (playerSpawn == null)
         {
             Debug.Log("DOT: Can't find Player Spawn RectTransform");
         }
+
+        snapAction = roomBuilderManager.GetSnapAction();
     }
+
 
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -129,6 +128,7 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         anchored.x = Mathf.Clamp(anchored.x, 0, bgRect.rect.width);
         anchored.y = Mathf.Clamp(anchored.y, 0, bgRect.rect.height);
 
+        if (snapAction == null) snapAction = roomBuilderManager.GetSnapAction();
         //----------SNAP-------------
         if (snapAction.IsPressed())
         {

@@ -19,6 +19,7 @@ public class StateManager : MonoBehaviour
     [SerializeField] private RoomBuilderManager roomBuilderManager;
     [SerializeField] private GizmoManager gizmoManager;
     [SerializeField] private SelectionManager selectionManager;
+    [SerializeField] private MeasureManager measureManager;
 
     [Header("Components")]
     [SerializeField] public FreeCameraController cameraController;
@@ -48,13 +49,17 @@ public class StateManager : MonoBehaviour
 
     private void Start()
     {
+        //set cursor visible at start
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         //---STATES SETUP---
         MainMenu =   new(this, AppInput, mainMenuUI);
         NewRoom =    new(this, AppInput, newRoomUI, roomBuilderManager);
-        LoadRoom =   new(this, AppInput);
+        LoadRoom =   new(this, AppInput, roomBuilderManager);
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
-        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, selectionManager);
+        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, selectionManager, measureManager);
 
         //first state iniziaization
         currentState = MainMenu;
@@ -70,6 +75,18 @@ public class StateManager : MonoBehaviour
     {
         currentState?.Exit();
         currentState = newState;
+        if (newState == null) Destroy(this); //close the app
         currentState?.Enter();
+    }
+
+    private void OnDestroy()
+    {
+#if UNITY_EDITOR
+        // Stop the Editor play mode
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        // Close the built application
+        Application.Quit();
+#endif
     }
 }

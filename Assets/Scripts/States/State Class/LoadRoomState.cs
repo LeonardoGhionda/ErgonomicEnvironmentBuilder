@@ -3,7 +3,11 @@ using System.IO;
 
 public class LoadRoomState : AbsAppState
 {
-    public LoadRoomState(StateManager manager, AppActions input) : base(manager, input) { }
+    RoomBuilderManager _rbm;
+    public LoadRoomState(StateManager manager, AppActions input, RoomBuilderManager rbm) : base(manager, input) 
+    { 
+        _rbm = rbm;
+    }
 
     public override void Enter()
     {
@@ -44,6 +48,7 @@ public class LoadRoomState : AbsAppState
 
         RoomDataExporter.CreateRoom(roomName);
 
+        _rbm.RoomName = roomName;
         _manager.ChangeState(_manager.RoomEditor);
     }
 

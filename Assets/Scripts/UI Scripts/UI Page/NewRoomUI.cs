@@ -11,7 +11,7 @@ public class NewRoomUI : MonoBehaviour
     [SerializeField] private RectTransform roomLayoutRect;
     [SerializeField] private Button confirmButton;
     [SerializeField] private TMP_Text roomNameError;
-    [SerializeField] private Image goBackLoadUi; // The fill image for long press
+    [SerializeField] private LoadingCircle loadingCircle;
 
     // Events for the State to listen to
     public event Action OnConfirmClicked;
@@ -29,7 +29,6 @@ public class NewRoomUI : MonoBehaviour
 
         // Init state
         UpdateZoomVisuals(zoomSlider.value);
-        goBackLoadUi.gameObject.SetActive(false);
         roomNameError.text = "";
     }
 
@@ -43,18 +42,7 @@ public class NewRoomUI : MonoBehaviour
         roomLayoutRect.localScale = Vector3.one * (1 + value);
     }
 
-    public void SetLoadProgress(float percent)
-    {
-        if (percent <= 0)
-        {
-            goBackLoadUi.gameObject.SetActive(false);
-        }
-        else
-        {
-            goBackLoadUi.gameObject.SetActive(true);
-            goBackLoadUi.fillAmount = percent;
-        }
-    }
+    
 
     public void ShowError(string message)
     {
@@ -63,4 +51,11 @@ public class NewRoomUI : MonoBehaviour
 
     public void Show() => gameObject.SetActive(true);
     public void Hide() => gameObject.SetActive(false);
+
+    public void UpdateLoadingCircle(float percent) => loadingCircle.SetLoadProgress(percent);
+
+    private void OnDisable()
+    {
+        UpdateLoadingCircle(0);
+    }
 }

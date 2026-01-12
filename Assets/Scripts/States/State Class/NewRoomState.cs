@@ -1,14 +1,16 @@
-﻿using UnityEngine;
-using System; // For Exception
+﻿using System;
+using UnityEngine.InputSystem; 
 
 public class NewRoomState : AbsAppState
 {
     private NewRoomUI _view;
     private RoomBuilderManager _rbm; // Logic for the room creation geometry
 
-    // Long press logic variables
-    private LongPressData? _goBackData;
     private string _lastTriedRoomName = "";
+
+    private bool _actionStarted = false;
+    private InputAction _backAction;
+
 
     // Constructor
     public NewRoomState(StateManager manager, AppActions input, NewRoomUI view, RoomBuilderManager rbm)
@@ -16,20 +18,25 @@ public class NewRoomState : AbsAppState
     {
         _view = view;
         _rbm = rbm;
+        _backAction = _input.Ui.GoBackLong;
     }
 
     public override void Enter()
     {
+        _actionStarted= false;
         // Enable Input & View
         _input.Ui.Enable();
-        _view.Show();
+        _backAction.started += OnGoBackLongStarted;
+        _backAction.canceled += OnGoBackLongCanceled;
+        _backAction.performed += OnGoBackLongPerformed;
 
+        _view.Show();
         // Subscribe to UI Events
         _view.OnConfirmClicked += HandleConfirm;
 
-        // Reset Logic
-        _view.SetLoadProgress(0);
         _view.ShowError("");
+
+        _rbm.Init(_view, _input.Ui.Snap);
     }
 
     public override void Exit()
@@ -38,47 +45,27 @@ public class NewRoomState : AbsAppState
         _view.OnConfirmClicked -= HandleConfirm;
 
         // Cleanup
+        _actionStarted = false;
+        _backAction.started -= OnGoBackLongStarted;
+        _backAction.canceled -= OnGoBackLongCanceled;
+        _backAction.performed -= OnGoBackLongPerformed;
         _input.Ui.Disable();
+
         _view.Hide();
-        _goBackData = null;
     }
 
     public override void UpdateState()
     {
-        HandleBackInput();
+        if (_actionStarted)
+            HandleBackInput();
     }
 
     // --- LOGIC ---
 
     private void HandleBackInput()
     {
-        Debug.LogWarning("TODO: Change logic to inputAction default method for holded buttons");
-
-        var closeAction = _input.Ui.Cancel;
-
-        // Start Press
-        if (closeAction.WasPressedThisFrame())
-        {
-            _goBackData = LongPressedActions.RegisterAction(closeAction);
-        }
-
-        // Release Press
-        if (closeAction.WasReleasedThisFrame())
-        {
-            _goBackData = null;
-            _view.SetLoadProgress(0);
-        }
-
-        // Holding Logic
-        int perc = LongPressedActions.ElapsedPercent(_goBackData, 1f);
-        _view.SetLoadProgress(perc / 100f);
-
-        if (perc >= 100)
-        {
-            // Action Completed: Go Back
-            _goBackData = null; // Reset to avoid double trigger
-            _manager.ChangeState(_manager.MainMenu); 
-        }
+        float progressPercent = _input.Ui.GoBackLong.GetTimeoutCompletionPercentage();
+        _view.UpdateLoadingCircle(progressPercent);
     }
 
     private void HandleConfirm()
@@ -91,10 +78,10 @@ public class NewRoomState : AbsAppState
             RoomDataExporter.CreateRoom(_rbm.RoomName);
 
 
-            // SUCCESS: Change State to the next step
-            // Assuming you have a RoomEditor state
+            // Change State to the next step
             _manager.ChangeState(_manager.RoomEditor);
         }
+
         catch (Exception e)
         {
             _view.ShowError(e.Message);
@@ -104,5 +91,22 @@ public class NewRoomState : AbsAppState
                 _lastTriedRoomName = _rbm.RoomName;
             }
         }
+    }
+
+    private void OnGoBackLongStarted(InputAction.CallbackContext _)
+    {
+        _actionStarted = true;
+    }
+
+    private void OnGoBackLongCanceled(InputAction.CallbackContext _)
+    {
+        _view.UpdateLoadingCircle(0f);
+        _actionStarted = false;
+    }
+
+    private void OnGoBackLongPerformed(InputAction.CallbackContext _)
+    {
+        if (_actionStarted)
+            _manager.ChangeState(_manager.MainMenu);
     }
 }

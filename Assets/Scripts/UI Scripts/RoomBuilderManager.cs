@@ -1,13 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(RectTransform))]
 public class RoomBuilderManager : MonoBehaviour
 {
     private RectTransform roomRect;
     public RectTransform RoomRect => roomRect;
+
+    private NewRoomUI _view;
 
     [SerializeField]private NumberSelector scaleSelector;
     [SerializeField]private NumberSelector heightSelector;
@@ -29,6 +33,8 @@ public class RoomBuilderManager : MonoBehaviour
     //room edges : walls
     private List<RoomEdge> roomEdges;
     public RoomEdge[] RoomEdges => roomEdges.ToArray();
+
+    InputAction _snapAction;
 
     //world units that correspond to ScaleBase unit in ui units
     public float Scale
@@ -64,10 +70,13 @@ public class RoomBuilderManager : MonoBehaviour
     }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Init(NewRoomUI view, InputAction snapAction)
     {
-        roomRect = GetComponent<RectTransform>();
-        roomDots = new List<RoomDot>(GetComponentsInChildren<RoomDot>());
+        _view = view;
+        _snapAction = snapAction;
+        
+        roomRect = _view.GetComponent<RectTransform>();
+        roomDots = new List<RoomDot>(_view.GetComponentsInChildren<RoomDot>());
         if (roomDots == null)
         {
             Debug.LogError("RoomBuilderManager: No RoomDot components found in children!");
@@ -120,7 +129,7 @@ public class RoomBuilderManager : MonoBehaviour
         edgeGO.name = $"Edge_{num1}_{num2}";
         //move the edge to the bottom of the hierarchy so that dots are always on top
         edgeGO.transform.SetSiblingIndex(0);
-        RoomEdge edge = edgeGO.AddComponent<RoomEdge>().Init(d1, d2);
+        RoomEdge edge = edgeGO.GetComponent<RoomEdge>().Init(d1, d2);
         roomEdges.Add(edge);
     }
 
@@ -162,6 +171,7 @@ public class RoomBuilderManager : MonoBehaviour
         RoomDot d1 = e.C1;
         RoomDot d2 = e.C2;
         RoomDot newDot = Instantiate(roomDots[0], roomDots[0].transform.parent);
+        if (newDot == null) Debug.LogError("newDotNull");
         newDot.C1 = d1;
         newDot.C2 = d2; 
         d1.ChangeConnections(d2, newDot);
@@ -186,6 +196,40 @@ public class RoomBuilderManager : MonoBehaviour
             DeleteAllEdges();
             GenerateEdges();
         }
+    }
+
+    public static void CleanupRoom()
+    {
+        GameObject c = GameObject.Find("Room Container");
+        if (c != null)
+        {
+            foreach (Transform child in c.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Room Container' not found!");
+        }
+
+        c = GameObject.Find("Objects Container");
+        if (c != null)
+        {
+            foreach (Transform child in c.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Objects Container' not found!");
+        }
+    }
+
+    internal InputAction GetSnapAction()
+    {
+        return _snapAction;
     }
 }
 

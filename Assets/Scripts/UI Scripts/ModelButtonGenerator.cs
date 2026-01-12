@@ -22,7 +22,7 @@ public static class ModelButtonGenerator
         List<ModelButton> list = new();
 
         //find or create the folder containing the models 
-        string modelsPath = Path.Combine(Application.persistentDataPath, modelsFolder);
+        string modelsPath = ModelsFolder;
         if (!Directory.Exists(modelsPath))
         {
             Directory.CreateDirectory(modelsPath);

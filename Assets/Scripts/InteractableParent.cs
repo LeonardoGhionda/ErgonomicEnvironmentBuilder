@@ -19,82 +19,73 @@ public class InteractableParent : Interactable
     {
         selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
         materialsMap = new();
+        // Set layer to Ignore Raycast to avoid children "hiding"
+        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
     }
 
     public override void OnSelect()
     {
-        Debug.Log("Parent Selected: " + gameObject.name);
-
         var children = gameObject.GetComponentsInChildren<InteractableObject>();
-        Bounds combinedBounds = new Bounds(children[0].transform.position, Vector3.zero);
+        if (children.Length == 0) return;
 
-        foreach (var child in children)
-        {
-            // Update material
-            if(child.TryGetComponent(out MeshRenderer mr))
-            {
-                materialsMap[mr.GetInstanceID()] = mr.material;
-                mr.material = selectedMaterial;
-            }
+        Bounds visualBounds = new Bounds(children[0].transform.position, Vector3.zero);
 
-            //Calculate bounds 
-            if (child.TryGetComponent(out Renderer rend))
-                combinedBounds.Encapsulate(rend.bounds);
-
-            // detach children to avoid parent transform influence during move
-            child.transform.SetParent(null);
-        }
-
-        // move parent to the exact center
-        transform.position = combinedBounds.center;
-
-        // reattach children
-        foreach (var child in children)
-            child.transform.SetParent(transform);
-
-        BoxCollider parentCollider = gameObject.AddComponent<BoxCollider>();
-        if (parentCollider != null)
-        {
-            // center is zero because we just moved the transform to the bounds center
-            parentCollider.center = Vector3.zero;
-
-            // calculate correct local size (handles rotation)
-            parentCollider.size = GetLocalBoundsSize(transform, combinedBounds);
-        }
-
-    }
-
-    // helper to convert world bounds to local size
-    private Vector3 GetLocalBoundsSize(Transform t, Bounds worldBounds)
-    {
+        // variables for tight bounds calculation
         Vector3 min = Vector3.one * float.MaxValue;
         Vector3 max = Vector3.one * float.MinValue;
 
-        Vector3 center = worldBounds.center;
-        Vector3 ext = worldBounds.extents;
-
-        // get the 8 corners of the world box
-        Vector3[] worldCorners = new Vector3[]
+        // Loop 1: Calculate Center & Detach
+        foreach (var child in children)
         {
-        center + new Vector3( ext.x,  ext.y,  ext.z),
-        center + new Vector3( ext.x,  ext.y, -ext.z),
-        center + new Vector3( ext.x, -ext.y,  ext.z),
-        center + new Vector3( ext.x, -ext.y, -ext.z),
-        center + new Vector3(-ext.x,  ext.y,  ext.z),
-        center + new Vector3(-ext.x,  ext.y, -ext.z),
-        center + new Vector3(-ext.x, -ext.y,  ext.z),
-        center + new Vector3(-ext.x, -ext.y, -ext.z),
-        };
-
-        // convert to local space
-        foreach (var p in worldCorners)
-        {
-            Vector3 localP = t.InverseTransformPoint(p);
-            min = Vector3.Min(min, localP);
-            max = Vector3.Max(max, localP);
+            if (child.TryGetComponent(out MeshRenderer mr))
+            {
+                materialsMap[mr.GetInstanceID()] = mr.material;
+                mr.material = selectedMaterial;
+                visualBounds.Encapsulate(mr.bounds);
+            }
+            child.transform.SetParent(null);
         }
 
-        return max - min;
+        // move parent to center
+        transform.position = visualBounds.center;
+
+        // Loop 2: Reattach & Calculate Tight Size
+        foreach (var child in children)
+        {
+            child.transform.SetParent(transform);
+
+            // Calculate tight bounds here (relative to the new parent center)
+            if (child.TryGetComponent(out MeshFilter mf) && mf.sharedMesh != null)
+            {
+                Bounds b = mf.sharedMesh.bounds;
+                Vector3 c = b.center, e = b.extents;
+
+                // 8 corners of the raw mesh
+                Vector3[] pts = {
+                    c + new Vector3(e.x, e.y, e.z), c + new Vector3(e.x, e.y, -e.z),
+                    c + new Vector3(e.x, -e.y, e.z), c + new Vector3(e.x, -e.y, -e.z),
+                    c + new Vector3(-e.x, e.y, e.z), c + new Vector3(-e.x, e.y, -e.z),
+                    c + new Vector3(-e.x, -e.y, e.z), c + new Vector3(-e.x, -e.y, -e.z)
+                };
+
+                foreach (var p in pts)
+                {
+                    // transform point to parent local space
+                    Vector3 localPt = transform.InverseTransformPoint(child.transform.TransformPoint(p));
+                    min = Vector3.Min(min, localPt);
+                    max = Vector3.Max(max, localPt);
+                }
+            }
+        }
+
+        // Add collider
+        BoxCollider parentCollider = gameObject.AddComponent<BoxCollider>();
+        if (parentCollider != null)
+        {
+            parentCollider.center = Vector3.zero;
+            // if max < min (no mesh found), fallback to visual bounds size
+            parentCollider.size = (max.x > min.x) ? (max - min) : visualBounds.size;
+        }
     }
 
     public override void OnDeselect()

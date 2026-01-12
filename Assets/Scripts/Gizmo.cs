@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -59,6 +60,12 @@ public class Gizmo : MonoBehaviour
             return;
         }
 
+        if (selectedObj == null)
+        {
+            Debug.LogError("Gizmo: Selected Object is null!");
+            return;
+        }
+
         foreach (var handle in _handles)
         {
             handle.transform.position = selectedObj.position;
@@ -73,7 +80,7 @@ public class Gizmo : MonoBehaviour
             zHandle.up = selectedObj.forward;
         }
         else
-        {
+        {       
             // Global: Align with World Axes
             xHandle.up = Vector3.right;
             yHandle.up = Vector3.up;
@@ -88,6 +95,30 @@ public class Gizmo : MonoBehaviour
             _selected != yHandle &&
             _selected != zHandle) return Vector3.one;
         return _selected.up;
+    }
+
+    public Vector3 OriginalDirection()
+    {
+        if (_selected == xHandle)
+        {
+            return Vector3.right;
+        }
+        else if (_selected == yHandle)
+        {
+            return Vector3.up;
+        }
+        else if (_selected == zHandle)
+        {
+            return Vector3.forward;
+        }
+        else if (_selected == cHandle)
+        {
+            return Vector3.one;
+        }
+        else
+        {
+            return Vector3.one;
+        }
     }
 
     public void ScaleHandles(Vector3 scale)

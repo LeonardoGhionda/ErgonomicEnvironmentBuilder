@@ -9,6 +9,8 @@ public class MainMenuUI : MonoBehaviour
     public event Action OnNewRoomClicked;
     public event Action OnLoadRoomClicked;
     public event Action OnOptionsClicked;
+    [SerializeField] private Image goBackLoadUi; // The fill image for long pres
+    [SerializeField] private LoadingCircle loadingCircle;
 
     private void Start()
     {
@@ -19,4 +21,12 @@ public class MainMenuUI : MonoBehaviour
 
     public void Show() => gameObject.SetActive(true);
     public void Hide() => gameObject.SetActive(false);
+
+    public void UpdateLoadingCircle(float percent) => loadingCircle.SetLoadProgress(percent);
+
+    private void OnDisable()
+    {
+        UpdateLoadingCircle(0);
+    }
+
 }

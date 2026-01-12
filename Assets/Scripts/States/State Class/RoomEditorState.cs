@@ -1,22 +1,28 @@
 ﻿using Dummiesman;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
+using static EditorHUDView;
 
 public class RoomEditorState : AbsAppState
 {
-    private EditorHUDView _hud;
+    private EditorHUDView _view;
 
     //managers (get from State manager)
     private FreeCameraController _camController;
     private RoomBuilderManager _rbm;
     private GizmoManager _gizmoManager;
     private SelectionManager _selectionManager;
+    private MeasureManager _measureManager;
 
-    private Vector2 mousePos => _input.RoomEditCommon.Pointer.ReadValue<Vector2>();
+    private Vector2 mousePos => _input.Ui.Point.ReadValue<Vector2>();
 
-    private bool _uiMode = false;
+    private bool _mouseShownInPerspective = false;
 
     public RoomEditorState(
         StateManager manager,
@@ -24,43 +30,48 @@ public class RoomEditorState : AbsAppState
         EditorHUDView editorHUD,
         RoomBuilderManager roomBuilderManager,
         GizmoManager gizmoManager,
-        SelectionManager selectionManager) : base(manager, input)
+        SelectionManager selectionManager,
+        MeasureManager measureManager) : base(manager, input)
     {
-        _hud = editorHUD;
+        _view = editorHUD;
         _camController = manager.cameraController;
         _rbm = roomBuilderManager;
         _gizmoManager = gizmoManager;
         _selectionManager = selectionManager;
+        _measureManager = measureManager;
     }
 
     public override void Enter()
     {
         // Setup UI
-        _hud.ShowSelectionMenu(null, null);
-        _hud.ToggleExitMenu(false);
-        _hud.ToggleModelsMenu(false);
-        _hud.gameObject.SetActive(true);
+        _view.gameObject.SetActive(true);
+        _view.ShowSelectionMenu(null);
+        _view.ToggleModelsMenu(false);
 
         // UI events
-        _hud.OnSaveClicked += SaveRoom;
-        _hud.OnQuitClicked += QuitRoom;
-        _hud.OnModelButtonClicked += PlaceModel;
-        _hud.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode);
+        _view.OnSaveClicked += SaveRoom;
+        _view.OnQuitClicked += QuitRoom;
+        _view.OnModelButtonClicked += PlaceModel;
+        _view.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode);
+        _view.OnCoordinateModeChanged += (CoordText button) => ChangeCoordSystem(button);
+        _view.OnTransformInputChanged += HandleTransformChange;
+        _view.OnMeasureButtonPressed += StartMeasure;
+        _view.OnClearMeasureButtonPressed += ClearMeasures;
+        _view.OnImportButtonPressed += ImportModel;
 
         // Input events
-        _input.RoomEditCommon.Enable();
-        _input.RoomEditOrtho.Enable();
+        _input.CameraMovement.Enable();
+
+        _input.CameraMovement.SwitchView.performed += SwitchCameraView;
+
+
+        _input.Ui.GoBack.performed += OnExitPressed;
+        _input.Ui.OpenModelsMenu.performed += OnToggleModels;
+        _input.Ui.Select.performed += OnSelectActionPerformed;
+        _input.Ui.Select.canceled += OnSelectActionCanceled;
+        _input.Ui.EnablePointer.performed += OnToggleMouseRight;
+        _input.Ui.Delete.performed += OnDeleteSelected;
         
-        _input.RoomEditCommon.PauseMenu.performed += OnTogglePauseMenu;
-        _input.RoomEditCommon.ModelsMenu.performed += OnToggleModels;
-        _input.RoomEditCommon.Select.performed += OnSelectActionPerformed;
-        _input.RoomEditCommon.Select.canceled += OnSelectActionCanceled;
-        _input.RoomEditCommon.SwitchView.performed += OnSwitchView;
-        _input.RoomEditCommon.Delete.performed += (ctx) => _selectionManager.DeleteSelected();
-
-
-        _input.Ui.EnableCamera.performed += (ctx) => SetUIMode(false);
-        _input.Ui.EnableCamera.canceled += (ctx) => SetUIMode(true);
         _input.Ui.Cancel.performed += OnCloseMenu;
 
 
@@ -72,82 +83,128 @@ public class RoomEditorState : AbsAppState
         // Ui Action always enabled
         _input.Ui.Enable();
 
-        // Start in Edit Mode
-        SetUIMode(false);
 
         //start managers
         _gizmoManager.Init(_camController.Camera, _camController);
         _selectionManager.Init(_camController.Camera);
+        _measureManager.Init(_camController.Camera);
     }
 
     public override void Exit()
     {
         // Cleanup Events
-        _hud.OnSaveClicked -= SaveRoom;
-        _hud.OnQuitClicked -= QuitRoom;
-        _hud.OnModelButtonClicked -= PlaceModel;
-        _hud.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode);
+        _view.OnSaveClicked -= SaveRoom;
+        _view.OnQuitClicked -= QuitRoom;
+        _view.OnModelButtonClicked -= PlaceModel;
+        _view.OnTranformButtonClicked -= (TransformMode mode) => ChangeTransformType(mode);
+        _view.OnCoordinateModeChanged -= (CoordText button) => ChangeCoordSystem(button);
+        _view.OnTransformInputChanged -= HandleTransformChange;
+        _view.OnMeasureButtonPressed -= StartMeasure;
+        _view.OnClearMeasureButtonPressed -= ClearMeasures;
+        _view.OnImportButtonPressed -= ImportModel;
 
-        _input.RoomEditCommon.PauseMenu.performed -= OnTogglePauseMenu;
-        _input.RoomEditCommon.ModelsMenu.performed -= OnToggleModels;
-        _input.RoomEditCommon.Select.performed -= OnSelectActionPerformed;
-        _input.RoomEditCommon.Select.canceled -= OnSelectActionCanceled;
-        _input.RoomEditCommon.SwitchView.performed -= OnSwitchView;
-        _input.RoomEditCommon.Delete.performed -= (ctx) => _selectionManager.DeleteSelected();
+        _input.CameraMovement.SwitchView.performed -= SwitchCameraView;
 
-        _input.Ui.EnableCamera.performed -= (ctx) => SetUIMode(false);
-        _input.Ui.EnableCamera.canceled -= (ctx) => SetUIMode(true);
+        _input.Ui.GoBack.performed -= OnExitPressed;
+        _input.Ui.OpenModelsMenu.performed -= OnToggleModels;
+        _input.Ui.Select.performed -= OnSelectActionPerformed;
+        _input.Ui.Select.canceled -= OnSelectActionCanceled;
+        _input.Ui.EnablePointer.performed -= OnToggleMouseRight;
+        _input.Ui.Delete.performed -= OnDeleteSelected;
+
         _input.Ui.Cancel.performed -= OnCloseMenu;
 
 
         // Cleanup Maps
-        _input.RoomEditCommon.Disable();
-        _input.RoomEditOrtho.Disable();
-        _input.RoomEditPerspective.Disable();
+        _input.CameraMovement.Disable();
         _input.Ui.Disable();
 
         //turn off ui
-        _hud.gameObject.SetActive(false);
+        _view.gameObject.SetActive(false);
 
         //gizmpo manager
         _gizmoManager.Stop();
     }
 
+    void OnDestroy()
+    {
+        // Ensure all event unsubscriptions
+        Exit();
+    }
+
     public override void UpdateState()
     {
+        // If measuring, skip gizmo updates
+        if (_measureManager.IsMeasuring)
+        {
+            _measureManager.MoveCursor(mousePos);
+            return;
+        }
+
         if (_selectionManager.SelectionExist)
         {
-            _gizmoManager.ScaleHandlesByCameraDistance();
-            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, mousePos, _input.RoomEditCommon.Snap.IsPressed());
+            _gizmoManager.ScaleHandlesByCameraDistance(_selectionManager.SelectionTransform);
+            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, mousePos, _input.Ui.Snap.IsPressed());
+            if (_gizmoManager.SelectedMoved())
+            {
+                // Update HUD values during dragging
+                _view.UpdateTransformUI(_selectionManager.SelectionTransform);
+            }
         }
-        
     }
 
     // --- INPUT HANDLERS ---
 
+    private void SwitchCameraView(InputAction.CallbackContext context)
+    {
+        _camController.ToggleView();
+    }
+
     private void OnSelectActionPerformed(InputAction.CallbackContext ctx)
     {
-        //if there is a selection we have to check if the user wants to use an handle first
+        // 1. UI PRIORITY
+        // Check if pointer is hovering any UI element (Buttons, Panels, etc.)
+        // If yes, stop immediately. Do not interact with 3D world.
+        if (IsPointerOverUi())
+        {
+            return;
+        }
+
+        // 2. MEASURE PRIORITY
+        if (_measureManager.IsMeasuring)
+        {
+            _measureManager.RegisterClick();
+            return;
+        }
+
+        // 3. GIZMO PRIORITY
+        // If there is a selection, check if we hit a handle first
         if (_selectionManager.SelectionExist)
-        { 
+        {
             if (_gizmoManager.TrySelectHandle(mousePos))
             {
                 return;
             }
         }
 
-        // No handle selected, proceed with normal selection
+        // 4. OBJECT SELECTION
+        // No UI, No Gizmo -> Try to select an object
+        // (Assuming you updated this part based on previous refactoring)
         _selectionManager.Select();
 
         // Open/close panel
         if (_selectionManager.SelectionExist)
         {
-            _hud.ShowSelectionMenu(_selectionManager.SelectionGO, _gizmoManager);
+            // Show right menu
+            _view.ShowSelectionMenu(_selectionManager.SelectionGO);
+            // Setup Gizmo on new selection
             _gizmoManager.NewTarget(_selectionManager.SelectionTransform);
+            // Update HUD values
+            _view.UpdateTransformUI(_selectionManager.SelectionTransform);
         }
         else
         {
-            _hud.HideAllMenus();
+            _view.HideAllMenus();
             _gizmoManager.RemoveGizmo();
         }
 
@@ -155,76 +212,87 @@ public class RoomEditorState : AbsAppState
 
     private void OnSelectActionCanceled(InputAction.CallbackContext context)
     {
-        if (_selectionManager.SelectionExist) 
+        if (_selectionManager.SelectionExist) { 
             _gizmoManager.DeselectHandle(_selectionManager.SelectionTransform);
-        _camController.MenuMode(false);
+        }
     }
 
-
-    private void OnSwitchView(InputAction.CallbackContext ctx)
+    private void OnToggleMouseRight(InputAction.CallbackContext ctx)
     {
-        _camController.ToggleView();
+        _mouseShownInPerspective = !_mouseShownInPerspective;
+        _camController.SetMouseFree(_mouseShownInPerspective);
     }
 
-    private void OnTogglePauseMenu(InputAction.CallbackContext ctx)
+    private void OnExitPressed(InputAction.CallbackContext ctx)
     {
+        // If measuring, cancel measuring first
+        if (_measureManager.IsMeasuring)
+        {
+            _measureManager.CurrentStep = MeasureManager.MeasureStep.None;
+            _measureManager.ResetTool();
+            return;
+        }
 
+        _view.TogglePauseMenu();
+        if (_view.IsPaused)
+        {
+            _input.CameraMovement.Disable();
+            _camController.SetMouseFree(true);
+        }
+        else
+        {
+            _input.CameraMovement.Enable();
+        }
     }
 
     private void OnToggleModels(InputAction.CallbackContext ctx)
     {
-        _hud.ToggleModelsMenu(true);
-        SetUIMode(true);
+        _view.ToggleModelsMenu(true);
     }
 
     private void OnCloseMenu(InputAction.CallbackContext ctx)
     {
-        _hud.HideAllMenus();
-        SetUIMode(false);
+        _view.HideAllMenus();
     }
 
-    /// <summary>
-    /// Lock/Unock camera and Enable/Disable input
-    /// </summary>
-    /// <param name="value"></param>
-    private void SetUIMode(bool value)
+    private void OnDeleteSelected(InputAction.CallbackContext context)
     {
-        _uiMode = value;
-        if (value) // UI
-        {
-            // --- input ---
-            _input.RoomEditCommon.Disable();
-            _input.RoomEditOrtho.Disable();
-            _input.RoomEditPerspective.Disable();
+        _gizmoManager.RemoveGizmo();
+        _selectionManager.DeleteSelected();
+        _view.HideAllMenus();
+    }
 
-            // --- camera ---
-            _camController.enabled = false;
-        }
-        else // CAMERA
+    private void ChangeCoordSystem(CoordText button)
+    {
+        if (_selectionManager.SelectionExist)
         {
-            // --- input ---
-            _input.RoomEditCommon.Enable();
-            if (_camController.IsOrtho) _input.RoomEditOrtho.Enable();
-            else _input.RoomEditPerspective.Enable();
-
-            // --- camera ---
-            _camController.enabled = true;
+            _gizmoManager.SetLocal(!_gizmoManager.LocalTransform, _selectionManager.SelectionTransform);
+            button.ChangeCoordinateMode(_gizmoManager.LocalTransform);
         }
     }
+
 
     // --- ACTIONS RESPONCE ---
 
     private void SaveRoom()
     {
+        // Clear selection and gizmo before saving  
+        _gizmoManager.RemoveGizmo();
+        _selectionManager.ChangeSelectedObject(null);
+
         RoomDataExporter.Save(_rbm.RoomName);
-        Debug.Log("Room Saved!");
     }
 
     private void QuitRoom()
     {
         SaveRoom();
-        Debug.LogWarning("TODO: Clear Scene");
+        RoomBuilderManager.CleanupRoom();
         _manager.ChangeState(_manager.MainMenu);
+    }
+
+    private void ImportModel()
+    {
+        ImportUtils.ImportObject(_view.GenerateModelButton);
     }
 
     private void ChangeTransformType(TransformMode mode)
@@ -232,24 +300,38 @@ public class RoomEditorState : AbsAppState
         _gizmoManager.SetMode(mode, _selectionManager.SelectionTransform);
     }
 
+    private void StartMeasure()
+    {
+        _selectionManager.ChangeSelectedObject(null);
+        _gizmoManager.RemoveGizmo();
+        _measureManager.ResetTool();
+        _view.HideAllMenus();
+        _measureManager.StartMeasure();
+    }
+
+    private void ClearMeasures()
+    {
+        _measureManager.ClearAllMeasures();
+    }
+
     private void PlaceModel(string path)
     {
         if (string.IsNullOrEmpty(path))
         {
-            Debug.LogError("OBJ path is null or empty");
             return;
         }
         OBJLoader loader = new();
         GameObject obj = loader.Load(path);
         SetUpModel(obj, path, GameObject.Find("Objects Container"));
 
-        _hud.HideAllMenus();
+        _view.HideAllMenus();
 
         
         _selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableParent>());
         _gizmoManager.NewTarget(_selectionManager.SelectionTransform);
 
-        _hud.ShowSelectionMenu(_selectionManager.SelectionGO, _gizmoManager);
+        _view.ShowSelectionMenu(_selectionManager.SelectionGO);
+        _view.UpdateTransformUI(_selectionManager.SelectionTransform);
     }
 
     public static void SetUpModel(GameObject parent, string path, GameObject container)
@@ -294,7 +376,6 @@ public class RoomEditorState : AbsAppState
 
         if (roomContainer == null)
         {
-            Debug.LogError("Room Container not found!");
             return new Vector3(0, 0, 5f);
         }
 
@@ -347,5 +428,66 @@ public class RoomEditorState : AbsAppState
 
         // Return: X = CenterX, Y = CenterZ, Z = OrthoSize
         return new Vector3(totalBounds.center.x, totalBounds.center.z, orthoSize);
+    }
+
+    private bool IsPointerOverUi()
+    {
+        // Check if EventSystem exists
+        if (EventSystem.current == null) return false;
+
+        // Create a pointer event for the current mouse position
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Mouse.current.position.ReadValue()
+        };
+
+        // Create a list to hold the results
+        List<RaycastResult> results = new List<RaycastResult>();
+
+        // Manual Raycast against the UI
+        EventSystem.current.RaycastAll(eventData, results);
+
+        // If we hit at least one UI element, return true
+        return results.Count > 0;
+    }
+
+    private void HandleTransformChange(TransSpace space, TransType type, Axis axis, float value)
+    {
+
+        if (!_selectionManager.SelectionExist) return;
+        Transform t = _selectionManager.SelectionTransform;
+
+        // Apply the change
+        ApplyModification(t, space, type, axis, value);
+
+        _gizmoManager.UpdateGizmoPosition(t);
+
+        // Optional: Sync Physics if needed
+        Physics.SyncTransforms();
+    }
+
+    private void ApplyModification(Transform t, TransSpace space, TransType type, Axis axis, float val)
+    {
+        // Helper to modify a single component of a vector
+        Vector3 ModifyVector(Vector3 original, Axis a, float v)
+        {
+            if (a == Axis.X) original.x = v;
+            if (a == Axis.Y) original.y = v;
+            if (a == Axis.Z) original.z = v;
+            return original;
+        }
+
+        if (space == TransSpace.Local)
+        {
+            if (type == TransType.Position) t.localPosition = ModifyVector(t.localPosition, axis, val);
+            if (type == TransType.Rotation) t.localEulerAngles = ModifyVector(t.localEulerAngles, axis, val);
+            if (type == TransType.Scale) t.localScale = ModifyVector(t.localScale, axis, val);
+        }
+        else // Global
+        {
+            if (type == TransType.Position) t.position = ModifyVector(t.position, axis, val);
+            if (type == TransType.Rotation) t.eulerAngles = ModifyVector(t.eulerAngles, axis, val);
+            // Global Scale is usually read-only in Unity because of skewing, skip or implement carefully
+        }
     }
 }

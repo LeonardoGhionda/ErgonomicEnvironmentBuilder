@@ -27,6 +27,7 @@ public class FreeCameraController : MonoBehaviour
 
     // State
     private bool _ortho = true;
+    private Vector3 _orthoPos;
     private float _yaw, _pitch;
     private Quaternion _targetRotation;
     private bool _showDot = false;
@@ -60,6 +61,7 @@ public class FreeCameraController : MonoBehaviour
 
         _cam.orthographicSize = orthoSize;
         _rb.MovePosition(startPos);
+        _orthoPos = startPos;
     }
 
     // --- LOGIC ---
@@ -77,20 +79,20 @@ public class FreeCameraController : MonoBehaviour
 
         if (_ortho)
         {
-            SetFPCursor(false);
+            SetMouseFree(false);
             _showDot = false;
 
             // Top-down pos
-            _rb.MovePosition(Vector3.up * 50f);
+            _rb.MovePosition(_orthoPos);
             _rb.MoveRotation(Quaternion.Euler(90f, 0f, 0f));
             _targetRotation = transform.rotation;
         }
         else
         {
-            SetFPCursor(true);
+            SetMouseFree(true);
 
-            _rb.MovePosition(Vector3.up * 1.7f);
-            _rb.MovePosition(Quaternion.identity.eulerAngles);
+            _rb.MovePosition(Vector3.up * 1.7f + Vector3.left * (10f));
+            _rb.MoveRotation(Quaternion.identity);
             _targetRotation = transform.rotation;
             _yaw = 0; _pitch = 0;
         }
@@ -111,15 +113,15 @@ public class FreeCameraController : MonoBehaviour
         if (_ortho)
         {
             // Zoom Logic
-            float zIn = _input.RoomEditOrtho.ZoomIn.ReadValue<float>();
-            float zOut = _input.RoomEditOrtho.ZoomOut.ReadValue<float>();
+            float zIn = _input.CameraMovement.ZoomIn.ReadValue<float>();
+            float zOut = _input.CameraMovement.ZoomOut.ReadValue<float>();
             float zoom = zIn - zOut;
             _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize + (zoom * zoomSpeed), MIN_ORTHO, MAX_ORTHO);
         }
         else
         {
             // Look Logic
-            Vector2 delta = _input.RoomEditPerspective.View.ReadValue<Vector2>();
+            Vector2 delta = _input.CameraMovement.View.ReadValue<Vector2>();
             _yaw += delta.x * lookSpeed;
             _pitch -= delta.y * lookSpeed;
             _pitch = Mathf.Clamp(_pitch, -89f, 89f);
@@ -136,15 +138,15 @@ public class FreeCameraController : MonoBehaviour
 
         if (_ortho)
         {
-            Vector2 input = _input.RoomEditCommon.Move.ReadValue<Vector2>();
+            Vector2 input = _input.CameraMovement.Move.ReadValue<Vector2>();
             moveDir = new Vector3(input.x, 0, input.y);
         }
         else
         {
-            Vector2 input = _input.RoomEditCommon.Move.ReadValue<Vector2>();
+            Vector2 input = _input.CameraMovement.Move.ReadValue<Vector2>();
             float y = 0;
-            if (_input.RoomEditPerspective.Up.IsPressed()) y = 1;
-            if (_input.RoomEditPerspective.Down.IsPressed()) y = -1;
+            if (_input.CameraMovement.Up.IsPressed()) y = 1;
+            if (_input.CameraMovement.Down.IsPressed()) y = -1;
 
             moveDir = transform.right * input.x + transform.forward * input.y + transform.up * y;
         }
@@ -152,7 +154,7 @@ public class FreeCameraController : MonoBehaviour
         if (moveDir.sqrMagnitude > 1f) moveDir.Normalize();
 
         //sprint
-        if (_input.RoomEditCommon.Sprint.IsPressed()) currentSpeed *= sprintMultiplier;
+        if (_input.CameraMovement.Sprint.IsPressed()) currentSpeed *= sprintMultiplier;
         
         // Perform Move
         float dist = currentSpeed * Time.fixedDeltaTime;
@@ -182,12 +184,12 @@ public class FreeCameraController : MonoBehaviour
 
     private void OnEnable()
     {
-        SetFPCursor(!_ortho);
+        SetMouseFree(!_ortho);
     }
 
     private void OnDisable()
     {
-        SetFPCursor(false);
+        SetMouseFree(false);
     }
 
     private void OnGUI()
@@ -200,25 +202,23 @@ public class FreeCameraController : MonoBehaviour
         }
     }
 
-    private void SetFPCursor(bool enable)
+    public void SetMouseFree(bool enable)
     {
+        if (_ortho) return; //mouse is always visible in ortho mode
+
         if (enable)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            _showDot = false;
+            _input.CameraMovement.View.Disable();
+        }
+        else
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             _showDot = true;
+            _input.CameraMovement.View.Enable();
         }
-        else
-        {
-            _showDot = false;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-    }
-
-    public void MenuMode(bool enable)
-    {
-        _lockMove = enable; 
-        SetFPCursor(!_ortho && !enable);
     }
 }

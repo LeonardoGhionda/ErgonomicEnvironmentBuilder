@@ -20,7 +20,7 @@ public static class ImportUtils
     {
         string ext = Path.GetExtension(filePath).ToLower();
         string name = Path.GetFileNameWithoutExtension(filePath);
-        string destFolder = Path.Combine(Application.persistentDataPath, "Models", name);
+        string destFolder = Path.Combine(Application.persistentDataPath, "Ready Models", name);
 
         Directory.CreateDirectory(destFolder);
 

@@ -29,6 +29,13 @@ public class GizmoManager : MonoBehaviour
     public Gizmo[] All => new Gizmo[] { Translate, Rotate, Scale };
     public TransformMode TransformMode => _tMode;
     public bool LocalTransform => _localTransform;
+
+    public bool SelectedMoved()
+    {
+        var returnValue = _objMoved;
+        _objMoved = false;
+        return returnValue;
+    }
     #endregion
 
     #region Setters
@@ -71,7 +78,6 @@ public class GizmoManager : MonoBehaviour
     #endregion
 
     #region Static Variables
-    public static readonly string ColliderVisualName = "Collider Visual";
     public static readonly int GizmoLayer = 7; // Ensure this Layer exists in Unity Settings
     #endregion
 
@@ -91,6 +97,8 @@ public class GizmoManager : MonoBehaviour
     private Gizmo _currentGizmo;
 
     private SnapTool _snapTool = new();
+
+    private bool _objMoved = false;
 
     // Cache to avoid GC allocations
     private RaycastHit[] _raycastHitsCache = new RaycastHit[16];
@@ -115,11 +123,12 @@ public class GizmoManager : MonoBehaviour
         _camController = cameraController;
 
         _tMode = TransformMode.Translate;
-        _localTransform = false; // Default Global
+        _localTransform = true; // Default Local
 
         // setup
         _mouseWrapMarginX = Screen.width / 200;
         _mouseWrapMarginY = Screen.height / 200;
+
     }
 
     /// <summary>
@@ -137,6 +146,12 @@ public class GizmoManager : MonoBehaviour
     #endregion
 
     #region Handles Management 
+
+    public void UpdateGizmoPosition(Transform selected)
+    {
+        if (_currentGizmo != null)
+            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+    }
 
     /// <summary>
     /// if handles are present they should be selected even if hitted behind an occlusion, 
@@ -170,7 +185,6 @@ public class GizmoManager : MonoBehaviour
             _currentGizmo.SelectHandle(bestHit);
 
         _firstDrag = true;
-        _camController.MenuMode(true);
 
         return true;
     }
@@ -181,10 +195,6 @@ public class GizmoManager : MonoBehaviour
         {
             _currentGizmo.DeselectHandle();
             _currentGizmo.SetHandlesInPosition(selected, _localTransform);
-
-            //if in perspective mode hide cursor
-            if (!_cam.orthographic)
-                _camController.MenuMode(false);
         }
     }
 
@@ -259,6 +269,7 @@ public class GizmoManager : MonoBehaviour
                 break;
         }
 
+        _objMoved = true;
         _lastMousePos = mousePos;
 
         _currentGizmo.SetHandlesInPosition(selected, _localTransform);
@@ -282,7 +293,7 @@ public class GizmoManager : MonoBehaviour
     {
         float scaleAmount = projected * worldScale * 0.5f;
 
-        Vector3 direction = _currentGizmo.SelectedDirection();
+        Vector3 direction = _currentGizmo.OriginalDirection();
 
         Vector3 newScale = selected.localScale + (direction * scaleAmount);
 
@@ -314,7 +325,7 @@ public class GizmoManager : MonoBehaviour
         }
     }
 
-    public void ScaleHandlesByCameraDistance()
+    public void ScaleHandlesByCameraDistance(Transform selected)
     {
         if (_currentGizmo == null) return;
         
@@ -326,8 +337,8 @@ public class GizmoManager : MonoBehaviour
         }
         else
         {
-            float dist = Vector3.Distance(transform.position, _cam.transform.position);
-            scale = dist * 0.05f;
+            float dist = Vector3.Distance(selected.position, _cam.transform.position);
+            scale = dist * 0.2f;
         }
 
         Vector3 scale3 = Vector3.one * scale;

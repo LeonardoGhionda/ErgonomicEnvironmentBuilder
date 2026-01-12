@@ -14,13 +14,13 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     private RectTransform rect;
     public RectTransform Rect => rect;
 
-    private RoomBuilderManager rbm;
-
     public Vector2 Position => rect.anchoredPosition;
 
     public float Width => rect.rect.width;
 
     private TextMeshProUGUI sizeText;
+
+    [SerializeField] RoomBuilderManager roomBuilderManager;
 
 
     public RoomEdge Init(RoomDot dot1, RoomDot dot2)
@@ -52,11 +52,6 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
         rect.sizeDelta = new Vector2(width, rect.sizeDelta.y);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        rbm = GetComponentInParent<RoomBuilderManager>();
-    }
 
     // Update is called once per frame
     void Update()
@@ -82,7 +77,7 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     /// <param name="eventData"></param>
     public void OnPointerDown(PointerEventData eventData)
     {
-        RoomDot dot = rbm.AddDotOnEdge(this);
+        RoomDot dot = roomBuilderManager.AddDotOnEdge(this);
     }
 
     /// <summary>
@@ -90,8 +85,8 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     /// </summary>
     private void UpdateText()
     {
-        float scale = rbm.Scale;
-        float scaleBase = rbm.ScaleBase;
+        float scale = roomBuilderManager.Scale;
+        float scaleBase = roomBuilderManager.ScaleBase;
         float worldWidth = Width / scaleBase * scale;
         sizeText.text = worldWidth.ToString("F1") + "m";
     }

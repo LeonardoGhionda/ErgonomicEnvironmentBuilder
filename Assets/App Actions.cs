@@ -89,18 +89,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     ""name"": ""App Actions"",
     ""maps"": [
         {
-            ""name"": ""Room Edit Common"",
+            ""name"": ""Camera Movement"",
             ""id"": ""9d6b473c-0854-4c11-84f5-e6f06d32a36c"",
             ""actions"": [
-                {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
-                    ""id"": ""9ec9f5f6-37aa-4e70-8f26-dd8610e503c7"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
                 {
                     ""name"": ""Move"",
                     ""type"": ""Value"",
@@ -109,51 +100,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Select"",
-                    ""type"": ""Button"",
-                    ""id"": ""64dbf0c5-86cc-4e83-b014-d4d2c3781662"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Delete"",
-                    ""type"": ""Button"",
-                    ""id"": ""4b7190f3-0dea-450e-9c64-283155de722e"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Switch View"",
-                    ""type"": ""Button"",
-                    ""id"": ""ed0fad3a-0327-4955-b869-567b1aef10c1"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Pause Menu"",
-                    ""type"": ""Button"",
-                    ""id"": ""98969161-0738-4425-bd12-00c79ae73776"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Models Menu"",
-                    ""type"": ""Button"",
-                    ""id"": ""c109fccf-90e3-471c-b91c-1f091e3b1716"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""Sprint"",
@@ -165,36 +111,61 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Snap"",
+                    ""name"": ""Zoom In"",
+                    ""type"": ""Value"",
+                    ""id"": ""458ce940-1f59-4716-9299-b16f2bcd1da3"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Zoom Out"",
+                    ""type"": ""Value"",
+                    ""id"": ""9c13655b-1486-4301-ab13-cea7c4785305"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""View"",
+                    ""type"": ""Value"",
+                    ""id"": ""10895205-b73e-4849-861b-5f2d88104ce7"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Down"",
                     ""type"": ""Button"",
-                    ""id"": ""0e77fa32-bca3-4f27-bbb8-5d9f57cc39a8"",
+                    ""id"": ""509ab9a9-191e-4367-8010-27c0881c4c2d"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Pointer"",
-                    ""type"": ""Value"",
-                    ""id"": ""17a6d130-3b0c-47f1-a262-a1eab96282c4"",
-                    ""expectedControlType"": ""Vector2"",
+                    ""name"": ""Up"",
+                    ""type"": ""Button"",
+                    ""id"": ""1df8880d-7008-45c0-a633-9a572d16fed9"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Switch View"",
+                    ""type"": ""Button"",
+                    ""id"": ""b7f83831-425f-413c-a978-ed12f1c78e9a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""73d50bfe-8b29-4ef8-891c-1e7985b52f35"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""New action"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
                 {
                     ""name"": ""WASD"",
                     ""id"": ""d82915c2-4e67-41a4-af21-60d65c2ecd41"",
@@ -252,61 +223,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""74d1893c-24a3-4e15-bf1f-92802fe07d78"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Select"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""22d7ef73-f313-4d37-945d-b7e649d1cdaa"",
-                    ""path"": ""<Keyboard>/delete"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Delete"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""86b251da-4b48-45ea-8ca7-70dabadfb34c"",
-                    ""path"": ""<Keyboard>/enter"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Switch View"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""f2ef7ef1-a5ce-4bd0-8783-5f1d3e95e555"",
-                    ""path"": ""<Keyboard>/1"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Pause Menu"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""948e3d5f-d26c-416a-a7d0-aff336cb3176"",
-                    ""path"": ""<Keyboard>/m"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Models Menu"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""15f91651-c190-4b89-973b-3e64a45d0f09"",
                     ""path"": ""<Keyboard>/leftShift"",
                     ""interactions"": """",
@@ -318,55 +234,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""503ccdf3-4d97-489e-a96f-906a8f40a91e"",
-                    ""path"": ""<Keyboard>/leftCtrl"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Snap"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b9431aac-d920-42a0-a394-d830b9a63f0d"",
-                    ""path"": ""<Mouse>/position"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Pointer"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""Room Edit Ortho"",
-            ""id"": ""7abaf0c7-a026-45be-882e-0abc740b70b6"",
-            ""actions"": [
-                {
-                    ""name"": ""Zoom In"",
-                    ""type"": ""Value"",
-                    ""id"": ""eb56d986-fbd3-4d0d-8655-8c53c94e2d5e"",
-                    ""expectedControlType"": ""Axis"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Zoom Out"",
-                    ""type"": ""Value"",
-                    ""id"": ""b70f47f4-3162-4b62-b92e-9403bd1c11b5"",
-                    ""expectedControlType"": ""Axis"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""f5731fa8-b49b-4a87-83c7-371b48cfc6ce"",
+                    ""id"": ""cd9730f1-dc90-4f86-8875-267d4b2c208b"",
                     ""path"": ""<Mouse>/scroll/down"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -377,7 +245,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d2f9749b-2031-488b-9d11-3490e9003d54"",
+                    ""id"": ""f7fb1614-c94b-4c8d-894f-7d4b9d83468b"",
                     ""path"": ""<Mouse>/scroll/up"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -385,45 +253,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""action"": ""Zoom Out"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""Room Edit Perspective"",
-            ""id"": ""e3ee9681-d70d-41b9-b0b7-dff43d64ebee"",
-            ""actions"": [
-                {
-                    ""name"": ""View"",
-                    ""type"": ""Value"",
-                    ""id"": ""cb2d43bb-655e-4e43-804b-6a5a119527c5"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
                 },
-                {
-                    ""name"": ""Up"",
-                    ""type"": ""Button"",
-                    ""id"": ""4bfcbbeb-e97e-4d64-a2bf-8b2b04273be4"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Down"",
-                    ""type"": ""Button"",
-                    ""id"": ""73f1b2a4-e974-4518-8fa2-88f4778cd9f4"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""ac0d3a0c-6541-4770-a3ca-9498f0ad2717"",
+                    ""id"": ""887bbf18-fad0-4690-9bfb-82cda4d98e7a"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -434,7 +267,18 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""89cf507a-6909-494f-9a28-15b82d6f1978"",
+                    ""id"": ""9a65c381-2f3c-4828-aec8-cd94544fa401"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""efe39569-f5c7-45db-8483-47d079d392b2"",
                     ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -445,12 +289,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""5e0510d4-5196-4918-89ae-2cce5f16b8c5"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""id"": ""9a24c6c2-e000-49c2-914f-fac53751ec2a"",
+                    ""path"": ""<Keyboard>/enter"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Down"",
+                    ""action"": ""Switch View"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -460,15 +304,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             ""name"": ""Ui"",
             ""id"": ""920d4c38-1661-4451-9ba1-7b2aa38bdefb"",
             ""actions"": [
-                {
-                    ""name"": ""Snap"",
-                    ""type"": ""Button"",
-                    ""id"": ""ee1a18ef-586a-4572-9b6b-38a4a9e4f55b"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
                 {
                     ""name"": ""Navigate"",
                     ""type"": ""PassThrough"",
@@ -587,9 +422,45 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Enable Camera"",
+                    ""name"": ""Snap"",
                     ""type"": ""Button"",
-                    ""id"": ""261dd510-402e-4830-8190-b9706ee9a146"",
+                    ""id"": ""48ad702a-6c94-4943-aad6-197356533976"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""c47a55f8-0d38-4be9-b19b-e31417b46596"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Open Models Menu"",
+                    ""type"": ""Button"",
+                    ""id"": ""871fad31-f11d-452f-96fc-15bde48d451c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Enable Pointer"",
+                    ""type"": ""Button"",
+                    ""id"": ""6e72eb58-099a-458f-a1fb-f33e707c9098"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Delete"",
+                    ""type"": ""Button"",
+                    ""id"": ""7bbcdde9-7992-4d4f-98e0-a2621c1fbafe"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -597,17 +468,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""86d8914e-46a2-4f03-82a2-8b39802e109d"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Snap"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
                 {
                     ""name"": ""Gamepad"",
                     ""id"": ""809f371f-c5e2-4e7a-83a1-d867598f40dd"",
@@ -1083,12 +943,56 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""616bceea-39b0-4748-b971-a818ffdf778c"",
+                    ""id"": ""8d8e9009-dae2-4a2f-bd0e-e5fa194945e8"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Snap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5e266c81-5717-49ba-b2b1-16810263e22c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6422da7d-5391-4bcb-8da5-a51edc450d59"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Open Models Menu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""406294a5-feb9-4681-ab66-76ebc6b1b246"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Enable Camera"",
+                    ""action"": ""Enable Pointer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e8269f1e-fa93-441d-b305-27cb2f092607"",
+                    ""path"": ""<Keyboard>/delete"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Delete"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1097,30 +1001,18 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     ],
     ""controlSchemes"": []
 }");
-        // Room Edit Common
-        m_RoomEditCommon = asset.FindActionMap("Room Edit Common", throwIfNotFound: true);
-        m_RoomEditCommon_Newaction = m_RoomEditCommon.FindAction("New action", throwIfNotFound: true);
-        m_RoomEditCommon_Move = m_RoomEditCommon.FindAction("Move", throwIfNotFound: true);
-        m_RoomEditCommon_Select = m_RoomEditCommon.FindAction("Select", throwIfNotFound: true);
-        m_RoomEditCommon_Delete = m_RoomEditCommon.FindAction("Delete", throwIfNotFound: true);
-        m_RoomEditCommon_SwitchView = m_RoomEditCommon.FindAction("Switch View", throwIfNotFound: true);
-        m_RoomEditCommon_PauseMenu = m_RoomEditCommon.FindAction("Pause Menu", throwIfNotFound: true);
-        m_RoomEditCommon_ModelsMenu = m_RoomEditCommon.FindAction("Models Menu", throwIfNotFound: true);
-        m_RoomEditCommon_Sprint = m_RoomEditCommon.FindAction("Sprint", throwIfNotFound: true);
-        m_RoomEditCommon_Snap = m_RoomEditCommon.FindAction("Snap", throwIfNotFound: true);
-        m_RoomEditCommon_Pointer = m_RoomEditCommon.FindAction("Pointer", throwIfNotFound: true);
-        // Room Edit Ortho
-        m_RoomEditOrtho = asset.FindActionMap("Room Edit Ortho", throwIfNotFound: true);
-        m_RoomEditOrtho_ZoomIn = m_RoomEditOrtho.FindAction("Zoom In", throwIfNotFound: true);
-        m_RoomEditOrtho_ZoomOut = m_RoomEditOrtho.FindAction("Zoom Out", throwIfNotFound: true);
-        // Room Edit Perspective
-        m_RoomEditPerspective = asset.FindActionMap("Room Edit Perspective", throwIfNotFound: true);
-        m_RoomEditPerspective_View = m_RoomEditPerspective.FindAction("View", throwIfNotFound: true);
-        m_RoomEditPerspective_Up = m_RoomEditPerspective.FindAction("Up", throwIfNotFound: true);
-        m_RoomEditPerspective_Down = m_RoomEditPerspective.FindAction("Down", throwIfNotFound: true);
+        // Camera Movement
+        m_CameraMovement = asset.FindActionMap("Camera Movement", throwIfNotFound: true);
+        m_CameraMovement_Move = m_CameraMovement.FindAction("Move", throwIfNotFound: true);
+        m_CameraMovement_Sprint = m_CameraMovement.FindAction("Sprint", throwIfNotFound: true);
+        m_CameraMovement_ZoomIn = m_CameraMovement.FindAction("Zoom In", throwIfNotFound: true);
+        m_CameraMovement_ZoomOut = m_CameraMovement.FindAction("Zoom Out", throwIfNotFound: true);
+        m_CameraMovement_View = m_CameraMovement.FindAction("View", throwIfNotFound: true);
+        m_CameraMovement_Down = m_CameraMovement.FindAction("Down", throwIfNotFound: true);
+        m_CameraMovement_Up = m_CameraMovement.FindAction("Up", throwIfNotFound: true);
+        m_CameraMovement_SwitchView = m_CameraMovement.FindAction("Switch View", throwIfNotFound: true);
         // Ui
         m_Ui = asset.FindActionMap("Ui", throwIfNotFound: true);
-        m_Ui_Snap = m_Ui.FindAction("Snap", throwIfNotFound: true);
         m_Ui_Navigate = m_Ui.FindAction("Navigate", throwIfNotFound: true);
         m_Ui_Submit = m_Ui.FindAction("Submit", throwIfNotFound: true);
         m_Ui_Cancel = m_Ui.FindAction("Cancel", throwIfNotFound: true);
@@ -1134,14 +1026,16 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_Ui_GoBack = m_Ui.FindAction("Go Back", throwIfNotFound: true);
         m_Ui_GoBackLong = m_Ui.FindAction("Go Back Long", throwIfNotFound: true);
         m_Ui_MoveInterface = m_Ui.FindAction("Move Interface", throwIfNotFound: true);
-        m_Ui_EnableCamera = m_Ui.FindAction("Enable Camera", throwIfNotFound: true);
+        m_Ui_Snap = m_Ui.FindAction("Snap", throwIfNotFound: true);
+        m_Ui_Select = m_Ui.FindAction("Select", throwIfNotFound: true);
+        m_Ui_OpenModelsMenu = m_Ui.FindAction("Open Models Menu", throwIfNotFound: true);
+        m_Ui_EnablePointer = m_Ui.FindAction("Enable Pointer", throwIfNotFound: true);
+        m_Ui_Delete = m_Ui.FindAction("Delete", throwIfNotFound: true);
     }
 
     ~@AppActions()
     {
-        UnityEngine.Debug.Assert(!m_RoomEditCommon.enabled, "This will cause a leak and performance issues, AppActions.RoomEditCommon.Disable() has not been called.");
-        UnityEngine.Debug.Assert(!m_RoomEditOrtho.enabled, "This will cause a leak and performance issues, AppActions.RoomEditOrtho.Disable() has not been called.");
-        UnityEngine.Debug.Assert(!m_RoomEditPerspective.enabled, "This will cause a leak and performance issues, AppActions.RoomEditPerspective.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_CameraMovement.enabled, "This will cause a leak and performance issues, AppActions.CameraMovement.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Ui.enabled, "This will cause a leak and performance issues, AppActions.Ui.Disable() has not been called.");
     }
 
@@ -1215,74 +1109,64 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // Room Edit Common
-    private readonly InputActionMap m_RoomEditCommon;
-    private List<IRoomEditCommonActions> m_RoomEditCommonActionsCallbackInterfaces = new List<IRoomEditCommonActions>();
-    private readonly InputAction m_RoomEditCommon_Newaction;
-    private readonly InputAction m_RoomEditCommon_Move;
-    private readonly InputAction m_RoomEditCommon_Select;
-    private readonly InputAction m_RoomEditCommon_Delete;
-    private readonly InputAction m_RoomEditCommon_SwitchView;
-    private readonly InputAction m_RoomEditCommon_PauseMenu;
-    private readonly InputAction m_RoomEditCommon_ModelsMenu;
-    private readonly InputAction m_RoomEditCommon_Sprint;
-    private readonly InputAction m_RoomEditCommon_Snap;
-    private readonly InputAction m_RoomEditCommon_Pointer;
+    // Camera Movement
+    private readonly InputActionMap m_CameraMovement;
+    private List<ICameraMovementActions> m_CameraMovementActionsCallbackInterfaces = new List<ICameraMovementActions>();
+    private readonly InputAction m_CameraMovement_Move;
+    private readonly InputAction m_CameraMovement_Sprint;
+    private readonly InputAction m_CameraMovement_ZoomIn;
+    private readonly InputAction m_CameraMovement_ZoomOut;
+    private readonly InputAction m_CameraMovement_View;
+    private readonly InputAction m_CameraMovement_Down;
+    private readonly InputAction m_CameraMovement_Up;
+    private readonly InputAction m_CameraMovement_SwitchView;
     /// <summary>
-    /// Provides access to input actions defined in input action map "Room Edit Common".
+    /// Provides access to input actions defined in input action map "Camera Movement".
     /// </summary>
-    public struct RoomEditCommonActions
+    public struct CameraMovementActions
     {
         private @AppActions m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public RoomEditCommonActions(@AppActions wrapper) { m_Wrapper = wrapper; }
+        public CameraMovementActions(@AppActions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Newaction".
+        /// Provides access to the underlying input action "CameraMovement/Move".
         /// </summary>
-        public InputAction @Newaction => m_Wrapper.m_RoomEditCommon_Newaction;
+        public InputAction @Move => m_Wrapper.m_CameraMovement_Move;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Move".
+        /// Provides access to the underlying input action "CameraMovement/Sprint".
         /// </summary>
-        public InputAction @Move => m_Wrapper.m_RoomEditCommon_Move;
+        public InputAction @Sprint => m_Wrapper.m_CameraMovement_Sprint;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Select".
+        /// Provides access to the underlying input action "CameraMovement/ZoomIn".
         /// </summary>
-        public InputAction @Select => m_Wrapper.m_RoomEditCommon_Select;
+        public InputAction @ZoomIn => m_Wrapper.m_CameraMovement_ZoomIn;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Delete".
+        /// Provides access to the underlying input action "CameraMovement/ZoomOut".
         /// </summary>
-        public InputAction @Delete => m_Wrapper.m_RoomEditCommon_Delete;
+        public InputAction @ZoomOut => m_Wrapper.m_CameraMovement_ZoomOut;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/SwitchView".
+        /// Provides access to the underlying input action "CameraMovement/View".
         /// </summary>
-        public InputAction @SwitchView => m_Wrapper.m_RoomEditCommon_SwitchView;
+        public InputAction @View => m_Wrapper.m_CameraMovement_View;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/PauseMenu".
+        /// Provides access to the underlying input action "CameraMovement/Down".
         /// </summary>
-        public InputAction @PauseMenu => m_Wrapper.m_RoomEditCommon_PauseMenu;
+        public InputAction @Down => m_Wrapper.m_CameraMovement_Down;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/ModelsMenu".
+        /// Provides access to the underlying input action "CameraMovement/Up".
         /// </summary>
-        public InputAction @ModelsMenu => m_Wrapper.m_RoomEditCommon_ModelsMenu;
+        public InputAction @Up => m_Wrapper.m_CameraMovement_Up;
         /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Sprint".
+        /// Provides access to the underlying input action "CameraMovement/SwitchView".
         /// </summary>
-        public InputAction @Sprint => m_Wrapper.m_RoomEditCommon_Sprint;
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Snap".
-        /// </summary>
-        public InputAction @Snap => m_Wrapper.m_RoomEditCommon_Snap;
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditCommon/Pointer".
-        /// </summary>
-        public InputAction @Pointer => m_Wrapper.m_RoomEditCommon_Pointer;
+        public InputAction @SwitchView => m_Wrapper.m_CameraMovement_SwitchView;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_RoomEditCommon; }
+        public InputActionMap Get() { return m_Wrapper.m_CameraMovement; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -1290,9 +1174,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="RoomEditCommonActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="CameraMovementActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(RoomEditCommonActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(CameraMovementActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -1300,172 +1184,35 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="RoomEditCommonActions" />
-        public void AddCallbacks(IRoomEditCommonActions instance)
+        /// <seealso cref="CameraMovementActions" />
+        public void AddCallbacks(ICameraMovementActions instance)
         {
-            if (instance == null || m_Wrapper.m_RoomEditCommonActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_RoomEditCommonActionsCallbackInterfaces.Add(instance);
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
+            if (instance == null || m_Wrapper.m_CameraMovementActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CameraMovementActionsCallbackInterfaces.Add(instance);
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Select.started += instance.OnSelect;
-            @Select.performed += instance.OnSelect;
-            @Select.canceled += instance.OnSelect;
-            @Delete.started += instance.OnDelete;
-            @Delete.performed += instance.OnDelete;
-            @Delete.canceled += instance.OnDelete;
-            @SwitchView.started += instance.OnSwitchView;
-            @SwitchView.performed += instance.OnSwitchView;
-            @SwitchView.canceled += instance.OnSwitchView;
-            @PauseMenu.started += instance.OnPauseMenu;
-            @PauseMenu.performed += instance.OnPauseMenu;
-            @PauseMenu.canceled += instance.OnPauseMenu;
-            @ModelsMenu.started += instance.OnModelsMenu;
-            @ModelsMenu.performed += instance.OnModelsMenu;
-            @ModelsMenu.canceled += instance.OnModelsMenu;
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
-            @Snap.started += instance.OnSnap;
-            @Snap.performed += instance.OnSnap;
-            @Snap.canceled += instance.OnSnap;
-            @Pointer.started += instance.OnPointer;
-            @Pointer.performed += instance.OnPointer;
-            @Pointer.canceled += instance.OnPointer;
-        }
-
-        /// <summary>
-        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <remarks>
-        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
-        /// </remarks>
-        /// <seealso cref="RoomEditCommonActions" />
-        private void UnregisterCallbacks(IRoomEditCommonActions instance)
-        {
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
-            @Move.started -= instance.OnMove;
-            @Move.performed -= instance.OnMove;
-            @Move.canceled -= instance.OnMove;
-            @Select.started -= instance.OnSelect;
-            @Select.performed -= instance.OnSelect;
-            @Select.canceled -= instance.OnSelect;
-            @Delete.started -= instance.OnDelete;
-            @Delete.performed -= instance.OnDelete;
-            @Delete.canceled -= instance.OnDelete;
-            @SwitchView.started -= instance.OnSwitchView;
-            @SwitchView.performed -= instance.OnSwitchView;
-            @SwitchView.canceled -= instance.OnSwitchView;
-            @PauseMenu.started -= instance.OnPauseMenu;
-            @PauseMenu.performed -= instance.OnPauseMenu;
-            @PauseMenu.canceled -= instance.OnPauseMenu;
-            @ModelsMenu.started -= instance.OnModelsMenu;
-            @ModelsMenu.performed -= instance.OnModelsMenu;
-            @ModelsMenu.canceled -= instance.OnModelsMenu;
-            @Sprint.started -= instance.OnSprint;
-            @Sprint.performed -= instance.OnSprint;
-            @Sprint.canceled -= instance.OnSprint;
-            @Snap.started -= instance.OnSnap;
-            @Snap.performed -= instance.OnSnap;
-            @Snap.canceled -= instance.OnSnap;
-            @Pointer.started -= instance.OnPointer;
-            @Pointer.performed -= instance.OnPointer;
-            @Pointer.canceled -= instance.OnPointer;
-        }
-
-        /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="RoomEditCommonActions.UnregisterCallbacks(IRoomEditCommonActions)" />.
-        /// </summary>
-        /// <seealso cref="RoomEditCommonActions.UnregisterCallbacks(IRoomEditCommonActions)" />
-        public void RemoveCallbacks(IRoomEditCommonActions instance)
-        {
-            if (m_Wrapper.m_RoomEditCommonActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        /// <summary>
-        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
-        /// </remarks>
-        /// <seealso cref="RoomEditCommonActions.AddCallbacks(IRoomEditCommonActions)" />
-        /// <seealso cref="RoomEditCommonActions.RemoveCallbacks(IRoomEditCommonActions)" />
-        /// <seealso cref="RoomEditCommonActions.UnregisterCallbacks(IRoomEditCommonActions)" />
-        public void SetCallbacks(IRoomEditCommonActions instance)
-        {
-            foreach (var item in m_Wrapper.m_RoomEditCommonActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_RoomEditCommonActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    /// <summary>
-    /// Provides a new <see cref="RoomEditCommonActions" /> instance referencing this action map.
-    /// </summary>
-    public RoomEditCommonActions @RoomEditCommon => new RoomEditCommonActions(this);
-
-    // Room Edit Ortho
-    private readonly InputActionMap m_RoomEditOrtho;
-    private List<IRoomEditOrthoActions> m_RoomEditOrthoActionsCallbackInterfaces = new List<IRoomEditOrthoActions>();
-    private readonly InputAction m_RoomEditOrtho_ZoomIn;
-    private readonly InputAction m_RoomEditOrtho_ZoomOut;
-    /// <summary>
-    /// Provides access to input actions defined in input action map "Room Edit Ortho".
-    /// </summary>
-    public struct RoomEditOrthoActions
-    {
-        private @AppActions m_Wrapper;
-
-        /// <summary>
-        /// Construct a new instance of the input action map wrapper class.
-        /// </summary>
-        public RoomEditOrthoActions(@AppActions wrapper) { m_Wrapper = wrapper; }
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditOrtho/ZoomIn".
-        /// </summary>
-        public InputAction @ZoomIn => m_Wrapper.m_RoomEditOrtho_ZoomIn;
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditOrtho/ZoomOut".
-        /// </summary>
-        public InputAction @ZoomOut => m_Wrapper.m_RoomEditOrtho_ZoomOut;
-        /// <summary>
-        /// Provides access to the underlying input action map instance.
-        /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_RoomEditOrtho; }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
-        public void Enable() { Get().Enable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
-        public void Disable() { Get().Disable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
-        public bool enabled => Get().enabled;
-        /// <summary>
-        /// Implicitly converts an <see ref="RoomEditOrthoActions" /> to an <see ref="InputActionMap" /> instance.
-        /// </summary>
-        public static implicit operator InputActionMap(RoomEditOrthoActions set) { return set.Get(); }
-        /// <summary>
-        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <param name="instance">Callback instance.</param>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
-        /// </remarks>
-        /// <seealso cref="RoomEditOrthoActions" />
-        public void AddCallbacks(IRoomEditOrthoActions instance)
-        {
-            if (instance == null || m_Wrapper.m_RoomEditOrthoActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_RoomEditOrthoActionsCallbackInterfaces.Add(instance);
             @ZoomIn.started += instance.OnZoomIn;
             @ZoomIn.performed += instance.OnZoomIn;
             @ZoomIn.canceled += instance.OnZoomIn;
             @ZoomOut.started += instance.OnZoomOut;
             @ZoomOut.performed += instance.OnZoomOut;
             @ZoomOut.canceled += instance.OnZoomOut;
+            @View.started += instance.OnView;
+            @View.performed += instance.OnView;
+            @View.canceled += instance.OnView;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
+            @Up.started += instance.OnUp;
+            @Up.performed += instance.OnUp;
+            @Up.canceled += instance.OnUp;
+            @SwitchView.started += instance.OnSwitchView;
+            @SwitchView.performed += instance.OnSwitchView;
+            @SwitchView.canceled += instance.OnSwitchView;
         }
 
         /// <summary>
@@ -1474,142 +1221,42 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="RoomEditOrthoActions" />
-        private void UnregisterCallbacks(IRoomEditOrthoActions instance)
+        /// <seealso cref="CameraMovementActions" />
+        private void UnregisterCallbacks(ICameraMovementActions instance)
         {
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
+            @Sprint.started -= instance.OnSprint;
+            @Sprint.performed -= instance.OnSprint;
+            @Sprint.canceled -= instance.OnSprint;
             @ZoomIn.started -= instance.OnZoomIn;
             @ZoomIn.performed -= instance.OnZoomIn;
             @ZoomIn.canceled -= instance.OnZoomIn;
             @ZoomOut.started -= instance.OnZoomOut;
             @ZoomOut.performed -= instance.OnZoomOut;
             @ZoomOut.canceled -= instance.OnZoomOut;
-        }
-
-        /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="RoomEditOrthoActions.UnregisterCallbacks(IRoomEditOrthoActions)" />.
-        /// </summary>
-        /// <seealso cref="RoomEditOrthoActions.UnregisterCallbacks(IRoomEditOrthoActions)" />
-        public void RemoveCallbacks(IRoomEditOrthoActions instance)
-        {
-            if (m_Wrapper.m_RoomEditOrthoActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        /// <summary>
-        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
-        /// </remarks>
-        /// <seealso cref="RoomEditOrthoActions.AddCallbacks(IRoomEditOrthoActions)" />
-        /// <seealso cref="RoomEditOrthoActions.RemoveCallbacks(IRoomEditOrthoActions)" />
-        /// <seealso cref="RoomEditOrthoActions.UnregisterCallbacks(IRoomEditOrthoActions)" />
-        public void SetCallbacks(IRoomEditOrthoActions instance)
-        {
-            foreach (var item in m_Wrapper.m_RoomEditOrthoActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_RoomEditOrthoActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    /// <summary>
-    /// Provides a new <see cref="RoomEditOrthoActions" /> instance referencing this action map.
-    /// </summary>
-    public RoomEditOrthoActions @RoomEditOrtho => new RoomEditOrthoActions(this);
-
-    // Room Edit Perspective
-    private readonly InputActionMap m_RoomEditPerspective;
-    private List<IRoomEditPerspectiveActions> m_RoomEditPerspectiveActionsCallbackInterfaces = new List<IRoomEditPerspectiveActions>();
-    private readonly InputAction m_RoomEditPerspective_View;
-    private readonly InputAction m_RoomEditPerspective_Up;
-    private readonly InputAction m_RoomEditPerspective_Down;
-    /// <summary>
-    /// Provides access to input actions defined in input action map "Room Edit Perspective".
-    /// </summary>
-    public struct RoomEditPerspectiveActions
-    {
-        private @AppActions m_Wrapper;
-
-        /// <summary>
-        /// Construct a new instance of the input action map wrapper class.
-        /// </summary>
-        public RoomEditPerspectiveActions(@AppActions wrapper) { m_Wrapper = wrapper; }
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditPerspective/View".
-        /// </summary>
-        public InputAction @View => m_Wrapper.m_RoomEditPerspective_View;
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditPerspective/Up".
-        /// </summary>
-        public InputAction @Up => m_Wrapper.m_RoomEditPerspective_Up;
-        /// <summary>
-        /// Provides access to the underlying input action "RoomEditPerspective/Down".
-        /// </summary>
-        public InputAction @Down => m_Wrapper.m_RoomEditPerspective_Down;
-        /// <summary>
-        /// Provides access to the underlying input action map instance.
-        /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_RoomEditPerspective; }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
-        public void Enable() { Get().Enable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
-        public void Disable() { Get().Disable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
-        public bool enabled => Get().enabled;
-        /// <summary>
-        /// Implicitly converts an <see ref="RoomEditPerspectiveActions" /> to an <see ref="InputActionMap" /> instance.
-        /// </summary>
-        public static implicit operator InputActionMap(RoomEditPerspectiveActions set) { return set.Get(); }
-        /// <summary>
-        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <param name="instance">Callback instance.</param>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
-        /// </remarks>
-        /// <seealso cref="RoomEditPerspectiveActions" />
-        public void AddCallbacks(IRoomEditPerspectiveActions instance)
-        {
-            if (instance == null || m_Wrapper.m_RoomEditPerspectiveActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_RoomEditPerspectiveActionsCallbackInterfaces.Add(instance);
-            @View.started += instance.OnView;
-            @View.performed += instance.OnView;
-            @View.canceled += instance.OnView;
-            @Up.started += instance.OnUp;
-            @Up.performed += instance.OnUp;
-            @Up.canceled += instance.OnUp;
-            @Down.started += instance.OnDown;
-            @Down.performed += instance.OnDown;
-            @Down.canceled += instance.OnDown;
-        }
-
-        /// <summary>
-        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <remarks>
-        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
-        /// </remarks>
-        /// <seealso cref="RoomEditPerspectiveActions" />
-        private void UnregisterCallbacks(IRoomEditPerspectiveActions instance)
-        {
             @View.started -= instance.OnView;
             @View.performed -= instance.OnView;
             @View.canceled -= instance.OnView;
-            @Up.started -= instance.OnUp;
-            @Up.performed -= instance.OnUp;
-            @Up.canceled -= instance.OnUp;
             @Down.started -= instance.OnDown;
             @Down.performed -= instance.OnDown;
             @Down.canceled -= instance.OnDown;
+            @Up.started -= instance.OnUp;
+            @Up.performed -= instance.OnUp;
+            @Up.canceled -= instance.OnUp;
+            @SwitchView.started -= instance.OnSwitchView;
+            @SwitchView.performed -= instance.OnSwitchView;
+            @SwitchView.canceled -= instance.OnSwitchView;
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="RoomEditPerspectiveActions.UnregisterCallbacks(IRoomEditPerspectiveActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="CameraMovementActions.UnregisterCallbacks(ICameraMovementActions)" />.
         /// </summary>
-        /// <seealso cref="RoomEditPerspectiveActions.UnregisterCallbacks(IRoomEditPerspectiveActions)" />
-        public void RemoveCallbacks(IRoomEditPerspectiveActions instance)
+        /// <seealso cref="CameraMovementActions.UnregisterCallbacks(ICameraMovementActions)" />
+        public void RemoveCallbacks(ICameraMovementActions instance)
         {
-            if (m_Wrapper.m_RoomEditPerspectiveActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_CameraMovementActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -1619,26 +1266,25 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="RoomEditPerspectiveActions.AddCallbacks(IRoomEditPerspectiveActions)" />
-        /// <seealso cref="RoomEditPerspectiveActions.RemoveCallbacks(IRoomEditPerspectiveActions)" />
-        /// <seealso cref="RoomEditPerspectiveActions.UnregisterCallbacks(IRoomEditPerspectiveActions)" />
-        public void SetCallbacks(IRoomEditPerspectiveActions instance)
+        /// <seealso cref="CameraMovementActions.AddCallbacks(ICameraMovementActions)" />
+        /// <seealso cref="CameraMovementActions.RemoveCallbacks(ICameraMovementActions)" />
+        /// <seealso cref="CameraMovementActions.UnregisterCallbacks(ICameraMovementActions)" />
+        public void SetCallbacks(ICameraMovementActions instance)
         {
-            foreach (var item in m_Wrapper.m_RoomEditPerspectiveActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_CameraMovementActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_RoomEditPerspectiveActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_CameraMovementActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="RoomEditPerspectiveActions" /> instance referencing this action map.
+    /// Provides a new <see cref="CameraMovementActions" /> instance referencing this action map.
     /// </summary>
-    public RoomEditPerspectiveActions @RoomEditPerspective => new RoomEditPerspectiveActions(this);
+    public CameraMovementActions @CameraMovement => new CameraMovementActions(this);
 
     // Ui
     private readonly InputActionMap m_Ui;
     private List<IUiActions> m_UiActionsCallbackInterfaces = new List<IUiActions>();
-    private readonly InputAction m_Ui_Snap;
     private readonly InputAction m_Ui_Navigate;
     private readonly InputAction m_Ui_Submit;
     private readonly InputAction m_Ui_Cancel;
@@ -1652,7 +1298,11 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Ui_GoBack;
     private readonly InputAction m_Ui_GoBackLong;
     private readonly InputAction m_Ui_MoveInterface;
-    private readonly InputAction m_Ui_EnableCamera;
+    private readonly InputAction m_Ui_Snap;
+    private readonly InputAction m_Ui_Select;
+    private readonly InputAction m_Ui_OpenModelsMenu;
+    private readonly InputAction m_Ui_EnablePointer;
+    private readonly InputAction m_Ui_Delete;
     /// <summary>
     /// Provides access to input actions defined in input action map "Ui".
     /// </summary>
@@ -1664,10 +1314,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
         public UiActions(@AppActions wrapper) { m_Wrapper = wrapper; }
-        /// <summary>
-        /// Provides access to the underlying input action "Ui/Snap".
-        /// </summary>
-        public InputAction @Snap => m_Wrapper.m_Ui_Snap;
         /// <summary>
         /// Provides access to the underlying input action "Ui/Navigate".
         /// </summary>
@@ -1721,9 +1367,25 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @MoveInterface => m_Wrapper.m_Ui_MoveInterface;
         /// <summary>
-        /// Provides access to the underlying input action "Ui/EnableCamera".
+        /// Provides access to the underlying input action "Ui/Snap".
         /// </summary>
-        public InputAction @EnableCamera => m_Wrapper.m_Ui_EnableCamera;
+        public InputAction @Snap => m_Wrapper.m_Ui_Snap;
+        /// <summary>
+        /// Provides access to the underlying input action "Ui/Select".
+        /// </summary>
+        public InputAction @Select => m_Wrapper.m_Ui_Select;
+        /// <summary>
+        /// Provides access to the underlying input action "Ui/OpenModelsMenu".
+        /// </summary>
+        public InputAction @OpenModelsMenu => m_Wrapper.m_Ui_OpenModelsMenu;
+        /// <summary>
+        /// Provides access to the underlying input action "Ui/EnablePointer".
+        /// </summary>
+        public InputAction @EnablePointer => m_Wrapper.m_Ui_EnablePointer;
+        /// <summary>
+        /// Provides access to the underlying input action "Ui/Delete".
+        /// </summary>
+        public InputAction @Delete => m_Wrapper.m_Ui_Delete;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1750,9 +1412,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_UiActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_UiActionsCallbackInterfaces.Add(instance);
-            @Snap.started += instance.OnSnap;
-            @Snap.performed += instance.OnSnap;
-            @Snap.canceled += instance.OnSnap;
             @Navigate.started += instance.OnNavigate;
             @Navigate.performed += instance.OnNavigate;
             @Navigate.canceled += instance.OnNavigate;
@@ -1792,9 +1451,21 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @MoveInterface.started += instance.OnMoveInterface;
             @MoveInterface.performed += instance.OnMoveInterface;
             @MoveInterface.canceled += instance.OnMoveInterface;
-            @EnableCamera.started += instance.OnEnableCamera;
-            @EnableCamera.performed += instance.OnEnableCamera;
-            @EnableCamera.canceled += instance.OnEnableCamera;
+            @Snap.started += instance.OnSnap;
+            @Snap.performed += instance.OnSnap;
+            @Snap.canceled += instance.OnSnap;
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+            @OpenModelsMenu.started += instance.OnOpenModelsMenu;
+            @OpenModelsMenu.performed += instance.OnOpenModelsMenu;
+            @OpenModelsMenu.canceled += instance.OnOpenModelsMenu;
+            @EnablePointer.started += instance.OnEnablePointer;
+            @EnablePointer.performed += instance.OnEnablePointer;
+            @EnablePointer.canceled += instance.OnEnablePointer;
+            @Delete.started += instance.OnDelete;
+            @Delete.performed += instance.OnDelete;
+            @Delete.canceled += instance.OnDelete;
         }
 
         /// <summary>
@@ -1806,9 +1477,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UiActions" />
         private void UnregisterCallbacks(IUiActions instance)
         {
-            @Snap.started -= instance.OnSnap;
-            @Snap.performed -= instance.OnSnap;
-            @Snap.canceled -= instance.OnSnap;
             @Navigate.started -= instance.OnNavigate;
             @Navigate.performed -= instance.OnNavigate;
             @Navigate.canceled -= instance.OnNavigate;
@@ -1848,9 +1516,21 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @MoveInterface.started -= instance.OnMoveInterface;
             @MoveInterface.performed -= instance.OnMoveInterface;
             @MoveInterface.canceled -= instance.OnMoveInterface;
-            @EnableCamera.started -= instance.OnEnableCamera;
-            @EnableCamera.performed -= instance.OnEnableCamera;
-            @EnableCamera.canceled -= instance.OnEnableCamera;
+            @Snap.started -= instance.OnSnap;
+            @Snap.performed -= instance.OnSnap;
+            @Snap.canceled -= instance.OnSnap;
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+            @OpenModelsMenu.started -= instance.OnOpenModelsMenu;
+            @OpenModelsMenu.performed -= instance.OnOpenModelsMenu;
+            @OpenModelsMenu.canceled -= instance.OnOpenModelsMenu;
+            @EnablePointer.started -= instance.OnEnablePointer;
+            @EnablePointer.performed -= instance.OnEnablePointer;
+            @EnablePointer.canceled -= instance.OnEnablePointer;
+            @Delete.started -= instance.OnDelete;
+            @Delete.performed -= instance.OnDelete;
+            @Delete.canceled -= instance.OnDelete;
         }
 
         /// <summary>
@@ -1885,19 +1565,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// </summary>
     public UiActions @Ui => new UiActions(this);
     /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Room Edit Common" which allows adding and removing callbacks.
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera Movement" which allows adding and removing callbacks.
     /// </summary>
-    /// <seealso cref="RoomEditCommonActions.AddCallbacks(IRoomEditCommonActions)" />
-    /// <seealso cref="RoomEditCommonActions.RemoveCallbacks(IRoomEditCommonActions)" />
-    public interface IRoomEditCommonActions
+    /// <seealso cref="CameraMovementActions.AddCallbacks(ICameraMovementActions)" />
+    /// <seealso cref="CameraMovementActions.RemoveCallbacks(ICameraMovementActions)" />
+    public interface ICameraMovementActions
     {
-        /// <summary>
-        /// Method invoked when associated input action "New action" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnNewaction(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1906,69 +1579,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Select" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSelect(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Delete" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDelete(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Switch View" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSwitchView(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pause Menu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPauseMenu(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Models Menu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnModelsMenu(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Sprint" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSprint(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Snap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSnap(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pointer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPointer(InputAction.CallbackContext context);
-    }
-    /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Room Edit Ortho" which allows adding and removing callbacks.
-    /// </summary>
-    /// <seealso cref="RoomEditOrthoActions.AddCallbacks(IRoomEditOrthoActions)" />
-    /// <seealso cref="RoomEditOrthoActions.RemoveCallbacks(IRoomEditOrthoActions)" />
-    public interface IRoomEditOrthoActions
-    {
         /// <summary>
         /// Method invoked when associated input action "Zoom In" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1983,14 +1599,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnZoomOut(InputAction.CallbackContext context);
-    }
-    /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Room Edit Perspective" which allows adding and removing callbacks.
-    /// </summary>
-    /// <seealso cref="RoomEditPerspectiveActions.AddCallbacks(IRoomEditPerspectiveActions)" />
-    /// <seealso cref="RoomEditPerspectiveActions.RemoveCallbacks(IRoomEditPerspectiveActions)" />
-    public interface IRoomEditPerspectiveActions
-    {
         /// <summary>
         /// Method invoked when associated input action "View" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1999,6 +1607,13 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnView(InputAction.CallbackContext context);
         /// <summary>
+        /// Method invoked when associated input action "Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDown(InputAction.CallbackContext context);
+        /// <summary>
         /// Method invoked when associated input action "Up" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -2006,12 +1621,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnUp(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Switch View" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDown(InputAction.CallbackContext context);
+        void OnSwitchView(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Ui" which allows adding and removing callbacks.
@@ -2020,13 +1635,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// <seealso cref="UiActions.RemoveCallbacks(IUiActions)" />
     public interface IUiActions
     {
-        /// <summary>
-        /// Method invoked when associated input action "Snap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSnap(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Navigate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -2119,11 +1727,39 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMoveInterface(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Enable Camera" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Snap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnEnableCamera(InputAction.CallbackContext context);
+        void OnSnap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Select" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Open Models Menu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpenModelsMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Enable Pointer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEnablePointer(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Delete" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDelete(InputAction.CallbackContext context);
     }
 }

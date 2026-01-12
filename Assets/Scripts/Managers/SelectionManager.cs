@@ -1,10 +1,13 @@
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class SelectionManager : MonoBehaviour
 {
     Interactable _selected;
+
+    ColliderVisual _colliderVisual;
 
     #region getter
     public bool SelectionExist => _selected != null;
@@ -20,6 +23,9 @@ public class SelectionManager : MonoBehaviour
     public void Init(Camera cam)
     {
         _cam = cam;
+        // Setup collider visualizer
+        var go = new GameObject("ColliderVisual");
+        _colliderVisual = go.AddComponent<ColliderVisual>().Init(_cam);
     }
     #endregion
 
@@ -76,6 +82,8 @@ public class SelectionManager : MonoBehaviour
     {
         if (_selected == null) return;
 
+        _colliderVisual.ClearTarget();
+
         _selected.OnDeselect();
 
         Interactable nextSelected = null;
@@ -110,9 +118,17 @@ public class SelectionManager : MonoBehaviour
     public void ChangeSelectedObject(Interactable next)
     {
         // Deseleziona precedente
-        if (_selected != null) _selected.OnDeselect();
+        if (_selected != null)
+        {
+            _colliderVisual.ChangeTarget(null);
+            _selected.OnDeselect();
+        }
         // Call Setup
-        if (next != null) next.OnSelect();
+        if (next != null)
+        {
+            next.OnSelect();
+            _colliderVisual.ChangeTarget(next.GetComponent<BoxCollider>());
+        }
         _selected = next;
     }
 }

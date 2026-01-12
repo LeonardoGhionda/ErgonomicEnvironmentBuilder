@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GizmoTest.unity
-    guid: dca2f7cd951734645baa18d6e109d756
+    path: Assets/Scenes/Room builder/Main menu.unity
+    guid: 663d538a0cf19ec43a51e145f5f9cadd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 6fb1f02427e37f94da2c7c937b17c8eb, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 95bcb99b6559bb4489442b4c8aafa823, type: 2}

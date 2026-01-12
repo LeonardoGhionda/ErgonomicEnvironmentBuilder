@@ -3,18 +3,9 @@
     "name": "App Actions",
     "maps": [
         {
-            "name": "Room Edit Common",
+            "name": "Camera Movement",
             "id": "9d6b473c-0854-4c11-84f5-e6f06d32a36c",
             "actions": [
-                {
-                    "name": "New action",
-                    "type": "Button",
-                    "id": "9ec9f5f6-37aa-4e70-8f26-dd8610e503c7",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
                 {
                     "name": "Move",
                     "type": "Value",
@@ -23,51 +14,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
-                },
-                {
-                    "name": "Select",
-                    "type": "Button",
-                    "id": "64dbf0c5-86cc-4e83-b014-d4d2c3781662",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Delete",
-                    "type": "Button",
-                    "id": "4b7190f3-0dea-450e-9c64-283155de722e",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Switch View",
-                    "type": "Button",
-                    "id": "ed0fad3a-0327-4955-b869-567b1aef10c1",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Pause Menu",
-                    "type": "Button",
-                    "id": "98969161-0738-4425-bd12-00c79ae73776",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Models Menu",
-                    "type": "Button",
-                    "id": "c109fccf-90e3-471c-b91c-1f091e3b1716",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 },
                 {
                     "name": "Sprint",
@@ -79,36 +25,61 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Snap",
+                    "name": "Zoom In",
+                    "type": "Value",
+                    "id": "458ce940-1f59-4716-9299-b16f2bcd1da3",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Zoom Out",
+                    "type": "Value",
+                    "id": "9c13655b-1486-4301-ab13-cea7c4785305",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "View",
+                    "type": "Value",
+                    "id": "10895205-b73e-4849-861b-5f2d88104ce7",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Down",
                     "type": "Button",
-                    "id": "0e77fa32-bca3-4f27-bbb8-5d9f57cc39a8",
+                    "id": "509ab9a9-191e-4367-8010-27c0881c4c2d",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Pointer",
-                    "type": "Value",
-                    "id": "17a6d130-3b0c-47f1-a262-a1eab96282c4",
-                    "expectedControlType": "Vector2",
+                    "name": "Up",
+                    "type": "Button",
+                    "id": "1df8880d-7008-45c0-a633-9a572d16fed9",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Switch View",
+                    "type": "Button",
+                    "id": "b7f83831-425f-413c-a978-ed12f1c78e9a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "73d50bfe-8b29-4ef8-891c-1e7985b52f35",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "New action",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "WASD",
                     "id": "d82915c2-4e67-41a4-af21-60d65c2ecd41",
@@ -166,61 +137,6 @@
                 },
                 {
                     "name": "",
-                    "id": "74d1893c-24a3-4e15-bf1f-92802fe07d78",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Select",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "22d7ef73-f313-4d37-945d-b7e649d1cdaa",
-                    "path": "<Keyboard>/delete",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Delete",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "86b251da-4b48-45ea-8ca7-70dabadfb34c",
-                    "path": "<Keyboard>/enter",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Switch View",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f2ef7ef1-a5ce-4bd0-8783-5f1d3e95e555",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Pause Menu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "948e3d5f-d26c-416a-a7d0-aff336cb3176",
-                    "path": "<Keyboard>/m",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Models Menu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "15f91651-c190-4b89-973b-3e64a45d0f09",
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
@@ -232,55 +148,7 @@
                 },
                 {
                     "name": "",
-                    "id": "503ccdf3-4d97-489e-a96f-906a8f40a91e",
-                    "path": "<Keyboard>/leftCtrl",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Snap",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b9431aac-d920-42a0-a394-d830b9a63f0d",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Pointer",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Room Edit Ortho",
-            "id": "7abaf0c7-a026-45be-882e-0abc740b70b6",
-            "actions": [
-                {
-                    "name": "Zoom In",
-                    "type": "Value",
-                    "id": "eb56d986-fbd3-4d0d-8655-8c53c94e2d5e",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Zoom Out",
-                    "type": "Value",
-                    "id": "b70f47f4-3162-4b62-b92e-9403bd1c11b5",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "f5731fa8-b49b-4a87-83c7-371b48cfc6ce",
+                    "id": "cd9730f1-dc90-4f86-8875-267d4b2c208b",
                     "path": "<Mouse>/scroll/down",
                     "interactions": "",
                     "processors": "",
@@ -291,7 +159,7 @@
                 },
                 {
                     "name": "",
-                    "id": "d2f9749b-2031-488b-9d11-3490e9003d54",
+                    "id": "f7fb1614-c94b-4c8d-894f-7d4b9d83468b",
                     "path": "<Mouse>/scroll/up",
                     "interactions": "",
                     "processors": "",
@@ -299,45 +167,10 @@
                     "action": "Zoom Out",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Room Edit Perspective",
-            "id": "e3ee9681-d70d-41b9-b0b7-dff43d64ebee",
-            "actions": [
-                {
-                    "name": "View",
-                    "type": "Value",
-                    "id": "cb2d43bb-655e-4e43-804b-6a5a119527c5",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
                 },
-                {
-                    "name": "Up",
-                    "type": "Button",
-                    "id": "4bfcbbeb-e97e-4d64-a2bf-8b2b04273be4",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Down",
-                    "type": "Button",
-                    "id": "73f1b2a4-e974-4518-8fa2-88f4778cd9f4",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
                 {
                     "name": "",
-                    "id": "ac0d3a0c-6541-4770-a3ca-9498f0ad2717",
+                    "id": "887bbf18-fad0-4690-9bfb-82cda4d98e7a",
                     "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
@@ -348,7 +181,18 @@
                 },
                 {
                     "name": "",
-                    "id": "89cf507a-6909-494f-9a28-15b82d6f1978",
+                    "id": "9a65c381-2f3c-4828-aec8-cd94544fa401",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "efe39569-f5c7-45db-8483-47d079d392b2",
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
@@ -359,12 +203,12 @@
                 },
                 {
                     "name": "",
-                    "id": "5e0510d4-5196-4918-89ae-2cce5f16b8c5",
-                    "path": "<Keyboard>/q",
+                    "id": "9a24c6c2-e000-49c2-914f-fac53751ec2a",
+                    "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Down",
+                    "action": "Switch View",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -374,15 +218,6 @@
             "name": "Ui",
             "id": "920d4c38-1661-4451-9ba1-7b2aa38bdefb",
             "actions": [
-                {
-                    "name": "Snap",
-                    "type": "Button",
-                    "id": "ee1a18ef-586a-4572-9b6b-38a4a9e4f55b",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
                 {
                     "name": "Navigate",
                     "type": "PassThrough",
@@ -501,9 +336,45 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Enable Camera",
+                    "name": "Snap",
                     "type": "Button",
-                    "id": "261dd510-402e-4830-8190-b9706ee9a146",
+                    "id": "48ad702a-6c94-4943-aad6-197356533976",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "c47a55f8-0d38-4be9-b19b-e31417b46596",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Open Models Menu",
+                    "type": "Button",
+                    "id": "871fad31-f11d-452f-96fc-15bde48d451c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Enable Pointer",
+                    "type": "Button",
+                    "id": "6e72eb58-099a-458f-a1fb-f33e707c9098",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Delete",
+                    "type": "Button",
+                    "id": "7bbcdde9-7992-4d4f-98e0-a2621c1fbafe",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -511,17 +382,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "86d8914e-46a2-4f03-82a2-8b39802e109d",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Snap",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "Gamepad",
                     "id": "809f371f-c5e2-4e7a-83a1-d867598f40dd",
@@ -997,12 +857,56 @@
                 },
                 {
                     "name": "",
-                    "id": "616bceea-39b0-4748-b971-a818ffdf778c",
+                    "id": "8d8e9009-dae2-4a2f-bd0e-e5fa194945e8",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Snap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5e266c81-5717-49ba-b2b1-16810263e22c",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6422da7d-5391-4bcb-8da5-a51edc450d59",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Open Models Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "406294a5-feb9-4681-ab66-76ebc6b1b246",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Enable Camera",
+                    "action": "Enable Pointer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e8269f1e-fa93-441d-b305-27cb2f092607",
+                    "path": "<Keyboard>/delete",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Delete",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
