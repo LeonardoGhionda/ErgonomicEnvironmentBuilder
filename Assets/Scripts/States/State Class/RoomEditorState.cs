@@ -126,6 +126,9 @@ public class RoomEditorState : AbsAppState
         //gizmpo manager
         _gizmoManager.Stop();
 
+        // Move camera in position and generate a room preview
+        // Preview is used in Vr menus
+        _camController.SetOrtho(true);
         GenerateRoomPreview();
     }
 
