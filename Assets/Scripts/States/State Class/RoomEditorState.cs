@@ -1,5 +1,6 @@
 ﻿using Dummiesman;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -124,6 +125,8 @@ public class RoomEditorState : AbsAppState
 
         //gizmpo manager
         _gizmoManager.Stop();
+
+        GenerateRoomPreview();
     }
 
     void OnDestroy()
@@ -322,6 +325,7 @@ public class RoomEditorState : AbsAppState
         }
         OBJLoader loader = new();
         GameObject obj = loader.Load(path);
+
         SetUpModel(obj, path, GameObject.Find("Objects Container"));
 
         _view.HideAllMenus();
@@ -490,4 +494,11 @@ public class RoomEditorState : AbsAppState
             // Global Scale is usually read-only in Unity because of skewing, skip or implement carefully
         }
     }
+    private void GenerateRoomPreview()
+    {
+        string path = Path.Combine(RoomDataExporter.roomsFolderPath, _rbm.RoomName) + ".png";
+        ScreenshotUtility.CaptureCamera(_camController.Camera, Screen.width, Screen.height, path);
+       
+    }
+
 }

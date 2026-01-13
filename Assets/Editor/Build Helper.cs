@@ -11,7 +11,7 @@ public static class BuildVariants
         SetOpenXRFlag(false);
 
         // Build desktop version
-        BuildPipeline.BuildPlayer(GetScenes(), "Builds/Multy-build Test/Desktop/App.exe",
+        BuildPipeline.BuildPlayer(GetScenes(), "Builds/Desktop/ErgonomicEnvironmentBuilder.exe",
             BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
 
@@ -21,7 +21,7 @@ public static class BuildVariants
         SetOpenXRFlag(true);
 
         // Build VR version
-        BuildPipeline.BuildPlayer(GetScenes(), "Builds/Multy-build Test/VR/App.exe",
+        BuildPipeline.BuildPlayer(GetScenes(), "Builds/VR/ErgonomicEnvironmentBuilder.exe",
             BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
 
