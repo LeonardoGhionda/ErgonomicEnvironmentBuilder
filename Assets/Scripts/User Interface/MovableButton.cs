@@ -7,7 +7,6 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class MovableButton : MonoBehaviour
 {
-    private AppActions input;
     private RectTransform rect;
 
     private bool moving = false;
@@ -15,19 +14,15 @@ public class MovableButton : MonoBehaviour
 
     void Start()
     {
-        input = StateManager.Instance.AppInput;
         rect = GetComponent<RectTransform>();
     }
 
-    void Update()
+    public void Move(Vector2 mousePos)
     {
-        var pressed = input.Ui.MoveInterface.IsInProgress();
-        if (pressed && IsMouseInside())
+        if (IsMouseInside(mousePos))
         {
-            if (!moving)
-            {
-                lastMousePosition = input.Ui.Point.ReadValue<Vector2>();
-            }
+            if(!moving) 
+                lastMousePosition = mousePos;
             moving = true;
         }
         else         
@@ -36,19 +31,17 @@ public class MovableButton : MonoBehaviour
         }
         if (moving)
         {
-            Vector2 mousePos = input.Ui.Point.ReadValue<Vector2>();
-            Vector2 delta = mousePos - lastMousePosition;
+            Vector2 pos = mousePos;
+            Vector2 delta = pos - lastMousePosition;
             rect.anchoredPosition += delta;
-            lastMousePosition = mousePos;
+            lastMousePosition = pos;
         }
     }
-    bool IsMouseInside()
+    bool IsMouseInside(Vector2 mousePos)
     {
-        Vector2 screenPos = input.Ui.Point.ReadValue<Vector2>();
-
         return RectTransformUtility.RectangleContainsScreenPoint(
             rect,
-            screenPos,
+            mousePos,
             null
         );
     }

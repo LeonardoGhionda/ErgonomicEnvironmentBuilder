@@ -12,6 +12,7 @@ TagManager:
   - Parent
   - SceneContainer
   - Roof
+  - Wall
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - UI
   - Preview
   - Gizmo
-  - 
+  - Wall Layer
   - 
   - 
   - 

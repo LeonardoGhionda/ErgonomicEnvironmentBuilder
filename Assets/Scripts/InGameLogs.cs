@@ -3,9 +3,9 @@ using TMPro;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(TextMeshProUGUI))]
-public class UILogger : MonoBehaviour
+public class InGameLogs : MonoBehaviour
 {
-    public static UILogger Instance { get; private set; }
+    public static InGameLogs Instance { get; private set; }
 
     [Header("Settings")]
     [SerializeField] private bool captureUnityLogs = true;

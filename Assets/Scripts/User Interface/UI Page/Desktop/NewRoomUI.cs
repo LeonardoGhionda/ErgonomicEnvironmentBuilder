@@ -12,6 +12,7 @@ public class NewRoomUI : MonoBehaviour
     [SerializeField] private Button confirmButton;
     [SerializeField] private TMP_Text roomNameError;
     [SerializeField] private LoadingCircle loadingCircle;
+    [SerializeField] private MovableButton _background;
 
     // Events for the State to listen to
     public event Action OnConfirmClicked;
@@ -58,4 +59,6 @@ public class NewRoomUI : MonoBehaviour
     {
         UpdateLoadingCircle(0);
     }
+
+    public void MoveBackground(Vector2 mousePos) => _background.Move(mousePos);
 }

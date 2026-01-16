@@ -965,6 +965,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""f1cc1f38-ee65-4fc1-bae6-44bf1467b96d"",
+                    ""path"": ""<XRController>{RightHand}/{TriggerButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""6422da7d-5391-4bcb-8da5-a51edc450d59"",
                     ""path"": ""<Keyboard>/m"",
                     ""interactions"": """",

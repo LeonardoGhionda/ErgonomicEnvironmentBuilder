@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem; 
 
 public class NewRoomState : AbsAppState
@@ -10,6 +11,7 @@ public class NewRoomState : AbsAppState
 
     private bool _actionStarted = false;
     private InputAction _backAction;
+    private InputAction _moveInterface;
 
 
     // Constructor
@@ -19,6 +21,7 @@ public class NewRoomState : AbsAppState
         _view = view;
         _rbm = rbm;
         _backAction = _input.Ui.GoBackLong;
+        _moveInterface = _input.Ui.MoveInterface;
     }
 
     public override void Enter()
@@ -58,6 +61,8 @@ public class NewRoomState : AbsAppState
     {
         if (_actionStarted)
             HandleBackInput();
+        if (_moveInterface.IsInProgress())
+            _view.MoveBackground(_input.Ui.Point.ReadValue<Vector2>());
     }
 
     // --- LOGIC ---
@@ -74,8 +79,8 @@ public class NewRoomState : AbsAppState
         {
             bool overwrite = _lastTriedRoomName == _rbm.RoomName;
 
-            RoomDataExporter.SaveRoom(_rbm.RoomName, _rbm, overwrite);
-            RoomDataExporter.CreateRoom(_rbm.RoomName);
+            RoomsUtility.SaveRoom(_rbm.RoomName, _rbm, overwrite);
+            RoomsUtility.CreateRoom(_rbm.RoomName);
 
 
             // Change State to the next step

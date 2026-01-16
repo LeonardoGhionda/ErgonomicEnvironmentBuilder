@@ -14,10 +14,8 @@ public class DeleteRoomDot : MonoBehaviour
         if (roomBuilderManager.DotCount() > 3)
         {
             targetDot = roomDot;
-            rect.anchoredPosition =
-                roomDot.Rect.anchoredPosition +
-                roomDot.Rect.sizeDelta / 2 +
-                rect.sizeDelta / 2;
+            rect.anchoredPosition = roomDot.Rect.anchoredPosition;
+
         }   
     }
 

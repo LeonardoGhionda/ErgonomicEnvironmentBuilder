@@ -1,10 +1,7 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
 
-[RequireComponent(typeof(TextMeshProUGUI))]
-public class FollowCameraText : MonoBehaviour
+public class FollowCameraUI : MonoBehaviour
 {
     [SerializeField] Camera Camera;
 

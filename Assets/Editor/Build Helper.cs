@@ -25,9 +25,22 @@ public static class BuildVariants
             BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
 
+    [MenuItem("Flag/Desktop")]
+    public static void FlagDesktop()
+    {
+        SetOpenXRFlag(false);
+    }
+
+    [MenuItem("Flag/VR")]
+    public static void FlagVR()
+    {
+        SetOpenXRFlag(true);
+    }
+
     private static void SetOpenXRFlag(bool defined)
     {
-        if(defined)
+        UnityEngine.Debug.LogWarning("WARNING!!! OpenXR must be toggled manually, don't forget >:D");
+        if (defined)
         {
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone,
                 PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone) + ";USE_XR");

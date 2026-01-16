@@ -96,7 +96,7 @@ public class GizmoManager : MonoBehaviour
 
     private Gizmo _currentGizmo;
 
-    private SnapTool _snapTool = new();
+    private MeasureSnapTools _snapTool = new();
 
     private bool _objMoved = false;
 
@@ -106,7 +106,7 @@ public class GizmoManager : MonoBehaviour
 
     #region Injected variables
     Camera _cam;
-    FreeCameraController _camController;
+    CameraController _camController;
     #endregion
 
     #region Lifecycle
@@ -115,7 +115,7 @@ public class GizmoManager : MonoBehaviour
     /// <summary>
     /// To be called when manager start
     /// </summary>
-    public void Init(Camera cam, FreeCameraController cameraController)
+    public void Init(Camera cam, CameraController cameraController)
     {
         enabled = true;
 

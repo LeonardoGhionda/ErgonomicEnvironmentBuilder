@@ -52,7 +52,13 @@ public class SelectionManager : MonoBehaviour
             Interactable parent = interactable.transform.GetComponentInParent<InteractableParent>();
 
             //no past selection -> select parent 
-            if (_selected == null) ChangeSelectedObject(parent);
+            if (_selected == null)
+            {
+                int childCount = parent.transform.childCount;
+                if (childCount > 1) ChangeSelectedObject(parent);
+                //if only 1 child skip parent
+                else ChangeSelectedObject(interactable);
+            }
             //if past selection is not null check if its parent
             else
             {
@@ -62,7 +68,7 @@ public class SelectionManager : MonoBehaviour
                 // parent is selected -> select child
                 if (_selected == parent) ChangeSelectedObject(interactable);
                 // sibling is selected -> select child 
-                else if(currentParent == parent) ChangeSelectedObject(interactable);
+                else if (currentParent == parent) ChangeSelectedObject(interactable);
                 //fisrt time selecting this "family" -> parent selected
                 else ChangeSelectedObject(parent);
             }

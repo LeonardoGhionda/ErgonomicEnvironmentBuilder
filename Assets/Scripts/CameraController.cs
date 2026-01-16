@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
-public class FreeCameraController : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] float moveSpeed = 5f;
@@ -99,6 +99,11 @@ public class FreeCameraController : MonoBehaviour
 
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
+    }
+
+    public void Move(Vector3 position)
+    {
+        _rb.MovePosition(position);
     }
 
     private void Update()

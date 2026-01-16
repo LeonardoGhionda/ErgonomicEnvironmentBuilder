@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SnapTool
+public class MeasureSnapTools
 {
     // Snap requirements
     readonly private float minDistanceToSnap = 0.5f; 

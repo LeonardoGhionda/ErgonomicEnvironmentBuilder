@@ -12,7 +12,7 @@ struct TransformBox
     public TMP_InputField[] fields;
 }
 
-public class TransformationBox : MonoBehaviour
+public class UiTransformation : MonoBehaviour
 {
     [Header("Local")]
     [SerializeField] private RectTransform LTranslateBox;

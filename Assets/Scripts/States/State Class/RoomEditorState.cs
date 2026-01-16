@@ -1,13 +1,10 @@
 ﻿using Dummiesman;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
+
 using static EditorHUDView;
 
 public class RoomEditorState : AbsAppState
@@ -15,7 +12,7 @@ public class RoomEditorState : AbsAppState
     private EditorHUDView _view;
 
     //managers (get from State manager)
-    private FreeCameraController _camController;
+    private CameraController _camController;
     private RoomBuilderManager _rbm;
     private GizmoManager _gizmoManager;
     private SelectionManager _selectionManager;
@@ -24,6 +21,8 @@ public class RoomEditorState : AbsAppState
     private Vector2 mousePos => _input.Ui.Point.ReadValue<Vector2>();
 
     private bool _mouseShownInPerspective = false;
+
+    private Vector3 _insideWallPosition = Vector3.zero;
 
     public RoomEditorState(
         StateManager manager,
@@ -35,7 +34,7 @@ public class RoomEditorState : AbsAppState
         MeasureManager measureManager) : base(manager, input)
     {
         _view = editorHUD;
-        _camController = manager.cameraController;
+        _camController = manager.CameraController;
         _rbm = roomBuilderManager;
         _gizmoManager = gizmoManager;
         _selectionManager = selectionManager;
@@ -89,6 +88,8 @@ public class RoomEditorState : AbsAppState
         _gizmoManager.Init(_camController.Camera, _camController);
         _selectionManager.Init(_camController.Camera);
         _measureManager.Init(_camController.Camera);
+
+        _insideWallPosition = RoomsUtility.FindInternalPoint();
     }
 
     public override void Exit()
@@ -129,13 +130,7 @@ public class RoomEditorState : AbsAppState
         // Move camera in position and generate a room preview
         // Preview is used in Vr menus
         _camController.SetOrtho(true);
-        GenerateRoomPreview();
-    }
-
-    void OnDestroy()
-    {
-        // Ensure all event unsubscriptions
-        Exit();
+        RoomsUtility.GenerateRoomPreview(_camController.Camera, _rbm.RoomName);
     }
 
     public override void UpdateState()
@@ -164,6 +159,12 @@ public class RoomEditorState : AbsAppState
     private void SwitchCameraView(InputAction.CallbackContext context)
     {
         _camController.ToggleView();
+
+        // When switching to perspective, this garantees player is inside the room bounds 
+        if (_camController.IsOrtho == false)
+        {
+            _camController.Move(_insideWallPosition);
+        }
     }
 
     private void OnSelectActionPerformed(InputAction.CallbackContext ctx)
@@ -286,7 +287,7 @@ public class RoomEditorState : AbsAppState
         _gizmoManager.RemoveGizmo();
         _selectionManager.ChangeSelectedObject(null);
 
-        RoomDataExporter.Save(_rbm.RoomName);
+        RoomsUtility.Save(_rbm.RoomName);
     }
 
     private void QuitRoom()
@@ -329,7 +330,7 @@ public class RoomEditorState : AbsAppState
         OBJLoader loader = new();
         GameObject obj = loader.Load(path);
 
-        SetUpModel(obj, path, GameObject.Find("Objects Container"));
+        SetUpModel(obj, path, GameObject.Find("Objects Container"), _camController.Camera);
 
         _view.HideAllMenus();
 
@@ -341,13 +342,12 @@ public class RoomEditorState : AbsAppState
         _view.UpdateTransformUI(_selectionManager.SelectionTransform);
     }
 
-    public static void SetUpModel(GameObject parent, string path, GameObject container)
+    public static void SetUpModel(GameObject parent, string path, GameObject container, Camera camera)
     {
         parent.name = $"[P] {parent.name}";
 
         parent.AddComponent<InteractableParent>().Path = path;
 
-        parent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
 
         MeshRenderer[] childrenMRs = parent.GetComponentsInChildren<MeshRenderer>();
 
@@ -361,10 +361,15 @@ public class RoomEditorState : AbsAppState
             mr.gameObject.AddComponent<InteractableObject>();
         }
 
-        if (Camera.main.GetComponent<FreeCameraController>().IsOrtho)
+        if (camera != null)
         {
-            parent.transform.position = Vector3.Scale(parent.transform.position, new Vector3(1f, 0f, 1f));
-            parent.transform.position = parent.transform.position - Vector3.up * minY;
+            parent.transform.position = camera.transform.position + camera.transform.forward * 5f;
+            // Adjust position to sit on ground if up view is used
+            if (camera.orthographic)
+            {
+                parent.transform.position = Vector3.Scale(parent.transform.position, new Vector3(1f, 0f, 1f));
+                parent.transform.position = parent.transform.position - Vector3.up * minY;
+            }
         }
 
         parent.transform.SetParent(container.transform, true);
@@ -497,11 +502,4 @@ public class RoomEditorState : AbsAppState
             // Global Scale is usually read-only in Unity because of skewing, skip or implement carefully
         }
     }
-    private void GenerateRoomPreview()
-    {
-        string path = Path.Combine(RoomDataExporter.roomsFolderPath, _rbm.RoomName) + ".png";
-        ScreenshotUtility.CaptureCamera(_camController.Camera, Screen.width, Screen.height, path);
-       
-    }
-
 }

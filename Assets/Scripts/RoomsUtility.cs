@@ -2,8 +2,11 @@ using Dummiesman;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [Serializable]
 public struct RoomDotData
@@ -100,14 +103,14 @@ public static class ValidationErrors
     internal static string inUse = "A room with this name already exists. Click Confirm again to overwrite";
 }
 
-static public class RoomDataExporter
+static public class RoomsUtility
 {
 
     public static readonly string roomsFolderPath =
         Path.Combine(Application.persistentDataPath, "Rooms Saved");
 
     //Runs automatically the first time the class is accessed
-    static RoomDataExporter()
+    static RoomsUtility()
     {
         if (!Directory.Exists(roomsFolderPath))
             Directory.CreateDirectory(roomsFolderPath);
@@ -367,7 +370,8 @@ static public class RoomDataExporter
             //load obj file
             OBJLoader loader = new();
             GameObject parent = loader.Load(parentData.objFilePath);
-            RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer);
+            // Position setup will be overwritten, camera to null
+            RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer, null);
 
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
@@ -382,6 +386,17 @@ static public class RoomDataExporter
                 //copy saved data
                 childData.transform.ApplyTo(child.transform);
                 childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
+
+#if USE_XR // Add XRGrabInteractable if XR is enabled
+
+                var rb = child.AddComponent<Rigidbody>();
+                rb.useGravity = false;
+                rb.isKinematic = true;
+
+                var xrg = child.AddComponent<XRGrabInteractable>();
+                xrg.throwOnDetach = false;
+                xrg.useDynamicAttach = true;
+#endif
             }
         }
     }
@@ -436,4 +451,87 @@ static public class RoomDataExporter
             throw new Exception(ValidationErrors.inUse);
         }
     }
+
+    public static void GenerateRoomPreview(Camera cam, string roomName)
+    {
+        string path = Path.Combine(roomsFolderPath, roomName) + ".png";
+        ScreenshotUtility.CaptureCamera(cam, Screen.width, Screen.height, path);
+
+    }
+
+    /// <summary>
+    /// Takes 2 walls at random and check if the middle point is inside the room,
+    /// repeat several times until a valid point is found
+    /// </summary>
+    /// <returns>A random position inside the wall or v3 zero if position not found</returns>
+    public static Vector3 FindInternalPoint()
+    {
+        var walls = GameObject.FindGameObjectsWithTag("Wall").ToList();
+        int wallMask = LayerMask.GetMask("Wall Layer");
+
+        if (walls == null || walls.Count < 3) return Vector3.zero;
+
+        int _maxAttempts = 50;
+        for (int i = 0; i < _maxAttempts; i++)
+        {
+            // 1. Choose 2 random walls
+            GameObject startWall = walls[UnityEngine.Random.Range(0, walls.Count)];
+            GameObject targetWall = walls[UnityEngine.Random.Range(0, walls.Count)];
+            if (startWall == targetWall)
+            {
+                i--;
+                continue;
+            }
+
+            Vector3 startPos = startWall.transform.position;
+            Vector3 targetPos = targetWall.transform.position;
+
+            // 2. Direction and distance between them
+            Vector3 direction = (targetPos - startPos).normalized;
+            float distance = Vector3.Distance(startPos, targetPos);
+
+            // 3. Raycast to check if there are walls in between
+            if (Physics.Raycast(startPos + (direction * 0.3f), direction, out RaycastHit hit, distance, wallMask))
+            {
+
+                // 4. Midpoint between start e hit
+                Vector3 midPoint = (startPos + hit.point) / 2f;
+
+                // 5. Check if point is inside
+                if (IsPointInside(midPoint, wallMask))
+                {
+                    return midPoint;
+                }
+
+                // Another try at 20% from start to hit
+                Vector3 closePoint = Vector3.Lerp(startPos, hit.point, 0.2f);
+                if (IsPointInside(closePoint, wallMask))
+                {
+                    return closePoint;
+                }
+
+            }
+        }
+
+        Debug.LogWarning("Failed to find internal point after max attempts.");
+        return walls[0].transform.position; // Fallback
+    }
+
+    // Jordan check method to determine if a point is inside a closed shape
+    private static bool IsPointInside(Vector3 p, LayerMask layer)
+    {
+        // Evita la compenetrazione della camera con i muri
+        if (Physics.CheckSphere(p, 0.5f, layer)) return false;
+
+        // Usa RaycastNonAlloc per evitare allocazioni
+        RaycastHit[] hits = new RaycastHit[32]; // dimensione fissa, adatta se necessario
+        int hitCount = Physics.RaycastNonAlloc(p, Vector3.right, hits, 1000f, layer);
+
+        HashSet<Collider> unique = new();
+        for (int i = 0; i < hitCount; i++)
+            unique.Add(hits[i].collider);
+
+        return unique.Count % 2 != 0;
+    }
 }
+

@@ -1,35 +1,62 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PopulateRoomSelector : MonoBehaviour
+public class MenuRoomView : MonoBehaviour
 {
-
-    string _roomsPath;
+    [SerializeField] GridLayoutGroup roomCardContainer;
     [SerializeField] RectTransform CardTemplate;
+    
+    string _roomsPath;
 
-    void Start()
+    //-------------
+    public event Action<string> RoomCardClicked;
+
+    public void RefreshRoomList()
     {
-        _roomsPath = RoomDataExporter.roomsFolderPath;
+        _roomsPath = RoomsUtility.roomsFolderPath;
+        // Clear existing cards
+        foreach (Transform child in roomCardContainer.transform)
+        {
+            if (child != CardTemplate.transform)
+                Destroy(child.gameObject);
+        }
+        // Get room files
         var rooms = GetFilesInFolder(_roomsPath, "*.room");
 
-        foreach ( var room in rooms )
-            GenerateIcon(room);
+        // Generate cards for each room
+        foreach (var room in rooms)
+        {
+            GenerateRoomCard(room);
+        }
     }
 
-    void GenerateIcon(string room)
+    // Helper functions 
+    //-----------------
+    private void GenerateRoomCard(string room)
     {
-        RectTransform newCard = Instantiate(CardTemplate, transform);
+        string roomNameNoExt = Path.GetFileNameWithoutExtension(room);
+
+        // SetUp
+        RectTransform newCard = Instantiate(CardTemplate, roomCardContainer.transform);
         newCard.gameObject.SetActive(true);
-        newCard.GetComponentInChildren<TextMeshProUGUI>().text = Path.GetFileNameWithoutExtension(room);
+
+        // Add room name text
+        newCard.GetComponentInChildren<TextMeshProUGUI>().text = roomNameNoExt;
+
+        // Add preview image
         var image = LoadTexture(Path.ChangeExtension(Path.Combine(_roomsPath, room), "png"));
-        if(image != null) 
+        if (image != null)
             newCard.GetComponentInChildren<RawImage>().texture = image;
+
+        // Add click listener 
+        newCard.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => RoomCardClicked?.Invoke(roomNameNoExt));
     }
 
-    public static List<string> GetFilesInFolder(string folderPath, string searchPattern = "*.*")
+    private List<string> GetFilesInFolder(string folderPath, string searchPattern = "*.*")
     {
         List<string> results = new List<string>();
 
@@ -66,8 +93,6 @@ public class PopulateRoomSelector : MonoBehaviour
             tex.LoadImage(bytes);
             return tex;
         }
-        return null; 
+        return null;
     }
-
 }
-
