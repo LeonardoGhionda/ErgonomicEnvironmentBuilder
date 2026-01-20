@@ -293,7 +293,7 @@ public class RoomEditorState : AbsAppState
     private void QuitRoom()
     {
         SaveRoom();
-        RoomBuilderManager.CleanupRoom();
+        RoomsUtility.CleanupRoom();
         _manager.ChangeState(_manager.MainMenu);
     }
 

@@ -24,6 +24,10 @@ public class CustomAnimation : MonoBehaviour
     public UnityEvent OnStart; 
     public UnityEvent OnComplete; 
 
+    [SerializeField] private bool playOnce = false;
+
+    private bool _played = false;
+
     private Vector3 _startPosition;
     private Coroutine _animationRoutine;
 
@@ -35,6 +39,8 @@ public class CustomAnimation : MonoBehaviour
     [ContextMenu("Play Animation")] // Allows testing from Inspector right-click
     public void Play()
     {
+        if (playOnce && _played) return;
+
         // Stop existing animation to prevent conflict
         if (_animationRoutine != null) StopCoroutine(_animationRoutine);
 
@@ -75,6 +81,9 @@ public class CustomAnimation : MonoBehaviour
         );
 
         OnComplete?.Invoke();
+
+        if (playOnce) _played = true;
+
         _animationRoutine = null;
     }
 

@@ -4,13 +4,20 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
+
 
 public class MenuRoomView : MonoBehaviour
 {
     [SerializeField] GridLayoutGroup roomCardContainer;
     [SerializeField] RectTransform CardTemplate;
-    
+    [SerializeField] HandMenuHandler handMenu;
+    [SerializeField] ContinuousMoveProvider moveProvider;
+
+    [SerializeField] List<HandMenuEntry> baseHandMenuEntries;
+
     string _roomsPath;
+    private bool _handMenuInitailized = false;
 
     //-------------
     public event Action<string> RoomCardClicked;
@@ -32,6 +39,24 @@ public class MenuRoomView : MonoBehaviour
         {
             GenerateRoomCard(room);
         }
+    }
+
+    public void HandMenuActions(HandMenuInput input) => handMenu.ProcessInput(input);
+
+    public void ToggleHandMenu()
+    {
+        if(_handMenuInitailized == false)
+        {
+            // Initialize hand menu
+            handMenu.SetMenuEntries(baseHandMenuEntries);
+            handMenu.gameObject.SetActive(false);
+            _handMenuInitailized = true;
+        }
+
+        // Enable/Disable controller manager based on hand menu state -> prevent conflicts
+        moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
+        // Toggle hand menu visibility
+        handMenu.gameObject.SetActive(!handMenu.gameObject.activeInHierarchy);
     }
 
     // Helper functions 

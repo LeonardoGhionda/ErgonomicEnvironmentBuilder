@@ -198,35 +198,6 @@ public class RoomBuilderManager : MonoBehaviour
         }
     }
 
-    public static void CleanupRoom()
-    {
-        GameObject c = GameObject.Find("Room Container");
-        if (c != null)
-        {
-            foreach (Transform child in c.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-        }
-        else
-        {
-            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Room Container' not found!");
-        }
-
-        c = GameObject.Find("Objects Container");
-        if (c != null)
-        {
-            foreach (Transform child in c.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-        }
-        else
-        {
-            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Objects Container' not found!");
-        }
-    }
-
     internal InputAction GetSnapAction()
     {
         return _snapAction;

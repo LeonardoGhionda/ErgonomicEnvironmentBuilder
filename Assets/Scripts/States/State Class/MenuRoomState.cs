@@ -1,62 +1,65 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ImmersiveEditor : AbsAppState
+public class MenuRoomState : AbsAppState
 {
+    readonly private GameObject _container;
+    private MenuRoomView _view;
     private RoomBuilderManager _rbm;
-    private GameObject _vrPlayer;
-    private ImmersiveEditorView _view;
-
-    private Vector3 _insideWallPosition = Vector3.zero;
 
     private bool _hmWaitRelease = false;
 
-    public ImmersiveEditor(
+    public MenuRoomState(
         StateManager manager, 
-        AppActions input,
-        RoomBuilderManager roomBuilderManager,
-        GameObject vrPlayer,
-        ImmersiveEditorView view) : base(manager, input)
+        AppActions input, 
+        GameObject container, 
+        MenuRoomView view,
+        RoomBuilderManager roomBuilderManager) : base(manager, input)
     {
-        _rbm = roomBuilderManager;
-        _vrPlayer = vrPlayer;
+        _container = container;
         _view = view;
+        _rbm = roomBuilderManager;
     }
 
     public override void Enter()
     {
-        RoomsUtility.CreateRoom(_rbm.RoomName);
-        // Forece physics update to sync transforms
-        Physics.SyncTransforms();
-        _insideWallPosition = RoomsUtility.FindInternalPoint();
-        _insideWallPosition.y = 0; 
-        _vrPlayer.transform.position = _insideWallPosition;
 
         // Input
         _input.HandMenu.Enable();
         _input.HandMenu.MoveEntries.started += MoveHandMenuEntries;
-        _input.HandMenu.MoveEntries.canceled += MoveHandMenuEntriesReleased;
+        _input.HandMenu.MoveEntries.canceled += MoveHandMenuEntriesRelease;
         _input.HandMenu.Confirm.performed += HandMenuConfirm;
         _input.HandMenu.Open.performed += MenuButtonClicked;
 
+        //View
+        _view.RoomCardClicked += StartEdit;
+        
+        _container.SetActive(true);
     }
 
     public override void Exit()
     {
-        RoomsUtility.GenerateRoomPreview(Camera.main, _rbm.RoomName);
-        RoomsUtility.Save(_rbm.RoomName);
-
-        RoomsUtility.CleanupRoom();
-
         // Input
+        _input.HandMenu.Enable();
         _input.HandMenu.MoveEntries.started -= MoveHandMenuEntries;
-        _input.HandMenu.MoveEntries.canceled -= MoveHandMenuEntriesReleased;
+        _input.HandMenu.MoveEntries.canceled -= MoveHandMenuEntriesRelease;
         _input.HandMenu.Confirm.performed -= HandMenuConfirm;
         _input.HandMenu.Open.performed -= MenuButtonClicked;
         _input.HandMenu.Disable();
+        
+        // View
+        _view.RoomCardClicked -= StartEdit;
+        
+        _container.SetActive(false);
     }
 
     public override void UpdateState()
     {
+    }
+
+    void StartEdit(string roomName)
+    {
+        _rbm.RoomName = roomName;
+        _manager.ChangeState(_manager.ImmersiveEditor);
     }
 
     // Input Callbacks
@@ -71,14 +74,19 @@ public class ImmersiveEditor : AbsAppState
             _view.HandMenuActions(HandMenuInput.RIGHT);
         else if (inputVector < -deadZone)
             _view.HandMenuActions(HandMenuInput.LEFT);
+
     }
 
-    void MoveHandMenuEntriesReleased(UnityEngine.InputSystem.InputAction.CallbackContext _) =>_hmWaitRelease = false;
+    void MoveHandMenuEntriesRelease(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        _hmWaitRelease = false;
+    }
 
     void HandMenuConfirm(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         _view.HandMenuActions(HandMenuInput.CONFIRM);
     }
+
     void MenuButtonClicked(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         _view.ToggleHandMenu();

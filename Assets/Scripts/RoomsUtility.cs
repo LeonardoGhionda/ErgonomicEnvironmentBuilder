@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 
 [Serializable]
 public struct RoomDotData
@@ -291,9 +293,8 @@ static public class RoomsUtility
         GameObject roomContainer = GameObject.Find("Room Container");
         GameObject baseWallPivot = Resources.Load<GameObject>("Room Builder/Base Wall Pivot");
         GameObject baseColumnPivot = Resources.Load<GameObject>("Room Builder/Base Column Pivot");
-        GameObject ground = Resources.Load<GameObject>("Room Builder/Ground");
         GameObject roof = Resources.Load<GameObject>("Room Builder/Roof");
-
+        GameObject ground = Resources.Load<GameObject>("Room Builder/Ground");
 
         //create walls
         foreach (var e in edges)
@@ -352,6 +353,14 @@ static public class RoomsUtility
         //setup ground 
         var groundInstance = UnityEngine.Object.Instantiate(ground);
         groundInstance.transform.SetParent(roomContainer.transform, true);
+
+        //setup ground for teleportation (ONLY IN VR MODE)
+#if USE_XR
+        var tpArea = groundInstance.AddComponent<TeleportationArea>();
+        tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
+        tpArea.colliders.Add(groundInstance.GetComponent<Collider>());
+        tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
+#endif
 
         //setup roof
         var roofInstance = UnityEngine.Object.Instantiate(roof);
@@ -532,6 +541,35 @@ static public class RoomsUtility
             unique.Add(hits[i].collider);
 
         return unique.Count % 2 != 0;
+    }
+
+    public static void CleanupRoom()
+    {
+        GameObject c = GameObject.Find("Room Container");
+        if (c != null)
+        {
+            foreach (Transform child in c.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Room Container' not found!");
+        }
+
+        c = GameObject.Find("Objects Container");
+        if (c != null)
+        {
+            foreach (Transform child in c.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Objects Container' not found!");
+        }
     }
 }
 

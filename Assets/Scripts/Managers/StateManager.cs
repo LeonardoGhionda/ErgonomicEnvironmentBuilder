@@ -10,6 +10,7 @@ public class StateManager : MonoBehaviour
     [Header("Views")]
     // VR Views
     [SerializeField] private MenuRoomView menuRoomView;
+    [SerializeField] private ImmersiveEditorView iEditorView;
     // DT Views
     [SerializeField] private MainMenuUI mainMenuUI;
     [SerializeField] private NewRoomUI newRoomUI;
@@ -57,7 +58,7 @@ public class StateManager : MonoBehaviour
 #if USE_XR
         VRPlayer.SetActive(true);
         MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager);
-        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer);
+        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView);
 
         currentState = MenuRoom;
 #else
@@ -93,6 +94,21 @@ public class StateManager : MonoBehaviour
         if (newState == null) Destroy(this); //close the app
         currentState?.Enter();
     }
+
+    public void GoToMainMenu()
+    {
+        IAppState mainMenuState;
+#if USE_XR
+        VRPlayer.transform.position = Vector3.back * 7f;
+        VRPlayer.transform.rotation = Quaternion.identity;
+        mainMenuState = MenuRoom;
+
+#else
+        mainMenuState = MainMenu;
+#endif
+        ChangeState(mainMenuState);
+    }
+
 
     private void OnDestroy()
     {

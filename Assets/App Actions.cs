@@ -1008,6 +1008,74 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""HandMenu"",
+            ""id"": ""8bf4f5e9-8dd5-4d8b-a229-f7948e5cc605"",
+            ""actions"": [
+                {
+                    ""name"": ""Move Entries"",
+                    ""type"": ""Value"",
+                    ""id"": ""dcec051f-0855-44e1-9c0b-d658f03a403b"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Confirm"",
+                    ""type"": ""Button"",
+                    ""id"": ""1e32e91b-5175-4d3b-b9c4-10577251b7e0"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Open"",
+                    ""type"": ""Button"",
+                    ""id"": ""92fc26dd-8572-43b7-b575-92e3e4eee970"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""4972f600-c341-4028-844c-838f17379903"",
+                    ""path"": ""<XRController>{LeftHand}/{Primary2DAxis}"",
+                    ""interactions"": """",
+                    ""processors"": ""StickDeadzone"",
+                    ""groups"": """",
+                    ""action"": ""Move Entries"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""21e1bdd5-821d-4177-8514-ffdb26b836b7"",
+                    ""path"": ""<XRController>{LeftHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""86d011ee-80b3-454e-b06c-128012ceca7b"",
+                    ""path"": ""<XRController>{LeftHand}/{MenuButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Open"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1042,12 +1110,18 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_Ui_OpenModelsMenu = m_Ui.FindAction("Open Models Menu", throwIfNotFound: true);
         m_Ui_EnablePointer = m_Ui.FindAction("Enable Pointer", throwIfNotFound: true);
         m_Ui_Delete = m_Ui.FindAction("Delete", throwIfNotFound: true);
+        // HandMenu
+        m_HandMenu = asset.FindActionMap("HandMenu", throwIfNotFound: true);
+        m_HandMenu_MoveEntries = m_HandMenu.FindAction("Move Entries", throwIfNotFound: true);
+        m_HandMenu_Confirm = m_HandMenu.FindAction("Confirm", throwIfNotFound: true);
+        m_HandMenu_Open = m_HandMenu.FindAction("Open", throwIfNotFound: true);
     }
 
     ~@AppActions()
     {
         UnityEngine.Debug.Assert(!m_CameraMovement.enabled, "This will cause a leak and performance issues, AppActions.CameraMovement.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Ui.enabled, "This will cause a leak and performance issues, AppActions.Ui.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_HandMenu.enabled, "This will cause a leak and performance issues, AppActions.HandMenu.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1575,6 +1649,124 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="UiActions" /> instance referencing this action map.
     /// </summary>
     public UiActions @Ui => new UiActions(this);
+
+    // HandMenu
+    private readonly InputActionMap m_HandMenu;
+    private List<IHandMenuActions> m_HandMenuActionsCallbackInterfaces = new List<IHandMenuActions>();
+    private readonly InputAction m_HandMenu_MoveEntries;
+    private readonly InputAction m_HandMenu_Confirm;
+    private readonly InputAction m_HandMenu_Open;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "HandMenu".
+    /// </summary>
+    public struct HandMenuActions
+    {
+        private @AppActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public HandMenuActions(@AppActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "HandMenu/MoveEntries".
+        /// </summary>
+        public InputAction @MoveEntries => m_Wrapper.m_HandMenu_MoveEntries;
+        /// <summary>
+        /// Provides access to the underlying input action "HandMenu/Confirm".
+        /// </summary>
+        public InputAction @Confirm => m_Wrapper.m_HandMenu_Confirm;
+        /// <summary>
+        /// Provides access to the underlying input action "HandMenu/Open".
+        /// </summary>
+        public InputAction @Open => m_Wrapper.m_HandMenu_Open;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_HandMenu; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="HandMenuActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(HandMenuActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="HandMenuActions" />
+        public void AddCallbacks(IHandMenuActions instance)
+        {
+            if (instance == null || m_Wrapper.m_HandMenuActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_HandMenuActionsCallbackInterfaces.Add(instance);
+            @MoveEntries.started += instance.OnMoveEntries;
+            @MoveEntries.performed += instance.OnMoveEntries;
+            @MoveEntries.canceled += instance.OnMoveEntries;
+            @Confirm.started += instance.OnConfirm;
+            @Confirm.performed += instance.OnConfirm;
+            @Confirm.canceled += instance.OnConfirm;
+            @Open.started += instance.OnOpen;
+            @Open.performed += instance.OnOpen;
+            @Open.canceled += instance.OnOpen;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="HandMenuActions" />
+        private void UnregisterCallbacks(IHandMenuActions instance)
+        {
+            @MoveEntries.started -= instance.OnMoveEntries;
+            @MoveEntries.performed -= instance.OnMoveEntries;
+            @MoveEntries.canceled -= instance.OnMoveEntries;
+            @Confirm.started -= instance.OnConfirm;
+            @Confirm.performed -= instance.OnConfirm;
+            @Confirm.canceled -= instance.OnConfirm;
+            @Open.started -= instance.OnOpen;
+            @Open.performed -= instance.OnOpen;
+            @Open.canceled -= instance.OnOpen;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="HandMenuActions.UnregisterCallbacks(IHandMenuActions)" />.
+        /// </summary>
+        /// <seealso cref="HandMenuActions.UnregisterCallbacks(IHandMenuActions)" />
+        public void RemoveCallbacks(IHandMenuActions instance)
+        {
+            if (m_Wrapper.m_HandMenuActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="HandMenuActions.AddCallbacks(IHandMenuActions)" />
+        /// <seealso cref="HandMenuActions.RemoveCallbacks(IHandMenuActions)" />
+        /// <seealso cref="HandMenuActions.UnregisterCallbacks(IHandMenuActions)" />
+        public void SetCallbacks(IHandMenuActions instance)
+        {
+            foreach (var item in m_Wrapper.m_HandMenuActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_HandMenuActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="HandMenuActions" /> instance referencing this action map.
+    /// </summary>
+    public HandMenuActions @HandMenu => new HandMenuActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -1772,5 +1964,34 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDelete(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "HandMenu" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="HandMenuActions.AddCallbacks(IHandMenuActions)" />
+    /// <seealso cref="HandMenuActions.RemoveCallbacks(IHandMenuActions)" />
+    public interface IHandMenuActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Move Entries" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMoveEntries(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Confirm" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnConfirm(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Open" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpen(InputAction.CallbackContext context);
     }
 }
