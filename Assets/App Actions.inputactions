@@ -961,7 +961,7 @@
                     "id": "4972f600-c341-4028-844c-838f17379903",
                     "path": "<XRController>{LeftHand}/{Primary2DAxis}",
                     "interactions": "",
-                    "processors": "StickDeadzone",
+                    "processors": "StickDeadzone(min=0.7)",
                     "groups": "",
                     "action": "Move Entries",
                     "isComposite": false,
@@ -970,7 +970,7 @@
                 {
                     "name": "",
                     "id": "21e1bdd5-821d-4177-8514-ffdb26b836b7",
-                    "path": "<XRController>{LeftHand}/{GripButton}",
+                    "path": "<XRController>{LeftHand}/{Primary2DAxisClick}",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -986,6 +986,45 @@
                     "processors": "",
                     "groups": "",
                     "action": "Open",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "VR",
+            "id": "f9eb8b11-5bb4-40fd-8375-d860fd84577e",
+            "actions": [
+                {
+                    "name": "Deselect",
+                    "type": "Button",
+                    "id": "5e6e5126-5d08-4c2c-ba6a-f99e0261ff2c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9cf5b2e8-1c2f-4069-9f13-0e089dc9a36a",
+                    "path": "<XRController>{RightHand}/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Deselect",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "72795833-6e73-4719-be5f-22bb0a8eca9c",
+                    "path": "<XRController>{LeftHand}/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Deselect",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

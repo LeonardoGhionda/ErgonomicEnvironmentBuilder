@@ -1,13 +1,11 @@
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class SelectionManager : MonoBehaviour
+public class DTSelectionManager : MonoBehaviour
 {
     Interactable _selected;
 
-    ColliderVisual _colliderVisual;
+    [SerializeField] ColliderVisual _colliderVisual;
 
     #region getter
     public bool SelectionExist => _selected != null;
@@ -22,10 +20,7 @@ public class SelectionManager : MonoBehaviour
     #region lifecycle
     public void Init(Camera cam)
     {
-        _cam = cam;
-        // Setup collider visualizer
-        var go = new GameObject("ColliderVisual");
-        _colliderVisual = go.AddComponent<ColliderVisual>().Init(_cam);
+        _cam = cam;     
     }
     #endregion
 

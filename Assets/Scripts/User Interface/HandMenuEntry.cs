@@ -1,24 +1,20 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(CircularMoveUI), typeof(Button))]
 public class HandMenuEntry : MonoBehaviour
 {
-    [SerializeField] private UnityEvent onEntrySelected;
     [SerializeField] private Color unselectedColor;
     [SerializeField] private Color selectedColor;
-    [SerializeField] private bool  isToggle;
+    [SerializeField] private bool isToggle;
     private bool _state = false;
-
+    
     private void Awake()
     {
-        GetComponent<Button>().onClick.AddListener(Invoke);
         GetComponent<Image>().color = unselectedColor;
     }
 
-    public void Invoke()
+    public bool Toggle()
     {
         if (isToggle)
         {
@@ -26,31 +22,22 @@ public class HandMenuEntry : MonoBehaviour
 
             if (_state)
             {
-                GetComponentInParent<Image>().color = selectedColor;
+                GetComponent<Image>().color = selectedColor;
             }
             else
             {
-                GetComponentInParent<Image>().color = unselectedColor;
+                GetComponent<Image>().color = unselectedColor;
             }
         }
-        onEntrySelected?.Invoke();
+        return _state;
     }
 
-    // OnClick Functions for UI Buttons
-    public void LockPosition()
+    public void ResetToggleState()
     {
-        foreach (var grabbable in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackPosition = !_state;
-    }
-
-    public void LockRotation()
-    {
-        foreach (var grabbable in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackRotation = !_state;
-    }
-
-    public void MainMenu(StateManager stateManager)
-    {
-        stateManager.GoToMainMenu();
+        if (isToggle && _state)
+        {
+            Toggle();
+        }
     }
 }
+   

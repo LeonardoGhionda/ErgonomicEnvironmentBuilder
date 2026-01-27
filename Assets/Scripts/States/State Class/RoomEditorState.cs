@@ -15,7 +15,7 @@ public class RoomEditorState : AbsAppState
     private CameraController _camController;
     private RoomBuilderManager _rbm;
     private GizmoManager _gizmoManager;
-    private SelectionManager _selectionManager;
+    private DTSelectionManager _selectionManager;
     private MeasureManager _measureManager;
 
     private Vector2 mousePos => _input.Ui.Point.ReadValue<Vector2>();
@@ -30,7 +30,7 @@ public class RoomEditorState : AbsAppState
         EditorHUDView editorHUD,
         RoomBuilderManager roomBuilderManager,
         GizmoManager gizmoManager,
-        SelectionManager selectionManager,
+        DTSelectionManager selectionManager,
         MeasureManager measureManager) : base(manager, input)
     {
         _view = editorHUD;

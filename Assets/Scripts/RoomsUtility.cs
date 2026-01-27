@@ -6,9 +6,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem.HID;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 [Serializable]
 public struct RoomDotData
@@ -196,6 +199,7 @@ static public class RoomsUtility
         var container = GameObject.Find("Objects Container");
         foreach (Transform parent in container.transform)
         {
+            if (parent.childCount == 0) continue; //additional check to empty parent
             //save parent
             ObjectData objData = new()
             {
@@ -354,6 +358,7 @@ static public class RoomsUtility
         var groundInstance = UnityEngine.Object.Instantiate(ground);
         groundInstance.transform.SetParent(roomContainer.transform, true);
 
+
         //setup ground for teleportation (ONLY IN VR MODE)
 #if USE_XR
         var tpArea = groundInstance.AddComponent<TeleportationArea>();
@@ -385,8 +390,36 @@ static public class RoomsUtility
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
 
-            //setup children
+#if USE_XR
+            // Get the Selection Manager for VR Only to add Callback to selected object
+            VRSelectionManager sm = GameObject.FindFirstObjectByType<VRSelectionManager>();
+            if (sm == null)
+            {
+                Debug.LogError("RoomsUtility.CreateRoom: VRSelectionManager not found in scene!");
+                continue;
+            }
+#endif
+            // Setup children
             ChildrenData[] children = parentData.children.ToArray();
+
+            // Delete Objects previusly deleted but still spwaned becase part of a not deleted parent
+
+            // Cache valid names into a HashSet for O(1) lookup
+            var validNames = new HashSet<string>(children.Select(c => c.name));
+
+            // Filter and Destroy
+            foreach (Transform t in parent.GetComponentsInChildren<Transform>())
+            {
+                // Skip the parent itself
+                if (t == parent.transform) continue;
+
+                // Check against the cached set
+                if (!validNames.Contains(t.name))
+                {
+                    GameObject.Destroy(t.gameObject);
+                }
+            }
+
             foreach (ChildrenData childData in children)
             {
                 //find correct child by name
@@ -396,18 +429,35 @@ static public class RoomsUtility
                 childData.transform.ApplyTo(child.transform);
                 childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
 
+
 #if USE_XR // Add XRGrabInteractable if XR is enabled
-
-                var rb = child.AddComponent<Rigidbody>();
-                rb.useGravity = false;
-                rb.isKinematic = true;
-
-                var xrg = child.AddComponent<XRGrabInteractable>();
-                xrg.throwOnDetach = false;
-                xrg.useDynamicAttach = true;
+                SetUpVrObject(child, sm);             
 #endif
             }
         }
+    }
+
+    public static void SetUpVrObject(Transform obj, VRSelectionManager sm)
+    {
+        if(obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
+
+        var rb = obj.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = true;
+
+        var xrg = obj.AddComponent<XRGrabInteractable>();
+        xrg.throwOnDetach = false;
+        xrg.useDynamicAttach = true;
+        xrg.selectEntered.AddListener(_ => sm.ChangeSelected(xrg));
+        xrg.retainTransformParent = true;
+        xrg.selectMode = InteractableSelectMode.Multiple;
+
+        var gt = obj.AddComponent<XRGeneralGrabTransformer>();
+        gt.allowOneHandedScaling = false;
+        gt.allowTwoHandedScaling = true;
+        gt.minimumScaleRatio = 0.01f;
+        gt.maximumScaleRatio = 20f;
+        gt.scaleMultiplier = 0.15f;
     }
 
     /// <summary>

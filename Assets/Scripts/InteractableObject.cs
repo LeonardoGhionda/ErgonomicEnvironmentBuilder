@@ -9,7 +9,7 @@ public class InteractableObject : Interactable
 
     void Awake()
     {
-        selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
+        selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
         baseMaterial = gameObject.GetComponent<MeshRenderer>().material;
     }
 

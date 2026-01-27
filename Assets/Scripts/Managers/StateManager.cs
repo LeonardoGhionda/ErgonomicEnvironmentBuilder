@@ -22,7 +22,8 @@ public class StateManager : MonoBehaviour
     [Header("Managers")]
     [SerializeField] private RoomBuilderManager roomBuilderManager;
     [SerializeField] private GizmoManager gizmoManager;
-    [SerializeField] private SelectionManager selectionManager;
+    [SerializeField] private DTSelectionManager DTSelectionManager;
+    [SerializeField] private VRSelectionManager VRSelectionManager;
     [SerializeField] private MeasureManager measureManager;
 
     [Header("Components")]
@@ -55,10 +56,13 @@ public class StateManager : MonoBehaviour
 
     private void Start()
     {
+
+        // Initialize states and set the first state to enter
+
 #if USE_XR
         VRPlayer.SetActive(true);
-        MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager);
-        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView);
+        MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRSelectionManager);
+        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager);
 
         currentState = MenuRoom;
 #else
@@ -73,7 +77,7 @@ public class StateManager : MonoBehaviour
         LoadRoom =   new(this, AppInput, roomBuilderManager);
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
-        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, selectionManager, measureManager);
+        RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, DTSelectionManager, measureManager);
         
 
         //first state iniziaization
@@ -94,21 +98,6 @@ public class StateManager : MonoBehaviour
         if (newState == null) Destroy(this); //close the app
         currentState?.Enter();
     }
-
-    public void GoToMainMenu()
-    {
-        IAppState mainMenuState;
-#if USE_XR
-        VRPlayer.transform.position = Vector3.back * 7f;
-        VRPlayer.transform.rotation = Quaternion.identity;
-        mainMenuState = MenuRoom;
-
-#else
-        mainMenuState = MainMenu;
-#endif
-        ChangeState(mainMenuState);
-    }
-
 
     private void OnDestroy()
     {

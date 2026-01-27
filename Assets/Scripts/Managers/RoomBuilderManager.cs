@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(RectTransform))]
 public class RoomBuilderManager : MonoBehaviour
@@ -201,6 +202,11 @@ public class RoomBuilderManager : MonoBehaviour
     internal InputAction GetSnapAction()
     {
         return _snapAction;
+    }
+
+    internal void ObjectSelected(XRGrabInteractable interactable)
+    {
+        throw new NotImplementedException();
     }
 }
 

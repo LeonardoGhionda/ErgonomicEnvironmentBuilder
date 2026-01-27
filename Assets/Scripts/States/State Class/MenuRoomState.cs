@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEditor.Overlays;
+using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class MenuRoomState : AbsAppState
 {
     readonly private GameObject _container;
     private MenuRoomView _view;
     private RoomBuilderManager _rbm;
+    private VRSelectionManager _selectionManager;
 
     private bool _hmWaitRelease = false;
 
@@ -13,11 +17,13 @@ public class MenuRoomState : AbsAppState
         AppActions input, 
         GameObject container, 
         MenuRoomView view,
-        RoomBuilderManager roomBuilderManager) : base(manager, input)
+        RoomBuilderManager roomBuilderManager, 
+        VRSelectionManager selectionManager) : base(manager, input)
     {
         _container = container;
         _view = view;
         _rbm = roomBuilderManager;
+        _selectionManager = selectionManager;
     }
 
     public override void Enter()
@@ -32,8 +38,16 @@ public class MenuRoomState : AbsAppState
 
         //View
         _view.RoomCardClicked += StartEdit;
-        
+        _view.StartHandMenu();
+
+        // Selection manager Actions
+        _selectionManager.OnSelectionChanged += ObjectSelected;
+
         _container.SetActive(true);
+
+        // Hand Menu Button
+        _view.OnLockPosition += LockPosition;
+        _view.OnLockRotation += LockRotation;
     }
 
     public override void Exit()
@@ -48,8 +62,15 @@ public class MenuRoomState : AbsAppState
         
         // View
         _view.RoomCardClicked -= StartEdit;
-        
+
+        // Selection manager Actions
+        _selectionManager.OnSelectionChanged -= ObjectSelected;
+
         _container.SetActive(false);
+
+        // Hand Menu Button
+        _view.OnLockPosition -= LockPosition;
+        _view.OnLockRotation -= LockRotation;
     }
 
     public override void UpdateState()
@@ -90,5 +111,22 @@ public class MenuRoomState : AbsAppState
     void MenuButtonClicked(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         _view.ToggleHandMenu();
+    }
+
+    // Selection Manager Callbacks
+    void ObjectSelected(XRGrabInteractable interactable)
+    {
+    }
+
+    private void LockPosition(bool state)
+    {
+        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
+            grabbable.trackPosition = !state;
+    }
+
+    private void LockRotation(bool state)
+    {
+        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
+            grabbable.trackRotation = !state;
     }
 }

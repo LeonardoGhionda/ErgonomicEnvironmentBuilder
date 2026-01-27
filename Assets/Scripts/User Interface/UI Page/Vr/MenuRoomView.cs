@@ -14,13 +14,27 @@ public class MenuRoomView : MonoBehaviour
     [SerializeField] HandMenuHandler handMenu;
     [SerializeField] ContinuousMoveProvider moveProvider;
 
-    [SerializeField] List<HandMenuEntry> baseHandMenuEntries;
+    [Header("Menu Entry")]
+    [SerializeField] HandMenuEntry LockPosition;
+    [SerializeField] HandMenuEntry LockRotation;
+
+    public Action<bool> OnLockPosition;
+    public Action<bool> OnLockRotation;
 
     string _roomsPath;
-    private bool _handMenuInitailized = false;
 
     //-------------
     public event Action<string> RoomCardClicked;
+
+    public void StartHandMenu()
+    {
+        List<HandMenuEntry> entries = new List<HandMenuEntry> { LockPosition, LockRotation};
+        // Initialize hand menu
+        handMenu.AddMenuEntries(entries, true);
+
+        LockPosition.GetComponent<Button>().onClick.AddListener(() => OnLockPosition?.Invoke(LockPosition.Toggle()));
+        LockRotation.GetComponent<Button>().onClick.AddListener(() => OnLockRotation?.Invoke(LockRotation.Toggle()));
+    }
 
     public void RefreshRoomList()
     {
@@ -31,6 +45,7 @@ public class MenuRoomView : MonoBehaviour
             if (child != CardTemplate.transform)
                 Destroy(child.gameObject);
         }
+
         // Get room files
         var rooms = GetFilesInFolder(_roomsPath, "*.room");
 
@@ -45,14 +60,6 @@ public class MenuRoomView : MonoBehaviour
 
     public void ToggleHandMenu()
     {
-        if(_handMenuInitailized == false)
-        {
-            // Initialize hand menu
-            handMenu.SetMenuEntries(baseHandMenuEntries);
-            handMenu.gameObject.SetActive(false);
-            _handMenuInitailized = true;
-        }
-
         // Enable/Disable controller manager based on hand menu state -> prevent conflicts
         moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
         // Toggle hand menu visibility

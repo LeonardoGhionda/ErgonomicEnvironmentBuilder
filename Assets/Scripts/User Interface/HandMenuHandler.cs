@@ -12,7 +12,7 @@ public enum HandMenuInput
 
 public class HandMenuHandler : MonoBehaviour
 {
-    private float _stepAngle = 45f;
+    private readonly float _stepAngle = 45f;
     private int _maxEntriesShown = 8;
     private List<HandMenuEntry> _entries;
 
@@ -24,16 +24,7 @@ public class HandMenuHandler : MonoBehaviour
     [SerializeField] GameObject entryContainer;
     [SerializeField] float radius;
 
-    private void Awake()
-    {
-        Debug.Log("[HandMenuHandler] Awake");
-        _entries = new();
-        _right = new();
-        _left = new();
-        gameObject.SetActive(false);
-    }
-
-    public void SetUp()
+    private void SetUp()
     {
         // Disable all initially to ensure clean state
         _entries.ForEach(e => {
@@ -85,14 +76,13 @@ public class HandMenuHandler : MonoBehaviour
             case HandMenuInput.CONFIRM:
                 if (_entries.Count > 0)
                 {
-                    var button = _entries[_selected].GetComponent<Button>();
-                    if (button != null) button.onClick.Invoke();
+                    if (_entries[_selected].TryGetComponent<Button>(out var button)) button.onClick.Invoke();
                 }
                 break;
         }
     }
 
-    // Helpers
+    // Entries Movement Helpers
     // -------
     int InBound(int index)
     {
@@ -161,21 +151,18 @@ public class HandMenuHandler : MonoBehaviour
         // Safe check
         if (_entries.Count == 0) return;
 
-        var moveUI = _entries[_selected].GetComponent<CircularMoveUI>();
-        if (moveUI != null) moveUI.SetAngle(0f);
+        if (_entries[_selected].TryGetComponent<CircularMoveUI>(out var moveUI)) moveUI.SetAngle(0f);
 
         int i = -1;
         foreach (var index in _left)
         {
-            var item = _entries[index].GetComponent<CircularMoveUI>();
-            if (item != null) item.SetAngle(_stepAngle * i);
+            if (_entries[index].TryGetComponent<CircularMoveUI>(out var item)) item.SetAngle(_stepAngle * i);
             i--;
         }
         i = 1;
         foreach (var index in _right)
         {
-            var item = _entries[index].GetComponent<CircularMoveUI>();
-            if (item != null) item.SetAngle(_stepAngle * i);
+            if (_entries[index].TryGetComponent<CircularMoveUI>(out var item)) item.SetAngle(_stepAngle * i);
             i++;
         }
 
@@ -208,22 +195,52 @@ public class HandMenuHandler : MonoBehaviour
             _entries[_selected].transform.SetAsLastSibling();
     }
 
-    public void AddMenuEntries(List<HandMenuEntry> entries)
+    private void LazyInit()
     {
-        entries.ForEach(e => e.transform.SetParent(transform, false));
+        if (_entries == null)
+        {
+            _entries = new();
+            _right = new();
+            _left = new();
+        }
+    }
+
+    // Public Methods
+    // --------------
+    public void AddMenuEntries(List<HandMenuEntry> entries, bool clearPrevious)
+    {
+        LazyInit();
+
+        if (clearPrevious)
+            RemoveAllEntries();
+
+        entries.ForEach(e => {
+            e.transform.SetParent(transform, false);
+            e.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        });
+
         _entries.AddRange(entries);
+        SetUp();
+
+    }
+
+    public void RemoveMenuEntries(List<HandMenuEntry> entries)
+    {
+        LazyInit();
+        _entries.Where(e => entries.Contains(e)).ToList().ForEach(e => {
+            ResetEntry(e);
+            _entries.Remove(e);
+        });
+
+        // Re-setup menu after removal
         SetUp();
     }
 
-    private void ClearMenuEntries()
+    public void RemoveAllEntries()
     {
-        Debug.Log("[HandMenuHandler] ClearMenuEntries");
-        Debug.Log($"[HandMenuHandler] _entries is null? " + _entries == null);
         foreach (var e in _entries)
         {
-            Debug.Log($"[HandMenuHandler] e is null? " + e == null);
-            e.transform.SetParent(entryContainer.transform);
-            e.gameObject.SetActive(false);
+            ResetEntry(e);
         }
 
         _entries.Clear();
@@ -232,9 +249,12 @@ public class HandMenuHandler : MonoBehaviour
         _selected = 0;
     }
 
-    public void SetMenuEntries(List<HandMenuEntry> entries)
+    // Entries Beheviour Helpers
+    // --------
+    private void ResetEntry(HandMenuEntry e)
     {
-        ClearMenuEntries();
-        AddMenuEntries(entries);
+        e.ResetToggleState();
+        e.transform.SetParent(entryContainer.transform);
+        e.gameObject.SetActive(false);
     }
 }

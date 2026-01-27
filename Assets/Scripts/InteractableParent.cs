@@ -17,7 +17,7 @@ public class InteractableParent : Interactable
 
     void Awake()
     {
-        selectedMaterial = Resources.Load<Material>("Materials/SelectedObject");
+        selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
         materialsMap = new();
         // Set layer to Ignore Raycast to avoid children "hiding"
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");

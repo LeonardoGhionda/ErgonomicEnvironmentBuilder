@@ -17,7 +17,7 @@ public static class ModelButtonGenerator
         previewImageName = "Preview.png";
 
 
-    public static List<ModelButton> Init(GridLayoutGroup gridLayoutGroup)
+    public static List<ModelButton> DTInit(GridLayoutGroup gridLayoutGroup)
     {
         List<ModelButton> list = new();
 
@@ -38,7 +38,35 @@ public static class ModelButtonGenerator
             {
                 Debug.Log("preview sprite null");
             }
-            ModelButton button = CreateModelUiElement(Path.GetFileName(folderPath), previewImage, gridLayoutGroup);
+            ModelButton button = DTCreateModelUiElement(Path.GetFileName(folderPath), previewImage, gridLayoutGroup);
+            list.Add(button);
+        }
+
+        return list;
+    }
+
+    public static List<ModelButton> VRInit(HandMenuEntry template)
+    {
+        List<ModelButton> list = new();
+
+        //find or create the folder containing the models 
+        string modelsPath = ModelsFolder;
+        if (!Directory.Exists(modelsPath))
+        {
+            Directory.CreateDirectory(modelsPath);
+            Debug.Log($"Model folder created at: {modelsPath}");
+        }
+
+        string[] folders = Directory.GetDirectories(modelsPath);
+
+        foreach (string folderPath in folders)
+        {
+            Sprite previewImage = GetSprite(folderPath);
+            if (previewImage == null)
+            {
+                Debug.LogError("preview sprite null");
+            }
+            ModelButton button = VRCreateModelUiElement(Path.GetFileName(folderPath), previewImage, template);
             list.Add(button);
         }
 
@@ -105,7 +133,7 @@ public static class ModelButtonGenerator
                 new Vector2(0.5f, 0.5f));
     }
 
-    static private ModelButton CreateModelUiElement(string name, Sprite previewImg, GridLayoutGroup contentMenu)
+    static private ModelButton DTCreateModelUiElement(string name, Sprite previewImg, GridLayoutGroup contentMenu)
     {
         // Create GameObject
         GameObject go = new(
@@ -146,5 +174,22 @@ public static class ModelButtonGenerator
         t.verticalAlignment = VerticalAlignmentOptions.Middle;
 
         return go.GetComponent<ModelButton>();
+    }
+
+    static private ModelButton VRCreateModelUiElement(string name, Sprite previewImg, HandMenuEntry template)
+    {
+        GameObject card = GameObject.Instantiate(template.gameObject);
+        card.name = name;
+
+        var text = card.GetComponentInChildren<TextMeshProUGUI>();
+        text.text = name;
+
+        // Finds all, but filters out the one attached to the "card" GameObject
+        var img = card.GetComponentsInChildren<Image>()
+                      .FirstOrDefault(x => x.gameObject != card);
+
+        img.sprite = previewImg;
+
+        return card.AddComponent<ModelButton>();
     }
 }

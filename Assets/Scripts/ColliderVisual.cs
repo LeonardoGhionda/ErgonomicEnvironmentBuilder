@@ -1,118 +1,148 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ColliderVisual : MonoBehaviour
 {
+    [SerializeField] private GameObject edgeTemplate;
+    [SerializeField] private float colliderThickness = 0.2f;
+    
+    GameObject[] _edges;
+    readonly int cubeEdgeN = 12; 
 
-    LineRenderer _lineRenderer;
-    Camera _cam;
-    Material _lineMaterial;
+    BoxCollider _boxCollider;
 
-    float thicknessP = 0.0035f;
-    float thicknessO = 0.005f;
-
-    public ColliderVisual Init(Camera cam)
+    private void Awake()
     {
-        _lineMaterial = Resources.Load<Material>("Materials/ColliderVisualMat");
-        if (_lineMaterial == null) Debug.LogError("Collider line material not found");
-        _lineRenderer = gameObject.AddComponent<LineRenderer>();
-
-        _lineRenderer.material = _lineMaterial;
-        _lineRenderer.loop = false;
-        _lineRenderer.useWorldSpace = false;
-        _lineRenderer.enabled = false;
-
-        _cam = cam;
-        return this;
-    }
-
-    void Update()
-    {
-        // Safety check
-        if (_cam == null || _lineRenderer == null)
+        _edges = new GameObject[cubeEdgeN];
+        for (int i = 0; i < cubeEdgeN; i++)
         {
-            Debug.LogError("ColliderVisual: not Initialized correctly");
-            return;
+            _edges[i] = Instantiate(edgeTemplate);
+            _edges[i].name = $"edge {i}";
+            _edges[i].SetActive(true);
+            _edges[i].transform.SetParent(transform);
         }
 
-        // Adjust line thickness based on camera type
-        if (_cam.orthographic)
-            _lineRenderer.widthMultiplier = _cam.orthographicSize * thicknessO;
-        else
-            _lineRenderer.widthMultiplier = Vector3.Distance(_cam.transform.position, transform.position) * thicknessP;
-    }
-
-    private void OnDestroy()
-    {
-        if (_lineRenderer != null)
-            Destroy(_lineRenderer);
+        gameObject.SetActive(false);
     }
 
     public void ChangeTarget(BoxCollider boxCollider)
     {
-        // Ensure LineRenderer exists
-        if (_lineRenderer == null)
-        {
-            if(!gameObject.TryGetComponent(out _lineRenderer))
-                _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        }
-
         if (boxCollider == null)
         {
-            _lineRenderer.enabled = false;
-            transform.SetParent(null);
+            ClearTarget();
             return;
         }
 
-        Vector3 c = boxCollider.center;
-        Vector3 s = boxCollider.size * 0.5f;
+        _boxCollider = boxCollider;
 
-        // Define the 8 corners in Local Space
-        Vector3[] corners = new Vector3[8]
-        {
-            c + new Vector3(-s.x, -s.y, -s.z), // 0: Bottom-Front-Left
-            c + new Vector3( s.x, -s.y, -s.z), // 1: Bottom-Front-Right
-            c + new Vector3( s.x, -s.y,  s.z), // 2: Bottom-Back-Right
-            c + new Vector3(-s.x, -s.y,  s.z), // 3: Bottom-Back-Left
-            c + new Vector3(-s.x,  s.y, -s.z), // 4: Top-Front-Left
-            c + new Vector3( s.x,  s.y, -s.z), // 5: Top-Front-Right
-            c + new Vector3( s.x,  s.y,  s.z), // 6: Top-Back-Right
-            c + new Vector3(-s.x,  s.y,  s.z)  // 7: Top-Back-Left
-        };
-
-        Vector3[] linePoints = new Vector3[]
-        {
-            //bottom
-            corners[0], corners[1], corners[2], corners[3], corners[0],
-            corners[4],  
-            //top
-            corners[5], corners[6], corners[7], corners[4],
-            corners[5],
-            corners[1],
-            corners[2],
-            corners[6],
-            corners[7],
-            corners[3]
-        };
-
-        _lineRenderer.positionCount = linePoints.Length;
-        _lineRenderer.SetPositions(linePoints);
-        _lineRenderer.enabled = true;
-
-        _lineRenderer.widthMultiplier = 0f;
-
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
-        // Parent to the box collider for correct positioning
+        gameObject.SetActive(true);
         transform.SetParent(boxCollider.transform, false);
+        transform.SetLocalPositionAndRotation(boxCollider.center, Quaternion.identity);
+        transform.localScale = Vector3.one;
+
+        // Edges
+        // --------
+
+        // --- GROUP 1: Z-Axis Edges (0-3) ---
+        // Rotated 90 on X: Local Y aligns with World Z (Length)
+        // Local X aligns with World X | Local Z aligns with World Y
+
+        _edges[0].transform.localPosition = new Vector3(boxCollider.size.x / 2f, boxCollider.size.y / 2f, 0f);
+        _edges[0].transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+        _edges[1].transform.localPosition = new Vector3(boxCollider.size.x / 2f, -boxCollider.size.y / 2f, 0f);
+        _edges[1].transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+        _edges[2].transform.localPosition = new Vector3(-boxCollider.size.x / 2f, boxCollider.size.y / 2f, 0f);
+        _edges[2].transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+        _edges[3].transform.localPosition = new Vector3(-boxCollider.size.x / 2f, -boxCollider.size.y / 2f, 0f);
+        _edges[3].transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+
+        // --- GROUP 2: Y-Axis Edges (4-7) ---
+        // No Rotation: Local Y aligns with World Y (Length)
+        // Local X aligns with World X | Local Z aligns with World Z
+
+        _edges[4].transform.localPosition = new Vector3(boxCollider.size.x / 2f, 0f, boxCollider.size.z / 2f);
+        _edges[4].transform.localRotation = Quaternion.identity;
+
+        _edges[5].transform.localPosition = new Vector3(boxCollider.size.x / 2f, 0f, -boxCollider.size.z / 2f);
+        _edges[5].transform.localRotation = Quaternion.identity;
+
+        _edges[6].transform.localPosition = new Vector3(-boxCollider.size.x / 2f, 0f, boxCollider.size.z / 2f);
+        _edges[6].transform.localRotation = Quaternion.identity;
+
+        _edges[7].transform.localPosition = new Vector3(-boxCollider.size.x / 2f, 0f, -boxCollider.size.z / 2f);
+        _edges[7].transform.localRotation = Quaternion.identity;
+
+
+        // --- GROUP 3: X-Axis Edges (8-11) ---
+        // Rotated 90 on Z: Local Y aligns with World X (Length)
+        // Local X aligns with World Y | Local Z aligns with World Z
+
+        _edges[8].transform.localPosition = new Vector3(0f, boxCollider.size.y / 2f, boxCollider.size.z / 2f);
+        _edges[8].transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+        _edges[9].transform.localPosition = new Vector3(0f, boxCollider.size.y / 2f, -boxCollider.size.z / 2f);
+        _edges[9].transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+        _edges[10].transform.localPosition = new Vector3(0f, -boxCollider.size.y / 2f, boxCollider.size.z / 2f);
+        _edges[10].transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+        _edges[11].transform.localPosition = new Vector3(0f, -boxCollider.size.y / 2f, -boxCollider.size.z / 2f);
+        _edges[11].transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+        UpdateEdgesTickness();
+
     }
 
     public void ClearTarget()
     {
         transform.SetParent(null);
-        _lineRenderer.enabled = false;
+        gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        UpdateEdgesTickness(); 
+    }
+
+    void UpdateEdgesTickness()
+    {
+        // Safety check
+        if (_boxCollider == null) return;
+
+        Vector3 pScale = transform.lossyScale;
+
+
+        float pX = Mathf.Abs(pScale.x) < 0.001f ? 1f : Mathf.Abs(pScale.x);
+        float pY = Mathf.Abs(pScale.y) < 0.001f ? 1f : Mathf.Abs(pScale.y);
+        float pZ = Mathf.Abs(pScale.z) < 0.001f ? 1f : Mathf.Abs(pScale.z);
+
+        // Pre-calculate compensated thicknesses
+        float thickX = colliderThickness / pX;
+        float thickY = colliderThickness / pY;
+        float thickZ = colliderThickness / pZ;
+
+        Vector3 scaleZ = new Vector3(thickX, _boxCollider.size.z / 2f, thickY);
+
+        _edges[0].transform.localScale = scaleZ;
+        _edges[1].transform.localScale = scaleZ;
+        _edges[2].transform.localScale = scaleZ;
+        _edges[3].transform.localScale = scaleZ;
+
+        Vector3 scaleY = new Vector3(thickX, _boxCollider.size.y / 2f, thickZ);
+
+        _edges[4].transform.localScale = scaleY;
+        _edges[5].transform.localScale = scaleY;
+        _edges[6].transform.localScale = scaleY;
+        _edges[7].transform.localScale = scaleY;
+
+        Vector3 scaleX = new Vector3(thickY, _boxCollider.size.x / 2f, thickZ);
+
+        _edges[8].transform.localScale = scaleX;
+        _edges[9].transform.localScale = scaleX;
+        _edges[10].transform.localScale = scaleX;
+        _edges[11].transform.localScale = scaleX;
     }
 }
-
-

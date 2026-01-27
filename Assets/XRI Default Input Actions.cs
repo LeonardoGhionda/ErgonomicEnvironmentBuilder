@@ -1068,7 +1068,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                 {
                     ""name"": """",
                     ""id"": ""71a4d23f-3e9a-4513-923b-ba388c5e84bf"",
-                    ""path"": ""<XRController>{LeftHand}/{GripButton}"",
+                    ""path"": ""<XRController>{LeftHand}/{TriggerButton}"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

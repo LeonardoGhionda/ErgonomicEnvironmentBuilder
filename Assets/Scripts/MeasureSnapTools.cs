@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MeasureSnapTools
@@ -22,16 +23,23 @@ public class MeasureSnapTools
     /// <returns>true if snap was performed</returns>
     public bool TrySnap(Transform selected)
     {
-        return Snap(selected);
+        return Snap(selected) != null;
     }
 
-    private bool Snap(Transform selected)
+    public void SnapAndFollow(Transform selected)
+    {
+        BoxCollider snapBox = Snap(selected);
+        if(snapBox != null)
+            selected.AddComponent<SnapFollow>()?.SetTarget(snapBox.transform);
+    }
+
+    private BoxCollider Snap(Transform selected)
     {
         // Snap implemented only for BoxColliders
         if (!selected.TryGetComponent<BoxCollider>(out var selectedBC))
         {
             Debug.LogWarning("SnapTool: L'oggetto selezionato non ha un BoxCollider.");
-            return false;
+            return null;
         }
 
         // Cleanup ignore list if object moved away
@@ -98,15 +106,16 @@ public class MeasureSnapTools
         if (hitFound)
         {
             ExecuteSnap(selected, selectedBC, bestHit, bestLocalDirection);
-            return true;
+            return (BoxCollider) bestHit.collider;
         }
-        return false;
+        return null;
     }
 
     private void ExecuteSnap(Transform selected, BoxCollider bc, RaycastHit hit, Vector3 localSnapDirection)
     {
         // Add new collider to ignore list
         _snapIgnore.Add(hit.collider);
+
 
         // Compute new rotation and position
         //----------------------------------
@@ -126,6 +135,7 @@ public class MeasureSnapTools
 
         // Apply
         selected.SetPositionAndRotation(finalPosition, finalRotation);
+
     }
 
     /// <summary>
@@ -143,5 +153,10 @@ public class MeasureSnapTools
                         Mathf.Abs(localDir.z * scaledSize.z)) * 0.5f;
 
         return radius;
+    }
+
+    public void Clear()
+    {
+        _snapIgnore.Clear();
     }
 }

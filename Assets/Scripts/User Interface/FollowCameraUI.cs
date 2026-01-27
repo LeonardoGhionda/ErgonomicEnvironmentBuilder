@@ -12,6 +12,12 @@ public class FollowCameraUI : MonoBehaviour
 
     private void Update()
     {
-        transform.forward = transform.position - Camera.transform.position;
+        Vector3 direction = transform.position - Camera.transform.position;
+
+        // Check if vector is big enough to define a direction
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            transform.forward = direction;
+        }
     }
 }

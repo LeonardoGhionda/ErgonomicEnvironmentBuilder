@@ -105,7 +105,7 @@ public class EditorHUDView : MonoBehaviour
     public void GenerateModelButton()
     {
         //generate model buttons
-        var modelButtons = ModelButtonGenerator.Init(modelButtonContainer);
+        var modelButtons = ModelButtonGenerator.DTInit(modelButtonContainer);
         modelButtonPopulate(modelButtons);
     }
 
