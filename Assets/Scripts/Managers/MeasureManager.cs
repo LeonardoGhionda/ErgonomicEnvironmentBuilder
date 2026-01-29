@@ -59,24 +59,30 @@ public class MeasureManager : MonoBehaviour
 
         if (_currentStep == MeasureStep.SelectFirst)
         {
-            // Fase 1: Salva l'inizio
             _startPoint = clickPos;
             MeasureLine.SetActive(true); // show temporary line 
             _currentStep = MeasureStep.SelectSecond;
         }
         else
         {
-            // Fase 2: Crea la quota e resetta
             CreateDimension(_startPoint, clickPos);
-            ResetTool(); // Torna a SelectFirst
+            ResetTool(); 
         }
     }
 
+#if USE_XR
+    public void MoveCursor(Transform controller)
+#else
     public void MoveCursor(Vector2 mousePos)
+#endif
     {
         if (_currentStep != MeasureStep.None)
-        { 
+        {
+#if USE_XR
+            var cursorPos = GetSnapPoint(controller);
+#else
             var cursorPos = GetSnapPoint(_cam, mousePos);
+#endif
             Cursor.transform.position = cursorPos;
 
             //show temporary measurement line
@@ -98,6 +104,51 @@ public class MeasureManager : MonoBehaviour
     /// Calculates the best snap point based on mouse position.
     /// Updates the visual cursor automatically.
     /// </summary>
+    /// 
+
+#if USE_XR
+    // VR Signature: Uses the Controller Transform (Origin + Forward)
+    private Vector3 GetSnapPoint(Transform controller)
+#else
+// Desktop: Uses Camera + Mouse Coordinates
+    private Vector3 GetSnapPoint(Camera cam, Vector2 mousePos)
+#endif
+    {
+        Vector3 finalPoint = Vector3.zero;
+
+        // 1. Generate the Ray based on the platform
+#if USE_XR
+        Ray ray = new Ray(controller.position, controller.forward);
+#else
+    Ray ray = cam.ScreenPointToRay(mousePos);
+#endif
+
+        // 2. Shared Raycast & Snapping Logic
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+        {
+            MeshFilter meshFilter = hit.transform.GetComponent<MeshFilter>();
+
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                // Note: Ensure GetClosestStructuralPoint handles the transform.localToWorldMatrix 
+                // to support rotation/scaling correctly.
+                Vector3 snapCandidate = GetClosestStructuralPoint(hit.point, meshFilter.sharedMesh, hit.transform);
+
+                if (Vector3.Distance(hit.point, snapCandidate) < snapThreshold)
+                {
+                    finalPoint = snapCandidate;
+                    return finalPoint;
+                }
+            }
+
+            finalPoint = hit.point;
+            return finalPoint;
+        }
+
+        return finalPoint;
+    }
+
+    /*
     private Vector3 GetSnapPoint(Camera cam, Vector2 mousePos)
     {
         Vector3 finalPoint = Vector3.zero;
@@ -129,6 +180,7 @@ public class MeasureManager : MonoBehaviour
 
         return finalPoint;
     }
+    */
 
     /// <summary>
     /// Creates a new permanent dimension line between two points.

@@ -138,7 +138,9 @@ public class RoomEditorState : AbsAppState
         // If measuring, skip gizmo updates
         if (_measureManager.IsMeasuring)
         {
-            _measureManager.MoveCursor(mousePos);
+#if !USE_XR 
+            _measureManager.MoveCursor(mousePos); 
+#endif
             return;
         }
 

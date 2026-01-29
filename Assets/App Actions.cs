@@ -1089,6 +1089,24 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Take Measure"",
+                    ""type"": ""Button"",
+                    ""id"": ""bda66b00-5af9-4660-b66e-d34b6e4d59ed"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel Measure"",
+                    ""type"": ""Button"",
+                    ""id"": ""2a264bab-671a-4164-ac3b-d796152df4a1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1111,6 +1129,28 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Deselect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""67970128-c8fa-4af2-81c5-52aec0a4e1db"",
+                    ""path"": ""<XRController>{RightHand}/{Primary2DAxisClick}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Take Measure"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""685f72eb-a652-4a65-9cd5-2e858fd3f2a8"",
+                    ""path"": ""<XRController>{RightHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel Measure"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1157,6 +1197,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         // VR
         m_VR = asset.FindActionMap("VR", throwIfNotFound: true);
         m_VR_Deselect = m_VR.FindAction("Deselect", throwIfNotFound: true);
+        m_VR_TakeMeasure = m_VR.FindAction("Take Measure", throwIfNotFound: true);
+        m_VR_CancelMeasure = m_VR.FindAction("Cancel Measure", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1815,6 +1857,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_VR;
     private List<IVRActions> m_VRActionsCallbackInterfaces = new List<IVRActions>();
     private readonly InputAction m_VR_Deselect;
+    private readonly InputAction m_VR_TakeMeasure;
+    private readonly InputAction m_VR_CancelMeasure;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR".
     /// </summary>
@@ -1830,6 +1874,14 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "VR/Deselect".
         /// </summary>
         public InputAction @Deselect => m_Wrapper.m_VR_Deselect;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/TakeMeasure".
+        /// </summary>
+        public InputAction @TakeMeasure => m_Wrapper.m_VR_TakeMeasure;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/CancelMeasure".
+        /// </summary>
+        public InputAction @CancelMeasure => m_Wrapper.m_VR_CancelMeasure;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1859,6 +1911,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Deselect.started += instance.OnDeselect;
             @Deselect.performed += instance.OnDeselect;
             @Deselect.canceled += instance.OnDeselect;
+            @TakeMeasure.started += instance.OnTakeMeasure;
+            @TakeMeasure.performed += instance.OnTakeMeasure;
+            @TakeMeasure.canceled += instance.OnTakeMeasure;
+            @CancelMeasure.started += instance.OnCancelMeasure;
+            @CancelMeasure.performed += instance.OnCancelMeasure;
+            @CancelMeasure.canceled += instance.OnCancelMeasure;
         }
 
         /// <summary>
@@ -1873,6 +1931,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Deselect.started -= instance.OnDeselect;
             @Deselect.performed -= instance.OnDeselect;
             @Deselect.canceled -= instance.OnDeselect;
+            @TakeMeasure.started -= instance.OnTakeMeasure;
+            @TakeMeasure.performed -= instance.OnTakeMeasure;
+            @TakeMeasure.canceled -= instance.OnTakeMeasure;
+            @CancelMeasure.started -= instance.OnCancelMeasure;
+            @CancelMeasure.performed -= instance.OnCancelMeasure;
+            @CancelMeasure.canceled -= instance.OnCancelMeasure;
         }
 
         /// <summary>
@@ -2147,5 +2211,19 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDeselect(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Take Measure" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTakeMeasure(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Cancel Measure" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCancelMeasure(InputAction.CallbackContext context);
     }
 }

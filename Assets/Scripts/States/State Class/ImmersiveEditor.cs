@@ -2,7 +2,9 @@ using Dummiesman;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Inputs;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class ImmersiveEditor : AbsAppState
 {
@@ -10,6 +12,8 @@ public class ImmersiveEditor : AbsAppState
     private readonly GameObject _vrPlayer;
     private readonly ImmersiveEditorView _view;
     private readonly VRSelectionManager _selectionManager;
+    private readonly MeasureManager _measureManager;
+    private readonly HandMenuManager _handMenuManager;
 
     private Vector3 _insideWallPosition = Vector3.zero;
 
@@ -26,16 +30,21 @@ public class ImmersiveEditor : AbsAppState
         RoomBuilderManager roomBuilderManager,
         GameObject vrPlayer,
         ImmersiveEditorView view,
-        VRSelectionManager selectionManager) : base(manager, input)
+        VRSelectionManager selectionManager,
+        MeasureManager measureManager,
+        HandMenuManager handMenuManager) : base(manager, input)
     {
         _rbm = roomBuilderManager;
         _vrPlayer = vrPlayer;
         _view = view;
         _selectionManager = selectionManager;
+        _measureManager = measureManager;
+        _handMenuManager = handMenuManager;
     }
 
     public override void Enter()
     {
+        // Set player position inside walls 
         RoomsUtility.CreateRoom(_rbm.RoomName);
         // Forece physics update to sync transforms
         Physics.SyncTransforms();
@@ -52,28 +61,26 @@ public class ImmersiveEditor : AbsAppState
 
         _input.VR.Enable();
         _input.VR.Deselect.performed += DeselectPerformed;
+        _input.VR.TakeMeasure.performed += TakeMeasurePerformed;
+        _input.VR.CancelMeasure.performed += CancelMeasurePerformed;
 
         // Selection Manager
         _selectionManager.OnSelectionChanged += ObjectSelected;
 
-        // View
-        _view.StartHandMenu();
-
-
-        // Hand Menu Button
-        _view.OnLockAllPositionClick += LockPosition;
-        _view.OnLockAllRotationClick += LockRotation;
-        _view.OnMainMenuClick += GoToMainMenu;
-        _view.OnDeleteSelectedClick += DeleteSelected;
-        _view.OnModelClicked += AddModel;
-        _view.OnSnap += ChangeSnapState;
-        _view.OnSnapNFollow += TrySnapAndFollow;
-        _view.OnStopFollow += SelectedStopFollow;
-        _view.OnFollow += SelectedFollowClosest;
-        _view.OnGravityToggled += ApplyGravity;
-        _view.OnSelectedGravity += ToggleSelectedGravity;
-
         _snapTool = new();
+
+        _measureManager.Init(_vrPlayer.GetComponentInChildren<Camera>());
+
+        _view.Init(
+            new HM_Base.Dependencies
+            {
+                measure = _measureManager,
+                player = _vrPlayer,
+                rbm = _rbm,
+                selection = _selectionManager,
+                state = _manager,
+                hand = _handMenuManager,
+            });
     }
 
     public override void Exit()
@@ -91,23 +98,17 @@ public class ImmersiveEditor : AbsAppState
         _input.HandMenu.Disable();
 
         _input.VR.Deselect.performed -= DeselectPerformed;
+        _input.VR.TakeMeasure.performed -= TakeMeasurePerformed;
+        _input.VR.CancelMeasure.performed -= CancelMeasurePerformed;
         _input.VR.Disable();
 
         // Selection Manager
         _selectionManager.OnSelectionChanged -= ObjectSelected;
 
-        // Hand Menu Button
-        _view.OnLockAllPositionClick -= LockPosition;
-        _view.OnLockAllRotationClick -= LockRotation;
-        _view.OnMainMenuClick -= GoToMainMenu;
-        _view.OnDeleteSelectedClick -= DeleteSelected;
-        _view.OnModelClicked -= AddModel;
-        _view.OnSnap -= ChangeSnapState;
-        _view.OnSnapNFollow -= TrySnapAndFollow;
-        _view.OnStopFollow -= SelectedStopFollow;
-        _view.OnFollow -= SelectedFollowClosest;
-        _view.OnGravityToggled -= ApplyGravity;
-        _view.OnSelectedGravity -= ToggleSelectedGravity;
+        _measureManager.ClearAllMeasures();
+        _measureManager.ResetTool();
+
+        _handMenuManager.TurnOff();
     }
 
     public override void UpdateState()
@@ -116,6 +117,15 @@ public class ImmersiveEditor : AbsAppState
         {
             if (_snapTool.TrySnap(_selectionManager.Selected.transform))
                 _selectionManager.ReleaseCurrentlySelectedObject();
+        }
+
+        if (_measureManager.IsMeasuring)
+        {
+#if USE_XR //change the vr/DT difference, don't use conditional compiling
+            var rController = _vrPlayer.GetComponent<XRInputModalityManager>().rightController.transform;
+            _measureManager.MoveCursor(rController); 
+#endif
+            return;
         }
     }
 
@@ -139,21 +149,35 @@ public class ImmersiveEditor : AbsAppState
     {
         _view.HandMenuActions(HandMenuInput.CONFIRM);
     }
+
     void MenuButtonClicked(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         _view.ToggleHandMenu();
     }
 
     void DeselectPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
-    {
+    { 
         _selectionManager.ReleaseCurrentlySelectedObject();
         _selectionManager.ClearSelection();
+    }
+
+    void TakeMeasurePerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (_measureManager.IsMeasuring)
+            _measureManager.RegisterClick();
+    }
+
+    void CancelMeasurePerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (_measureManager.IsMeasuring)
+            _measureManager.ResetTool();
     }
 
     // Selection Manager Callbacks
     void ObjectSelected(XRGrabInteractable interactable)
     {
         _snapTool.Clear();
+        /*
         if (interactable != null)
         {
             _view.AddSelectedHandMenuEntries();
@@ -163,6 +187,7 @@ public class ImmersiveEditor : AbsAppState
             _view.RemoveSelectedHandMenuEntries();
             ChangeSnapState(false);
         }
+        */
     }
 
     // Hand Menu Entry Button Click Response
@@ -173,17 +198,12 @@ public class ImmersiveEditor : AbsAppState
 
     private void GoToMainMenu()
     {
-        _vrPlayer.transform.SetPositionAndRotation(new(0, 0, -7), Quaternion.identity); //Spawn position
-        _selectionManager.ClearSelection();
-        _selectionManager.ReleaseCurrentlySelectedObject();
-        RoomsUtility.Save(_rbm.RoomName);
-        _manager.ChangeState(_manager.MenuRoom);
+
     }
 
     private void LockPosition(bool state)
     {
-        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackPosition = !state;
+       
     }
 
     private void LockRotation(bool state)
@@ -248,33 +268,32 @@ public class ImmersiveEditor : AbsAppState
             .ToArray();
 
         if (targets.Length > 0)
-            _selectionManager.Selected.AddComponent<SnapFollow>()?.SetTarget(FindClosestToSelected(targets).transform);
+        {
+            var snapFollow = _selectionManager.Selected.AddComponent<SnapFollow>();
+            if(snapFollow != null) snapFollow.SetTarget(FindClosestToSelected(targets).transform);
+        }
     }
 
     private void ApplyGravity(bool state)
     {
-        Rigidbody[] rbs = GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None)
-            .Select(x => x.GetComponent<Rigidbody>())
-            .NotNull()
-            .ToArray();
-        foreach (var rb in rbs)
-        {
-            rb.useGravity = state;
-            rb.isKinematic = !state;
-        }
+        
     }
 
     private void ToggleSelectedGravity()
     {
         if(_selectionManager.SelectionExist)
         {
-            Rigidbody rb = _selectionManager.Selected.GetComponent<Rigidbody>();
-            if(rb != null)
+            if(_selectionManager.Selected.TryGetComponent<Rigidbody>(out var rb))
             {
                 rb.useGravity = !rb.useGravity;
                 rb.isKinematic = !rb.isKinematic;
             }
         }
+    }
+
+    private void StartP2PMeasure()
+    {
+
     }
 
     //Helpers
@@ -300,6 +319,7 @@ public class ImmersiveEditor : AbsAppState
 
         return closest;
     }
+
 
 }
 

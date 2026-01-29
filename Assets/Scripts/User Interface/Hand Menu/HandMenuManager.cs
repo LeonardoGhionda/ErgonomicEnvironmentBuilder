@@ -10,11 +10,13 @@ public enum HandMenuInput
     CONFIRM
 }
 
-public class HandMenuHandler : MonoBehaviour
+public class HandMenuManager : MonoBehaviour
 {
+    [SerializeField] Transform hand;
+
     private readonly float _stepAngle = 45f;
     private int _maxEntriesShown = 8;
-    private List<HandMenuEntry> _entries;
+    private List<HM_Base> _entries;
 
     private LinkedList<int> _right, _left;
     private int _selected;
@@ -24,8 +26,21 @@ public class HandMenuHandler : MonoBehaviour
     [SerializeField] GameObject entryContainer;
     [SerializeField] float radius;
 
+    private void Awake()
+    {
+        transform.SetParent(hand);
+        gameObject.SetActive(false);
+        _entries = new List<HM_Base>();
+        _right = new LinkedList<int>();
+        _left = new LinkedList<int>();
+    }
+
+    // --- Entries Movement ---
+
     private void SetUp()
     {
+        gameObject.SetActive(true);
+
         // Disable all initially to ensure clean state
         _entries.ForEach(e => {
 
@@ -37,9 +52,6 @@ public class HandMenuHandler : MonoBehaviour
 
         // Clamp max entries to actual count
         _maxEntriesShown = Mathf.Min(_entries.Count, 8);
-
-        _right = new LinkedList<int>();
-        _left = new LinkedList<int>();
         _selected = 0;
 
         // Calculate distribution
@@ -76,14 +88,12 @@ public class HandMenuHandler : MonoBehaviour
             case HandMenuInput.CONFIRM:
                 if (_entries.Count > 0)
                 {
-                    if (_entries[_selected].TryGetComponent<Button>(out var button)) button.onClick.Invoke();
+                    _entries[_selected].OnClick();
                 }
                 break;
         }
     }
 
-    // Entries Movement Helpers
-    // -------
     int InBound(int index)
     {
         if (index < 0)
@@ -195,44 +205,17 @@ public class HandMenuHandler : MonoBehaviour
             _entries[_selected].transform.SetAsLastSibling();
     }
 
-    private void LazyInit()
+    // --- Entries Handling ---
+    public void AddMenuEntries(List<HM_Base> entries, HM_Base.Dependencies deps)
     {
-        if (_entries == null)
-        {
-            _entries = new();
-            _right = new();
-            _left = new();
-        }
-    }
-
-    // Public Methods
-    // --------------
-    public void AddMenuEntries(List<HandMenuEntry> entries, bool clearPrevious)
-    {
-        LazyInit();
-
-        if (clearPrevious)
-            RemoveAllEntries();
 
         entries.ForEach(e => {
             e.transform.SetParent(transform, false);
             e.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            e.Initialize(deps);
         });
 
         _entries.AddRange(entries);
-        SetUp();
-
-    }
-
-    public void RemoveMenuEntries(List<HandMenuEntry> entries)
-    {
-        LazyInit();
-        _entries.Where(e => entries.Contains(e)).ToList().ForEach(e => {
-            ResetEntry(e);
-            _entries.Remove(e);
-        });
-
-        // Re-setup menu after removal
         SetUp();
     }
 
@@ -240,7 +223,7 @@ public class HandMenuHandler : MonoBehaviour
     {
         foreach (var e in _entries)
         {
-            ResetEntry(e);
+            RemoveEntry(e);
         }
 
         _entries.Clear();
@@ -249,12 +232,30 @@ public class HandMenuHandler : MonoBehaviour
         _selected = 0;
     }
 
-    // Entries Beheviour Helpers
-    // --------
-    private void ResetEntry(HandMenuEntry e)
+    public void RemoveMenuEntries(List<HM_Base> entries)
     {
-        e.ResetToggleState();
+        _entries.Where(e => entries.Contains(e)).ToList().ForEach(e => {
+            RemoveEntry(e);
+            _entries.Remove(e);
+        });
+
+        SetUp();
+    }
+
+    public void RemoveEntry(HM_Base e)
+    {
         e.transform.SetParent(entryContainer.transform);
         e.gameObject.SetActive(false);
+    }
+
+    public void Show(bool visible)
+    {
+        gameObject.SetActive(visible);
+    }
+
+    public void TurnOff()
+    {
+        gameObject.SetActive(false);
+        transform.SetParent(null, false);
     }
 }

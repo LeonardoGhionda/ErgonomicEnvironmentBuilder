@@ -25,6 +25,7 @@ public class StateManager : MonoBehaviour
     [SerializeField] private DTSelectionManager DTSelectionManager;
     [SerializeField] private VRSelectionManager VRSelectionManager;
     [SerializeField] private MeasureManager measureManager;
+    [SerializeField] private HandMenuManager handMenuManager;
 
     [Header("Components")]
     [SerializeField] private CameraController cameraController;
@@ -62,7 +63,7 @@ public class StateManager : MonoBehaviour
 #if USE_XR
         VRPlayer.SetActive(true);
         MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRSelectionManager);
-        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager);
+        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager);
 
         currentState = MenuRoom;
 #else

@@ -36,6 +36,7 @@ public class DimensionObject : MonoBehaviour
         textLabel.fontSize = _cam.orthographic? 5f : 2.6f;
 
         // Text always face the camera
-        textLabel.transform.forward = _cam.transform.forward;
+        textLabel.transform.LookAt(_cam.transform);
+        textLabel.transform.Rotate(Vector3.up * 180);
     }
 }

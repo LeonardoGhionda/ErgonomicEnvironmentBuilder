@@ -11,12 +11,12 @@ public class MenuRoomView : MonoBehaviour
 {
     [SerializeField] GridLayoutGroup roomCardContainer;
     [SerializeField] RectTransform CardTemplate;
-    [SerializeField] HandMenuHandler handMenu;
+    [SerializeField] HandMenuManager handMenu;
     [SerializeField] ContinuousMoveProvider moveProvider;
 
     [Header("Menu Entry")]
-    [SerializeField] HandMenuEntry LockPosition;
-    [SerializeField] HandMenuEntry LockRotation;
+    [SerializeField] HM_Base LockPosition;
+    //[SerializeField] HM_Base LockRotation;
 
     public Action<bool> OnLockPosition;
     public Action<bool> OnLockRotation;
@@ -28,12 +28,14 @@ public class MenuRoomView : MonoBehaviour
 
     public void StartHandMenu()
     {
+        /*
         List<HandMenuEntry> entries = new List<HandMenuEntry> { LockPosition, LockRotation};
         // Initialize hand menu
         handMenu.AddMenuEntries(entries, true);
 
         LockPosition.GetComponent<Button>().onClick.AddListener(() => OnLockPosition?.Invoke(LockPosition.Toggle()));
         LockRotation.GetComponent<Button>().onClick.AddListener(() => OnLockRotation?.Invoke(LockRotation.Toggle()));
+        */
     }
 
     public void RefreshRoomList()

@@ -45,7 +45,7 @@ public static class ModelButtonGenerator
         return list;
     }
 
-    public static List<ModelButton> VRInit(HandMenuEntry template)
+    public static List<ModelButton> VRInit(HM_Base template)
     {
         List<ModelButton> list = new();
 
@@ -176,7 +176,7 @@ public static class ModelButtonGenerator
         return go.GetComponent<ModelButton>();
     }
 
-    static private ModelButton VRCreateModelUiElement(string name, Sprite previewImg, HandMenuEntry template)
+    static private ModelButton VRCreateModelUiElement(string name, Sprite previewImg, HM_Base template)
     {
         GameObject card = GameObject.Instantiate(template.gameObject);
         card.name = name;
