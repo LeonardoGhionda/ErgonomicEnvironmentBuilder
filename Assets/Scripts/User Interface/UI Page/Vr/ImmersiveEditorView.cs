@@ -10,6 +10,7 @@ public class ImmersiveEditorView : MonoBehaviour
     [SerializeField] ContinuousMoveProvider moveProvider;
 
     [SerializeField] List<HM_Base> baseEntries;
+    [SerializeField] List<HM_Base> selectionEntries;
 
     HM_Base.Dependencies _dependencies;
 
@@ -24,13 +25,15 @@ public class ImmersiveEditorView : MonoBehaviour
         handMenu.ProcessInput(input);
     }
 
-    public void ToggleHandMenu()
+    public void OnSelected()
     {
-        // Enable/Disable controller manager based on hand menu state -> prevent input conflicts
-        moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
-        // Toggle hand menu visibility
-        handMenu.gameObject.SetActive(!handMenu.gameObject.activeInHierarchy);
+        handMenu.AddMenuEntries(selectionEntries, _dependencies);
     }
+    public void OnDeselect()
+    {
+        handMenu.RemoveMenuEntries(selectionEntries);
+    }
+
 /*
     private void OpenModelLibrary()
     {

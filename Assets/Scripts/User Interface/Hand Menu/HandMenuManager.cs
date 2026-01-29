@@ -28,19 +28,22 @@ public class HandMenuManager : MonoBehaviour
 
     private void Awake()
     {
-        transform.SetParent(hand);
-        gameObject.SetActive(false);
         _entries = new List<HM_Base>();
         _right = new LinkedList<int>();
         _left = new LinkedList<int>();
     }
+    
+    public void Init()
+    {
+        transform.SetParent(hand);
+        transform.localPosition = Vector3.zero;
+        gameObject.SetActive(false);
+        Show(true);
+    }
 
     // --- Entries Movement ---
-
     private void SetUp()
     {
-        gameObject.SetActive(true);
-
         // Disable all initially to ensure clean state
         _entries.ForEach(e => {
 
@@ -242,7 +245,8 @@ public class HandMenuManager : MonoBehaviour
         SetUp();
     }
 
-    public void RemoveEntry(HM_Base e)
+    // don't set this punlic: just send a list of one element
+    private void RemoveEntry(HM_Base e)
     {
         e.transform.SetParent(entryContainer.transform);
         e.gameObject.SetActive(false);
@@ -252,10 +256,15 @@ public class HandMenuManager : MonoBehaviour
     {
         gameObject.SetActive(visible);
     }
+    public void Toggle()
+    {
+        gameObject.SetActive(!gameObject.activeSelf);
+    }
 
     public void TurnOff()
     {
         gameObject.SetActive(false);
         transform.SetParent(null, false);
+        RemoveAllEntries();
     }
 }

@@ -81,6 +81,8 @@ public class ImmersiveEditor : AbsAppState
                 state = _manager,
                 hand = _handMenuManager,
             });
+
+        _handMenuManager.Init();
     }
 
     public override void Exit()
@@ -152,7 +154,7 @@ public class ImmersiveEditor : AbsAppState
 
     void MenuButtonClicked(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
-        _view.ToggleHandMenu();
+        _handMenuManager.Toggle();
     }
 
     void DeselectPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
@@ -176,35 +178,20 @@ public class ImmersiveEditor : AbsAppState
     // Selection Manager Callbacks
     void ObjectSelected(XRGrabInteractable interactable)
     {
-        _snapTool.Clear();
-        /*
+
         if (interactable != null)
         {
-            _view.AddSelectedHandMenuEntries();
+            _view.OnSelected();
         }
         else
         {
-            _view.RemoveSelectedHandMenuEntries();
-            ChangeSnapState(false);
+            _view.OnDeselect();
+            _view.OnDeselect();
         }
-        */
+
     }
 
     // Hand Menu Entry Button Click Response
-    private void DeleteSelected()
-    {
-        _selectionManager.DeleteSelected();
-    }
-
-    private void GoToMainMenu()
-    {
-
-    }
-
-    private void LockPosition(bool state)
-    {
-       
-    }
 
     private void LockRotation(bool state)
     {

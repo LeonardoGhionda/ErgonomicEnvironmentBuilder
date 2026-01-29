@@ -19,10 +19,12 @@ public class VRSelectionManager : MonoBehaviour
 
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
+    [SerializeField] GameObject pivotVisual;
 
     private void Awake()
     {
         selectedMaterial = selectedObjectMaterial;
+        pivotVisual.SetActive(false);
     }
 
     public void ChangeSelected(XRGrabInteractable selected)
@@ -32,6 +34,8 @@ public class VRSelectionManager : MonoBehaviour
         ClearSelection();
 
         _selected = selected;
+
+        UpdatePivotVisual(_selected);
 
         if (_selected == null) return;
 
@@ -94,4 +98,11 @@ public class VRSelectionManager : MonoBehaviour
     }
 
     public bool AlreadySelected(XRGrabInteractable grabbable) => grabbable == _selected;
+
+    private void UpdatePivotVisual(XRGrabInteractable grabbable)
+    {
+        pivotVisual.gameObject.SetActive(grabbable != null);
+        pivotVisual.transform.SetParent(grabbable == null? null : grabbable.transform);
+        pivotVisual.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+    }
 }
