@@ -1,4 +1,5 @@
 using System;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -10,7 +11,6 @@ public class VRSelectionManager : MonoBehaviour
     public bool SelectionExist => _selected != null;  
     public XRGrabInteractable Selected => _selected;
 
-    [SerializeField] ColliderVisual _colliderVisual;
 
     private Material selectedMaterial;
     private Material baseMaterial;
@@ -19,12 +19,11 @@ public class VRSelectionManager : MonoBehaviour
 
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
-    [SerializeField] GameObject pivotVisual;
+    [SerializeField] ColliderVisual colliderVisual;
 
     private void Awake()
     {
         selectedMaterial = selectedObjectMaterial;
-        pivotVisual.SetActive(false);
     }
 
     public void ChangeSelected(XRGrabInteractable selected)
@@ -35,13 +34,12 @@ public class VRSelectionManager : MonoBehaviour
 
         _selected = selected;
 
-        UpdatePivotVisual(_selected);
 
         if (_selected == null) return;
 
         baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
         selected.gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
-        _colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
+        colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
 
         OnSelectionChanged?.Invoke(_selected);
         
@@ -54,9 +52,11 @@ public class VRSelectionManager : MonoBehaviour
         if (_selected)
         {
             _selected.gameObject.GetComponent<MeshRenderer>().material = baseMaterial;
+            ReleaseCurrentlySelectedObject();
         }
 
-        _colliderVisual.ChangeTarget(null);
+        colliderVisual.ChangeTarget(null);
+
         baseMaterial = null;
         _selected = null;
 
@@ -65,7 +65,7 @@ public class VRSelectionManager : MonoBehaviour
 
     public void DeleteSelected()
     {
-        _colliderVisual.ChangeTarget(null);
+        colliderVisual.ChangeTarget(null);
 
         if (_selected == null) return;
 
@@ -99,10 +99,4 @@ public class VRSelectionManager : MonoBehaviour
 
     public bool AlreadySelected(XRGrabInteractable grabbable) => grabbable == _selected;
 
-    private void UpdatePivotVisual(XRGrabInteractable grabbable)
-    {
-        pivotVisual.gameObject.SetActive(grabbable != null);
-        pivotVisual.transform.SetParent(grabbable == null? null : grabbable.transform);
-        pivotVisual.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-    }
 }

@@ -56,7 +56,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         [SerializeField]
         [Tooltip("The reference to the action of continuous turning the XR Origin with this controller.")]
         InputActionReference m_Turn;
-
+        
         [SerializeField]
         [Tooltip("The reference to the action of snap turning the XR Origin with this controller.")]
         InputActionReference m_SnapTurn;
@@ -458,5 +458,51 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             return actionReference != null ? actionReference.action : null;
 #pragma warning restore IDE0031
         }
+
+
+
+        // My additions 
+        List<InputActionReference> m_InputActionsEnabled = null;
+
+        public void LocomotionEnabled(bool enableLocomotion)
+        {
+            // UNLOCK (Restore)
+            if (enableLocomotion)
+            {
+                if (m_InputActionsEnabled != null)
+                {
+                    foreach (var item in m_InputActionsEnabled)
+                    {
+                        if (item != null && item.action != null)
+                            item.action.Enable();
+                    }
+                    m_InputActionsEnabled = null;
+                }
+            }
+            // LOCK (Disable)
+            else
+            {
+                m_InputActionsEnabled = new List<InputActionReference>();
+
+                // Local function to check and disable
+                void LockIfActive(InputActionReference actionRef) // <--- Parameter name is actionRef
+                {
+                    // Fixed: Use 'actionRef' here, not 'refAction'
+                    if (actionRef != null && actionRef.action != null && actionRef.action.enabled)
+                    {
+                        m_InputActionsEnabled.Add(actionRef);
+                        actionRef.action.Disable();
+                    }
+                }
+
+                LockIfActive(m_TeleportMode);
+                LockIfActive(m_TeleportModeCancel);
+                LockIfActive(m_Turn);
+                LockIfActive(m_SnapTurn);
+                LockIfActive(m_Move);
+                LockIfActive(m_UIScroll);
+            }
+        }
+
     }
 }

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
 
 public enum HandMenuInput
 {
@@ -12,11 +14,12 @@ public enum HandMenuInput
 
 public class HandMenuManager : MonoBehaviour
 {
-    [SerializeField] Transform hand;
+    [SerializeField] ControllerInputActionManager hand;
 
     private readonly float _stepAngle = 45f;
     private int _maxEntriesShown = 8;
     private List<HM_Base> _entries;
+    public List<HM_Base> Entries => _entries;
 
     private LinkedList<int> _right, _left;
     private int _selected;
@@ -25,6 +28,8 @@ public class HandMenuManager : MonoBehaviour
 
     [SerializeField] GameObject entryContainer;
     [SerializeField] float radius;
+
+    private bool _open = false;
 
     private void Awake()
     {
@@ -35,10 +40,9 @@ public class HandMenuManager : MonoBehaviour
     
     public void Init()
     {
-        transform.SetParent(hand);
+        transform.SetParent(hand.transform);
         transform.localPosition = Vector3.zero;
-        gameObject.SetActive(false);
-        Show(true);
+        Show(_open);
     }
 
     // --- Entries Movement ---
@@ -245,25 +249,29 @@ public class HandMenuManager : MonoBehaviour
         SetUp();
     }
 
-    // don't set this punlic: just send a list of one element
+    // don't set this public: just send a list of one element
     private void RemoveEntry(HM_Base e)
     {
         e.transform.SetParent(entryContainer.transform);
         e.gameObject.SetActive(false);
+        e.OnRemove();
     }
 
     public void Show(bool visible)
     {
-        gameObject.SetActive(visible);
+        _open = visible;
+        gameObject.SetActive(_open);
+        hand.LocomotionEnabled(!visible);
     }
+
     public void Toggle()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
+        Show(!_open);
     }
 
     public void TurnOff()
     {
-        gameObject.SetActive(false);
+        Show(false);
         transform.SetParent(null, false);
         RemoveAllEntries();
     }

@@ -37,26 +37,6 @@ public class ImmersiveEditorView : MonoBehaviour
 /*
     private void OpenModelLibrary()
     {
-        List<ModelButton> buttons = ModelButtonGenerator.VRInit(HMEntryTemplate);
-        List<HandMenuEntry> modelEntries = new();
-
-        foreach (ModelButton button in buttons)
-        {
-            button.GetComponent<Button>().onClick.AddListener(() => OnModelClicked?.Invoke(button.OBJFullpath));
-
-            var entry = button.GetComponent<HandMenuEntry>();
-            modelEntries.Add(entry);
-
-        }
-
-        // add close button
-        modelEntries.Add(exitLib);
-
-        // Only proceed if we actually found entries
-        if (modelEntries.Count > 0)
-        {
-            handMenu.AddMenuEntries(modelEntries, true);
-        }
     }
 */
     

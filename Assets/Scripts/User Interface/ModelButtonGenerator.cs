@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -45,9 +46,9 @@ public static class ModelButtonGenerator
         return list;
     }
 
-    public static List<ModelButton> VRInit(HM_Base template)
+    public static List<HM_SpawnModel> VRInit(HM_SpawnModel template)
     {
-        List<ModelButton> list = new();
+        List<HM_SpawnModel> list = new();
 
         //find or create the folder containing the models 
         string modelsPath = ModelsFolder;
@@ -66,8 +67,9 @@ public static class ModelButtonGenerator
             {
                 Debug.LogError("preview sprite null");
             }
-            ModelButton button = VRCreateModelUiElement(Path.GetFileName(folderPath), previewImage, template);
-            list.Add(button);
+
+            HM_SpawnModel card = VRCreateModelUiElement(Path.GetFileName(folderPath), previewImage, template);
+            list.Add(card);
         }
 
         return list;
@@ -176,20 +178,23 @@ public static class ModelButtonGenerator
         return go.GetComponent<ModelButton>();
     }
 
-    static private ModelButton VRCreateModelUiElement(string name, Sprite previewImg, HM_Base template)
+    static private HM_SpawnModel VRCreateModelUiElement(string name, Sprite previewImg, HM_SpawnModel template)
     {
         GameObject card = GameObject.Instantiate(template.gameObject);
         card.name = name;
 
-        var text = card.GetComponentInChildren<TextMeshProUGUI>();
-        text.text = name;
+        if(card.transform.TryGetComponentOnlyInChildren<TextMeshProUGUI>(out var text))
+            text.text = name;
 
-        // Finds all, but filters out the one attached to the "card" GameObject
-        var img = card.GetComponentsInChildren<Image>()
-                      .FirstOrDefault(x => x.gameObject != card);
+        if(card.transform.TryGetComponentOnlyInChildren<Image>(out var image))
+            image.sprite = previewImg;
 
-        img.sprite = previewImg;
+        var _path = Path.Combine(ModelButtonGenerator.ModelsFolder, name);
+        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
 
-        return card.AddComponent<ModelButton>();
+        var hmEntry = card.GetComponent<HM_SpawnModel>();
+        hmEntry.modelFullPath = _path;
+
+        return hmEntry;
     }
 }

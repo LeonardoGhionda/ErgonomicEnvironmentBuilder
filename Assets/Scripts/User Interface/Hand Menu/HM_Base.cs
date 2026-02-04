@@ -1,6 +1,16 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// --- HM == Hand Menu ---
+
+
+/// <summary>
+/// Base card, to override initialization and onCLick behaviour.
+/// (Allow polymorphism of menu entries)
+/// </summary>
 public class HM_Base : MonoBehaviour
 {
     public class Dependencies
@@ -29,8 +39,15 @@ public class HM_Base : MonoBehaviour
     {
 
     }
+
+    public virtual void OnRemove()
+    { 
+    }
 }
 
+/// <summary>
+/// Same as HM_BASE but with 2 states
+/// </summary>
 public class HM_Toggle: HM_Base
 {
     private Color _selectedColor, _unselectedColor;
@@ -64,4 +81,78 @@ public class HM_Toggle: HM_Base
         if (_image != null) _image.color = _state ? _selectedColor : _unselectedColor;
     }
 
+}
+
+/// <summary>
+/// Cards used to enter in submenus, 
+/// once inside the submenu the same card is used as a close menu card.
+/// When submenu close, the same entries that were present before opening are restored
+/// </summary>
+public class HM_Group : HM_Base
+{
+    [SerializeField] protected List<HM_Base> _group;
+    List<HM_Base> _resetGroup;
+    protected bool _isMenuOpen = false;
+
+    Image _imageComp;
+    [SerializeField] Sprite closeSprite;
+    Sprite _baseSprite;
+
+    TextMeshProUGUI _textComp;
+    [SerializeField] string closeText;
+    string _baseText;
+
+    private void Awake()
+    {
+        // --- Image Init ---
+
+        if (!transform.TryGetComponentOnlyInChildren(out _imageComp))
+            Debug.LogError("Image component not found");
+
+        _baseSprite = _imageComp.sprite;
+
+        // --- Text Init ---
+
+        if (!transform.TryGetComponentOnlyInChildren(out _textComp))
+            Debug.LogError("TMP UGUI component not found");
+
+        _baseText = _textComp.text;
+    }
+
+    public override void OnClick()
+    {
+        base.OnClick();
+        _isMenuOpen = !_isMenuOpen;
+
+        if (_isMenuOpen)
+        {
+            // Save previous cards to restore when menu close
+            _resetGroup = new(_deps.hand.Entries);
+
+            // Change menu entries
+            _deps.hand.RemoveAllEntries();
+            _deps.hand.AddMenuEntries(_group.Append(this).ToList(), _deps);
+
+            // Now This card will become the close menu card
+
+            // Image
+            _imageComp.sprite = closeSprite;
+
+            //Text
+            _textComp.text = closeText;
+        }
+        else
+        { 
+            // Restore menu entries
+            _deps.hand.RemoveAllEntries();
+            _deps.hand.AddMenuEntries(_resetGroup, _deps);
+
+            // Image
+            _imageComp.sprite = _baseSprite;
+
+            //Text
+            _textComp.text = _baseText;
+        }
+        
+    }
 }
