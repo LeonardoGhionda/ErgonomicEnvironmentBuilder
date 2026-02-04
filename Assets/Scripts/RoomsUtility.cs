@@ -452,6 +452,7 @@ static public class RoomsUtility
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
+        //Scaling
         var gt = obj.AddComponent<XRGeneralGrabTransformer>();
         gt.allowOneHandedScaling = false;
         gt.allowTwoHandedScaling = true;

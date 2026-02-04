@@ -21,7 +21,7 @@ public class ImmersiveEditor : AbsAppState
 
     private bool _snapEnabled = false;
 
-    private MeasureSnapTools _snapTool;
+    private SnapTools _snapTool;
 
 
     public ImmersiveEditor(
@@ -205,14 +205,6 @@ public class ImmersiveEditor : AbsAppState
     {
         if (state == false) _snapTool.Clear();
         _snapEnabled = state;
-    }
-
-    private void TrySnapAndFollow()
-    {
-        SelectedStopFollow();
-
-        if (_selectionManager.SelectionExist)
-            _snapTool.SnapAndFollow(_selectionManager.Selected.transform);
     }
 
     private void SelectedStopFollow()

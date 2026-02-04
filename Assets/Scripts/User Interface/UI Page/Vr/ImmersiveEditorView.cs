@@ -33,11 +33,5 @@ public class ImmersiveEditorView : MonoBehaviour
     {
         handMenu.RemoveMenuEntries(selectionEntries);
     }
-
-/*
-    private void OpenModelLibrary()
-    {
-    }
-*/
     
 }

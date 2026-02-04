@@ -11,11 +11,11 @@ public class VRSelectionManager : MonoBehaviour
     public bool SelectionExist => _selected != null;  
     public XRGrabInteractable Selected => _selected;
 
-
-    private Material selectedMaterial;
-    private Material baseMaterial;
+    private Material _selectedMaterial;
+    private Material _baseMaterial;
 
     public Action<XRGrabInteractable> OnSelectionChanged;
+    public Action<XRGrabInteractable> OnSelectionChangedNotNull;
 
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
@@ -23,7 +23,7 @@ public class VRSelectionManager : MonoBehaviour
 
     private void Awake()
     {
-        selectedMaterial = selectedObjectMaterial;
+        _selectedMaterial = selectedObjectMaterial;
     }
 
     public void ChangeSelected(XRGrabInteractable selected)
@@ -34,15 +34,16 @@ public class VRSelectionManager : MonoBehaviour
 
         _selected = selected;
 
+        OnSelectionChanged?.Invoke(_selected);
 
         if (_selected == null) return;
 
-        baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
-        selected.gameObject.GetComponent<MeshRenderer>().material = selectedMaterial;
+        _baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
+        selected.gameObject.GetComponent<MeshRenderer>().material = _selectedMaterial;
         colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
 
-        OnSelectionChanged?.Invoke(_selected);
-        
+        OnSelectionChangedNotNull?.Invoke(_selected);
+
     }
 
 
@@ -51,13 +52,13 @@ public class VRSelectionManager : MonoBehaviour
     {
         if (_selected)
         {
-            _selected.gameObject.GetComponent<MeshRenderer>().material = baseMaterial;
+            _selected.gameObject.GetComponent<MeshRenderer>().material = _baseMaterial;
             ReleaseCurrentlySelectedObject();
         }
 
         colliderVisual.ChangeTarget(null);
 
-        baseMaterial = null;
+        _baseMaterial = null;
         _selected = null;
 
         OnSelectionChanged?.Invoke(null);

@@ -96,7 +96,7 @@ public class GizmoManager : MonoBehaviour
 
     private Gizmo _currentGizmo;
 
-    private MeasureSnapTools _snapTool = new();
+    private SnapTools _snapTool = new();
 
     private bool _objMoved = false;
 

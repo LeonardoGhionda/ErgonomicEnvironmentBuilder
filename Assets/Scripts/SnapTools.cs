@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class MeasureSnapTools
+public class SnapTools
 {
     // Snap requirements
     readonly private float minDistanceToSnap = 0.5f; 
@@ -26,11 +26,92 @@ public class MeasureSnapTools
         return Snap(selected) != null;
     }
 
-    public void SnapAndFollow(Transform selected)
+    /// <summary>
+    /// Snap selected closest face to target closest face 
+    /// </summary>
+    /// <returns>false if snap failed</returns>
+    public bool SnapToTarget(Transform selected, Transform target, float maxDistance = float.MaxValue)
     {
-        BoxCollider snapBox = Snap(selected);
-        if(snapBox != null)
-            selected.AddComponent<SnapFollow>()?.SetTarget(snapBox.transform);
+        if (!selected || !target) return false;
+
+        // 1. Get Colliders
+        if (!selected.TryGetComponent<BoxCollider>(out var selBC) ||
+            !target.TryGetComponent<BoxCollider>(out var tgtBC))
+            return false;
+
+        // 2. Quick Distance Check
+        if (Vector3.Distance(selected.position, target.position) > maxDistance) return false;
+
+        // 3. Find Closest Face Pair
+        // We compare every face of 'Selected' vs every face of 'Target'
+        float minFaceDist = float.MaxValue;
+        bool pairFound = false;
+
+        Vector3 bestSelLocalDir = Vector3.zero;     // Which face of Selected?
+        Vector3 bestTgtFaceCenter = Vector3.zero;   // Where is the target face?
+        Vector3 bestTgtFaceNormal = Vector3.zero;   // What is the target normal?
+
+        // Helper to get world center of a face without allocating new memory
+        Vector3 GetFaceCenter(Transform t, BoxCollider b, Vector3 dir)
+        {
+            Vector3 localFaceCenter = b.center + Vector3.Scale(dir, b.size * 0.5f);
+            return t.TransformPoint(localFaceCenter);
+        }
+
+        foreach (Vector3 selDir in _localDirections)
+        {
+            Vector3 selFaceCenter = GetFaceCenter(selected, selBC, selDir);
+
+            foreach (Vector3 tgtDir in _localDirections)
+            {
+                Vector3 tgtFaceCenter = GetFaceCenter(target, tgtBC, tgtDir);
+                float d = Vector3.Distance(selFaceCenter, tgtFaceCenter);
+
+                if (d < minFaceDist)
+                {
+                    minFaceDist = d;
+
+                    bestSelLocalDir = selDir;
+                    bestTgtFaceCenter = tgtFaceCenter;
+                    // Target normal in world space
+                    bestTgtFaceNormal = target.TransformDirection(tgtDir);
+
+                    pairFound = true;
+                }
+            }
+        }
+
+        if (!pairFound || minFaceDist > maxDistance) return false;
+
+        // 4. Calculate Snap Logic
+        // ---------------------
+
+        // A. Rotation: Align selected normal to be opposite of target normal
+        // Goal: selWorldNormal == -targetWorldNormal
+        Vector3 currentSelWorldNormal = selected.TransformDirection(bestSelLocalDir);
+        Quaternion alignRot = Quaternion.FromToRotation(currentSelWorldNormal, -bestTgtFaceNormal);
+        Quaternion finalRotation = alignRot * selected.rotation;
+
+        // B. Position: Align face centers
+        // We know where the face SHOULD be (bestTgtFaceCenter).
+        // We need to back-calculate where the pivot MUST be to satisfy that.
+
+        // 1. Calculate the vector from Pivot to FaceCenter in Local Space
+        Vector3 pivotToFaceLocal = selBC.center + Vector3.Scale(bestSelLocalDir, selBC.size * 0.5f);
+
+        // 2. Scale it (LossyScale) and Rotate it (FinalRotation) to get World Offset
+        Vector3 pivotToFaceWorld = finalRotation * Vector3.Scale(pivotToFaceLocal, selected.lossyScale);
+
+        // 3. Subtract offset from the target point to find the new pivot position
+        Vector3 finalPosition = bestTgtFaceCenter - pivotToFaceWorld;
+
+        // 5. Apply
+        selected.SetPositionAndRotation(finalPosition, finalRotation);
+
+        // Add to ignore list to prevent immediate re-snaps/collision fights
+        if (!_snapIgnore.Contains(tgtBC)) _snapIgnore.Add(tgtBC);
+
+        return true;
     }
 
     private BoxCollider Snap(Transform selected)

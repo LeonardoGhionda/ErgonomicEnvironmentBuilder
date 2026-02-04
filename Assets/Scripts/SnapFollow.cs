@@ -3,7 +3,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class SnapFollow : MonoBehaviour
 {
-    [SerializeField] private Transform _target;
+    private Transform _target;
 
     private Vector3 _positionOffset;
     private Quaternion _rotationOffset;

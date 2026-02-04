@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
 
 public enum HandMenuInput
@@ -31,6 +29,8 @@ public class HandMenuManager : MonoBehaviour
 
     private bool _open = false;
 
+    public bool Lock { get; set; }
+
     private void Awake()
     {
         _entries = new List<HM_Base>();
@@ -40,6 +40,7 @@ public class HandMenuManager : MonoBehaviour
     
     public void Init()
     {
+        Lock = false;
         transform.SetParent(hand.transform);
         transform.localPosition = Vector3.zero;
         Show(_open);
@@ -215,7 +216,6 @@ public class HandMenuManager : MonoBehaviour
     // --- Entries Handling ---
     public void AddMenuEntries(List<HM_Base> entries, HM_Base.Dependencies deps)
     {
-
         entries.ForEach(e => {
             e.transform.SetParent(transform, false);
             e.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -228,7 +228,7 @@ public class HandMenuManager : MonoBehaviour
 
     public void RemoveAllEntries()
     {
-        foreach (var e in _entries)
+        foreach (var e in _entries.ToList())
         {
             RemoveEntry(e);
         }
@@ -259,6 +259,8 @@ public class HandMenuManager : MonoBehaviour
 
     public void Show(bool visible)
     {
+        if (Lock) return;
+
         _open = visible;
         gameObject.SetActive(_open);
         hand.LocomotionEnabled(!visible);
@@ -271,6 +273,8 @@ public class HandMenuManager : MonoBehaviour
 
     public void TurnOff()
     {
+        Lock = false; // Overraide lock state
+
         Show(false);
         transform.SetParent(null, false);
         RemoveAllEntries();
