@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,12 @@ public enum HandMenuInput
     RIGHT,
     LEFT,
     CONFIRM
+}
+
+public static class HandMenuComunication
+{
+    public static Action OnSnapPerformed;
+    public static Action OnStopFollow;
 }
 
 public class HandMenuManager : MonoBehaviour
@@ -49,6 +56,7 @@ public class HandMenuManager : MonoBehaviour
     // --- Entries Movement ---
     private void SetUp()
     {
+       
         // Disable all initially to ensure clean state
         _entries.ForEach(e => {
 
@@ -143,8 +151,11 @@ public class HandMenuManager : MonoBehaviour
                 entry.gameObject.SetActive(false);
         }
 
-        // 2. Setup Selected
-        var selectedEntry = _entries[_selected];
+        if (_selected < 0) Debug.LogError("Index is negative");
+        else if (_selected >= _entries.Count) Debug.LogError("Index is too big");
+
+            // 2. Setup Selected
+            var selectedEntry = _entries[_selected];
         selectedEntry.gameObject.SetActive(true);
 
         // 3. Populate Right List
@@ -246,7 +257,8 @@ public class HandMenuManager : MonoBehaviour
             _entries.Remove(e);
         });
 
-        SetUp();
+        if (_entries.Count > 0) 
+            SetUp();
     }
 
     // don't set this public: just send a list of one element

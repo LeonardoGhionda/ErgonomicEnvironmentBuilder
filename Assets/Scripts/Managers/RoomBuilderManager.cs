@@ -203,10 +203,5 @@ public class RoomBuilderManager : MonoBehaviour
     {
         return _snapAction;
     }
-
-    internal void ObjectSelected(XRGrabInteractable interactable)
-    {
-        throw new NotImplementedException();
-    }
 }
 

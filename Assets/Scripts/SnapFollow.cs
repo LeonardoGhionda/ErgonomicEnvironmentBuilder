@@ -22,7 +22,7 @@ public class SnapFollow : MonoBehaviour
         transform.rotation = _target.rotation * _rotationOffset;
     }
 
-    public void SetTarget(Transform t)
+    public void Init(Transform t)
     {
         _target = t;
         InitializeOffset();

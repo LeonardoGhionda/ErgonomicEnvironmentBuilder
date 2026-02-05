@@ -79,7 +79,7 @@ public class ImmersiveEditor : AbsAppState
                 rbm = _rbm,
                 selection = _selectionManager,
                 state = _manager,
-                hand = _handMenuManager,
+                handMenu = _handMenuManager,
             });
 
         _handMenuManager.Init();
@@ -226,7 +226,7 @@ public class ImmersiveEditor : AbsAppState
         if (targets.Length > 0)
         {
             var snapFollow = _selectionManager.Selected.AddComponent<SnapFollow>();
-            if(snapFollow != null) snapFollow.SetTarget(FindClosestToSelected(targets).transform);
+            if(snapFollow != null) snapFollow.Init(FindClosestToSelected(targets).transform);
         }
     }
 

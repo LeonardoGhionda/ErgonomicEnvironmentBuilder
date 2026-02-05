@@ -20,7 +20,7 @@ public class HM_Base : MonoBehaviour
         public RoomBuilderManager rbm;
         public MeasureManager measure;
         public GameObject player;
-        public HandMenuManager hand;
+        public HandMenuManager handMenu;
     }
 
     protected Dependencies _deps;
@@ -127,11 +127,11 @@ public class HM_Group : HM_Base
         if (_isMenuOpen)
         {
             // Save previous cards to restore when menu close
-            _resetGroup = new(_deps.hand.Entries);
+            _resetGroup = new(_deps.handMenu.Entries);
 
             // Change menu entries
-            _deps.hand.RemoveAllEntries();
-            _deps.hand.AddMenuEntries(_group.Append(this).ToList(), _deps);
+            _deps.handMenu.RemoveAllEntries();
+            _deps.handMenu.AddMenuEntries(_group.Append(this).ToList(), _deps);
 
             // Now This card will become the close menu card
 
@@ -144,8 +144,8 @@ public class HM_Group : HM_Base
         else
         { 
             // Restore menu entries
-            _deps.hand.RemoveAllEntries();
-            _deps.hand.AddMenuEntries(_resetGroup, _deps);
+            _deps.handMenu.RemoveAllEntries();
+            _deps.handMenu.AddMenuEntries(_resetGroup, _deps);
 
             // Image
             _imageComp.sprite = _baseSprite;

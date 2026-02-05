@@ -30,7 +30,7 @@ public class MenuRoomView : MonoBehaviour
     {
         /*
         List<HandMenuEntry> entries = new List<HandMenuEntry> { LockPosition, LockRotation};
-        // Initialize hand menu
+        // Initialize handMenu menu
         handMenu.AddMenuEntries(entries, true);
 
         LockPosition.GetComponent<Button>().onClick.AddListener(() => OnLockPosition?.Invoke(LockPosition.Toggle()));
@@ -62,9 +62,9 @@ public class MenuRoomView : MonoBehaviour
 
     public void ToggleHandMenu()
     {
-        // Enable/Disable controller manager based on hand menu state -> prevent conflicts
+        // Enable/Disable controller manager based on handMenu menu state -> prevent conflicts
         moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
-        // Toggle hand menu visibility
+        // Toggle handMenu menu visibility
         handMenu.gameObject.SetActive(!handMenu.gameObject.activeInHierarchy);
     }
 

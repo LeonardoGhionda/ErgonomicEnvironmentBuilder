@@ -32,6 +32,6 @@ public class HM_SpawnModel : HM_Base
         // Interactable parent and object are necessary to make them savable (see Rooms Utility)
 
         // Close HM on obj spawn
-        _deps.hand.Show(false);
+        _deps.handMenu.Show(false);
     }
 }

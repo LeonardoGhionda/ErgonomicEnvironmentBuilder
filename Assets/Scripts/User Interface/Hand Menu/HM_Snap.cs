@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -43,8 +44,8 @@ public class HM_Snap : HM_Base
         _deps.selection.OnSelectionChangedNotNull += ExecuteSnap;
 
         // Lock UI
-        _deps.hand.Show(false);
-        _deps.hand.Lock = true;
+        _deps.handMenu.Show(false);
+        _deps.handMenu.Lock = true;
     }
 
     // Usually called if the user switches tools or closes the menu manually
@@ -56,17 +57,17 @@ public class HM_Snap : HM_Base
 
     private void ExecuteSnap(XRGrabInteractable interactable)
     {
-        // 1. CRITICAL: Stop listening immediately!
+        // Stop listening immediately!
         _deps.selection.OnSelectionChangedNotNull -= ExecuteSnap;
 
-        // 2. Handle Cancellation (User deselected or cleared)
+        // Handle Cancellation (User deselected or cleared)
         if (interactable == null)
         {
             ResetState();
             return;
         }
 
-        // 3. Perform Logic
+        // Perform Logic
         XRGrabInteractable snap2 = interactable;
 
         _deps.selection.ClearSelection();
@@ -75,7 +76,15 @@ public class HM_Snap : HM_Base
 
         bool success = _sTool.SnapToTarget(_snap1.transform, snap2.transform, maxSnapDistance);
 
-        // 4. Clean up and Unlock
+        // Update or add the target to follow
+        if (_snap1.TryGetComponent<SnapFollow>(out var snapFollow)) snapFollow.Init(snap2.transform);
+        else _snap1.AddComponent<SnapFollow>().Init(snap2.transform);
+
+        // Inform of the snap success
+        HandMenuComunication.OnSnapPerformed?.Invoke();
+        _deps.handMenu.Show(false);
+
+        // Clean up and Unlock
         ResetState();
     }
 
@@ -88,11 +97,14 @@ public class HM_Snap : HM_Base
             _tutorialText.gameObject.SetActive(false);
         }
 
-        // Material Reset
-        s1Renderer.material = _originalMaterial;
+        if (_snap1 != null)
+        {
+            // Material Reset
+            s1Renderer.material = _originalMaterial;
+        }
 
         // Unlock Hand
-        _deps.hand.Lock = false;
+        _deps.handMenu.Lock = false;
 
         // Ensure we don't have lingering listeners (safe to call even if not subscribed)
         _deps.selection.OnSelectionChangedNotNull -= ExecuteSnap;

@@ -51,4 +51,6 @@ public static class TransformExtensions
 
         return components.Length > 0;
     }
+
+    public static bool HasComponent<T>(this Transform parent) where T : Component => parent.GetComponent<T>() != null;
 }

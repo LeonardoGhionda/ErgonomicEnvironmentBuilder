@@ -22,9 +22,10 @@ public class HM_RotationMode : HM_Toggle
     override public void OnClick()
     {
         base.OnClick();
+
         if (_state)
         {
-            _deps.hand.AddMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard }, _deps);
+            _deps.handMenu.AddMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard }, _deps);
             _pm.Target = _target;
             foreach (var item in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
             {
@@ -36,7 +37,7 @@ public class HM_RotationMode : HM_Toggle
         }
         else
         {
-            _deps.hand.RemoveMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
+            _deps.handMenu.RemoveMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
 
             _pm.Target = null;
             foreach (var item in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
@@ -52,7 +53,7 @@ public class HM_RotationMode : HM_Toggle
     public override void OnRemove()
     {
         base.OnRemove();
-        _state = false;
+        _state = true; //true because it will get changed by base.OnClick
         OnClick();
     }
 
