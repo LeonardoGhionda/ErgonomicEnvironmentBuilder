@@ -11,22 +11,39 @@ public class AxisHandle : MonoBehaviour
     private Transform _target;
     private float _min, _max;
     private IXRSelectInteractor _interactor;
+    private ScaleManager _manager; // Reference to the manager
 
-    // Stores initial state
     private Vector3 _initialHandPosLocal;
     private Vector3 _initialTargetScale;
     private bool _isDragging;
 
-    public void Setup(Transform target, Axis axis, float min, float max)
+    // Components for visibility toggling
+    private Renderer _renderer;
+    private Collider _collider;
+
+    private void Awake()
     {
+        _renderer = GetComponent<MeshRenderer>();
+        _collider = GetComponent<BoxCollider>();
+    }
+
+    public void Setup(ScaleManager manager, Transform target, Axis axis, float min, float max)
+    {
+        _manager = manager;
         _target = target;
         TargetAxis = axis;
         _min = min;
         _max = max;
 
-        var interactable = GetComponent<XRGrabInteractable>();
+        var interactable = GetComponent<XRSimpleInteractable>();
         interactable.selectEntered.AddListener(OnGrab);
         interactable.selectExited.AddListener(OnRelease);
+    }
+
+    public void SetVisibility(bool isVisible)
+    {
+        if (_renderer) _renderer.enabled = isVisible;
+        if (_collider) _collider.enabled = isVisible;
     }
 
     private void OnGrab(SelectEnterEventArgs args)
@@ -34,15 +51,19 @@ public class AxisHandle : MonoBehaviour
         _interactor = args.interactorObject;
         _isDragging = true;
         _initialTargetScale = _target.localScale;
-
-        // Calculate hand position relative to the target object pivot
         _initialHandPosLocal = _target.InverseTransformPoint(_interactor.transform.position);
+
+        // Notify manager to hide other handles
+        if (_manager != null) _manager.OnHandleDragStart(this);
     }
 
     private void OnRelease(SelectExitEventArgs args)
     {
         _isDragging = false;
         _interactor = null;
+
+        // Notify manager to show other handles
+        if (_manager != null) _manager.OnHandleDragEnd();
     }
 
     void Update()
@@ -54,7 +75,6 @@ public class AxisHandle : MonoBehaviour
 
         float ratio = 1.0f;
 
-        // Calculate scale based on axis
         switch (TargetAxis)
         {
             case Axis.X:

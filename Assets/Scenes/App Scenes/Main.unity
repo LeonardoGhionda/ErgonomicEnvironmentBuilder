@@ -710,10 +710,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cda64378023e8a045aa3f18b430416fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleSize: 0.1
-  handlePadding: 0.05
-  minScale: 0.1
-  maxScale: 5
+  handleSize: 0.05
+  handlePadding: 0.1
+  minScale: 0.001
+  maxScale: 100
 --- !u!1 &52964973
 GameObject:
   m_ObjectHideFlags: 0
@@ -7946,7 +7946,8 @@ MonoBehaviour:
   CardTemplate: {fileID: 1622368549}
   handMenu: {fileID: 930012445}
   moveProvider: {fileID: 153982006850236078}
-  LockPosition: {fileID: 0}
+  LockPosition:
+  - {fileID: 0}
 --- !u!1 &754722561
 GameObject:
   m_ObjectHideFlags: 0
@@ -12801,7 +12802,6 @@ MonoBehaviour:
   - {fileID: 638094200}
   - {fileID: 1567968192}
   - {fileID: 1466944128}
-  selectionEntries: []
 --- !u!1 &1300826578
 GameObject:
   m_ObjectHideFlags: 0

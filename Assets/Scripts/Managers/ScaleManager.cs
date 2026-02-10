@@ -33,23 +33,22 @@ public class ScaleManager : MonoBehaviour
     private void Start()
     {
         _sm = FindAnyObjectByType<VRSelectionManager>();
-        _sm.OnIParentDeleted += DeleteModFile;
+        if (_sm != null) _sm.OnIParentDeleted += DeleteModFile;
     }
 
     /// <summary>
     /// When an InteractableParent is destroyed check if it was a 
     /// Non uniform scale mod and if so delete the file
     /// </summary>
-    /// <param name="parent"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void DeleteModFile(InteractableParent parent)
     {
         if (parent.Path.Contains("#m"))
         {
-            File.Delete(parent.Path);
+            if (File.Exists(parent.Path)) File.Delete(parent.Path);
 
             //Save room because if we delete the file and keep the room the same by quitting without saving, room will be corrupted 
-            RoomsUtility.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+            var roomManager = FindAnyObjectByType<RoomBuilderManager>();
+            if (roomManager != null) RoomsUtility.Save(roomManager.RoomName);
         }
     }
 
@@ -92,49 +91,78 @@ public class ScaleManager : MonoBehaviour
         handle.name = $"ScaleHandle_{axis}";
         handle.transform.SetParent(_targetObject.transform, false);
 
-        // Set visual properties
+        // Visuals
         var rend = handle.GetComponent<Renderer>();
         rend.material.color = color;
         if (rend.material.shader.name == "Standard")
             rend.material.SetFloat("_Glossiness", 0f);
 
-        // Disable trigger to ensure raycasts detect the handle
+        // Collider (Must be IsTrigger = true for SimpleInteractable usually, 
+        // but False is okay if you have a Rigidbody. Let's stick to your setup).
         var col = handle.GetComponent<BoxCollider>();
         col.isTrigger = false;
 
-        // Add kinematic rigidbody to prevent physics forces
+        // Rigidbody (Kinematic so it doesn't fall)
         var rb = handle.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
 
-        // Configure XR interaction
-        var interactable = handle.AddComponent<XRGrabInteractable>();
-        interactable.trackPosition = false;
-        interactable.trackRotation = false;
-        interactable.throwOnDetach = false;
+        // --- THE FIX ---
+        // Use XRSimpleInteractable instead of XRGrabInteractable.
+        // It listens for "Select" (Grab button) but touches NOTHING transform-wise.
+        var interactable = handle.AddComponent<XRSimpleInteractable>();
 
-        // Manually assign collider to interactable to prevent initialization delay
+        // Manually assign collider
         interactable.colliders.Clear();
         interactable.colliders.Add(col);
 
-        // Copy interaction layers from target to ensure controller visibility
+        // Copy interaction layers so your hands can touch it
         if (_targetObject.TryGetComponent<XRGrabInteractable>(out var targetGrab))
         {
             interactable.interactionLayers = targetGrab.interactionLayers;
         }
-        else
-        {
-            interactable.interactionLayers = -1;
-        }
 
-        // Match the physics layer of the target
+        // Match Physics Layer
         handle.layer = _targetObject.layer;
 
         // Attach logic script
         var axisScript = handle.AddComponent<AxisHandle>();
-        axisScript.Setup(_targetObject.transform, axis, minScale, maxScale);
+        axisScript.Setup(this, _targetObject.transform, axis, minScale, maxScale);
 
         _handles.Add(handle);
+    }
+
+    public void OnHandleDragStart(AxisHandle activeHandle)
+    {
+        foreach (var handleObj in _handles)
+        {
+            if (handleObj == null) continue;
+
+            // Check if this handle object is the one we are currently dragging
+            bool isCurrent = (handleObj == activeHandle.gameObject);
+
+            var script = handleObj.GetComponent<AxisHandle>();
+            if (script != null)
+            {
+                // Show the dragged one, hide the others
+                script.SetVisibility(isCurrent);
+            }
+        }
+    }
+
+    public void OnHandleDragEnd()
+    {
+        foreach (var handleObj in _handles)
+        {
+            if (handleObj == null) continue;
+
+            var script = handleObj.GetComponent<AxisHandle>();
+            if (script != null)
+            {
+                // Restore visibility for all handles
+                script.SetVisibility(true);
+            }
+        }
     }
 
     void Update()
@@ -144,12 +172,12 @@ public class ScaleManager : MonoBehaviour
         Vector3 parentScale = _targetObject.transform.localScale;
 
         // Determine uniform scale based on the smallest axis of the parent
-        float minAxis = Mathf.Min(parentScale.x, Mathf.Min(parentScale.y, parentScale.z));
-        float currentSize = handleSize * minAxis;
-        float currentPadding = handlePadding * minAxis;
+        float currentSize = handleSize;
+        float currentPadding = handlePadding;
 
         foreach (var handle in _handles)
         {
+            if (handle == null) continue;
             var script = handle.GetComponent<AxisHandle>();
 
             // Calculate inverse scale to keep handles cubic while growing with the object
@@ -162,7 +190,7 @@ public class ScaleManager : MonoBehaviour
 
             // Calculate position using cached collider data
             Vector3 newPos = _cachedColCenter;
-            float offset = 0.5f;
+            float offset = 10f;
 
             if (script.TargetAxis == AxisHandle.Axis.X)
             {
@@ -234,8 +262,7 @@ public class ScaleManager : MonoBehaviour
         // Create a new model folder to contain the new mesh 
         InteractableParent iParent = _targetObject.GetComponentInParent<InteractableParent>();
 
-        string ogFileName =
-            Path.GetFileNameWithoutExtension(iParent.Path);
+        string ogFileName = Path.GetFileNameWithoutExtension(iParent.Path);
 
         int pos = ogFileName.IndexOf('#');
         if (pos != -1) // Object was already a mod 
@@ -244,8 +271,7 @@ public class ScaleManager : MonoBehaviour
             ogFileName = ogFileName.Substring(0, pos);
         }
 
-        string ogDirPath =
-        Path.GetDirectoryName(iParent.Path);
+        string ogDirPath = Path.GetDirectoryName(iParent.Path);
 
         int i = 0;
         string newFileName = "";
@@ -265,10 +291,11 @@ public class ScaleManager : MonoBehaviour
         //Update this parent path with the new OBJFile path
         iParent.Path = newFilePath;
         // Update parent name 
-        iParent.gameObject.name = string.Concat(iParent.gameObject.name, modID);
-
+        iParent.gameObject.name = string.Concat(iParent.gameObject.name.RemoveModID(), modID);
 
         // Save mesh
         OBJExporter.Export(iParent);
+
+        RoomsUtility.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
     }
 }

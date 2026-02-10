@@ -16,10 +16,7 @@ public static class OBJExporter
         string objPath = parent.Path;
         string fileName = Path.GetFileNameWithoutExtension(objPath);
 
-        // Remove mod suffix if present to find original MTL
-        // Example: "Chair#m1" -> "Chair"
-        int hashIndex = fileName.IndexOf('#');
-        string baseName = (hashIndex != -1) ? fileName.Substring(0, hashIndex) : fileName;
+        string baseName = fileName.RemoveModID();
 
         string mtlFileName = baseName + ".mtl";
 

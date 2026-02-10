@@ -58,4 +58,12 @@ public static class StringExtension
         // Trim any leftover whitespace
         return outString.TrimEdge();
     }
+
+    static public string RemoveModID(this string input)
+    {
+        // Remove mod suffix if present to find original MTL
+        // Example: "Chair#m1" -> "Chair"
+        int hashIndex = input.IndexOf('#');
+        return (hashIndex != -1) ? input.Substring(0, hashIndex) : input;
+    }
 }
