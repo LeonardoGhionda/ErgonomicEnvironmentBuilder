@@ -10,7 +10,7 @@ public class ModelButton : MonoBehaviour
 
     void Awake()
     {
-        _path = Path.Combine(ModelButtonGenerator.ModelsFolder, gameObject.name);
+        _path = Path.Combine(ImportUtils.ModelsPath, gameObject.name);
         _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
     }
 }

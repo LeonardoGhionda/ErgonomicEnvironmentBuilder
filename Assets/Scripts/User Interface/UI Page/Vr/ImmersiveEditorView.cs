@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 
 public class ImmersiveEditorView : MonoBehaviour
@@ -10,7 +8,6 @@ public class ImmersiveEditorView : MonoBehaviour
     [SerializeField] ContinuousMoveProvider moveProvider;
 
     [SerializeField] List<HM_Base> baseEntries;
-    [SerializeField] List<HM_Base> selectionEntries;
 
     HM_Base.Dependencies _dependencies;
 
@@ -23,15 +20,5 @@ public class ImmersiveEditorView : MonoBehaviour
     public void HandMenuActions(HandMenuInput input)
     {
         handMenu.ProcessInput(input);
-    }
-
-    public void OnSelected()
-    {
-        handMenu.AddMenuEntries(selectionEntries, _dependencies);
-    }
-    public void OnDeselect()
-    {
-        handMenu.RemoveMenuEntries(selectionEntries);
-    }
-    
+    }    
 }

@@ -44,10 +44,6 @@ public class MenuRoomState : AbsAppState
         _selectionManager.OnSelectionChanged += ObjectSelected;
 
         _container.SetActive(true);
-
-        // Hand Menu Button
-        _view.OnLockPosition += LockPosition;
-        _view.OnLockRotation += LockRotation;
     }
 
     public override void Exit()
@@ -68,9 +64,7 @@ public class MenuRoomState : AbsAppState
 
         _container.SetActive(false);
 
-        // Hand Menu Button
-        _view.OnLockPosition -= LockPosition;
-        _view.OnLockRotation -= LockRotation;
+
     }
 
     public override void UpdateState()
@@ -118,15 +112,4 @@ public class MenuRoomState : AbsAppState
     {
     }
 
-    private void LockPosition(bool state)
-    {
-        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackPosition = !state;
-    }
-
-    private void LockRotation(bool state)
-    {
-        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackRotation = !state;
-    }
 }

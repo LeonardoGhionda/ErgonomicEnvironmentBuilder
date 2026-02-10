@@ -80,8 +80,6 @@ public class HM_Snap : HM_Base
         if (_snap1.TryGetComponent<SnapFollow>(out var snapFollow)) snapFollow.Init(snap2.transform);
         else _snap1.AddComponent<SnapFollow>().Init(snap2.transform);
 
-        // Inform of the snap success
-        HandMenuComunication.OnSnapPerformed?.Invoke();
         _deps.handMenu.Show(false);
 
         // Clean up and Unlock

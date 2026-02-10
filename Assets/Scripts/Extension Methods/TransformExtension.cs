@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public static class TransformExtensions
+public static class TransformExtension
 {
     /// <summary>
     /// Tries to get a single component in children, excluding the parent.

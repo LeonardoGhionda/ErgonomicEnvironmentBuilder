@@ -383,7 +383,7 @@ static public class RoomsUtility
         {
             //load obj file
             OBJLoader loader = new();
-            GameObject parent = loader.Load(parentData.objFilePath);
+            GameObject parent = loader.FindMTLAndLoad(parentData.objFilePath);
             // Position setup will be overwritten, camera to null
             RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer, null);
 
@@ -422,6 +422,7 @@ static public class RoomsUtility
 
             foreach (ChildrenData childData in children)
             {
+
                 //find correct child by name
                 var child = parent.transform.Find(childData.name);
 

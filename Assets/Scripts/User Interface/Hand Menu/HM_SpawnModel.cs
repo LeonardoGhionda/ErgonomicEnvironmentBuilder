@@ -14,9 +14,9 @@ public class HM_SpawnModel : HM_Base
             Debug.LogError("Model card is missing path to the model");
             return;
         }
-
+        
         OBJLoader loader = new();
-        GameObject obj = loader.Load(modelFullPath);
+        GameObject obj = loader.FindMTLAndLoad(modelFullPath);
         obj.name = $"[P] {obj.name}";
         obj.transform.SetParent(GameObject.Find("Objects Container").transform);
         Camera cam = _deps.player.GetComponentInChildren<Camera>();

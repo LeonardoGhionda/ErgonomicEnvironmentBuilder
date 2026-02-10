@@ -7,6 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class VRSelectionManager : MonoBehaviour
 {
+
     private XRGrabInteractable _selected;
     public bool SelectionExist => _selected != null;  
     public XRGrabInteractable Selected => _selected;
@@ -16,6 +17,7 @@ public class VRSelectionManager : MonoBehaviour
 
     public Action<XRGrabInteractable> OnSelectionChanged;
     public Action<XRGrabInteractable> OnSelectionChangedNotNull;
+    public Action<InteractableParent> OnIParentDeleted;
 
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
@@ -26,29 +28,33 @@ public class VRSelectionManager : MonoBehaviour
         _selectedMaterial = selectedObjectMaterial;
     }
 
+
     public void ChangeSelected(XRGrabInteractable selected)
     {
         if (AlreadySelected(selected)) return;
 
-        ClearSelection();
+        // Unselect currently selected true -> avoid to notify twice 
+        ClearSelection(true);
 
+        // Change selection
         _selected = selected;
 
+        // Set up new selected 
+        if (_selected != null) 
+        {
+            _baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
+            selected.gameObject.GetComponent<MeshRenderer>().material = _selectedMaterial;
+            colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
+        }
+            
+        // Notify of the change 
+        if(_selected) OnSelectionChangedNotNull?.Invoke(_selected);
         OnSelectionChanged?.Invoke(_selected);
-
-        if (_selected == null) return;
-
-        _baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
-        selected.gameObject.GetComponent<MeshRenderer>().material = _selectedMaterial;
-        colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
-
-        OnSelectionChangedNotNull?.Invoke(_selected);
-
     }
 
 
     // Need a separate method to avoid null reference issues with XR Interactable events
-    public void ClearSelection()
+    public void ClearSelection(bool skipCallback = false)
     {
         if (_selected)
         {
@@ -61,14 +67,16 @@ public class VRSelectionManager : MonoBehaviour
         _baseMaterial = null;
         _selected = null;
 
+        if (skipCallback) return;
+
         OnSelectionChanged?.Invoke(null);
     }
 
     public void DeleteSelected()
     {
-        colliderVisual.ChangeTarget(null);
-
         if (_selected == null) return;
+
+        colliderVisual.ChangeTarget(null);
 
         Destroy(_selected.gameObject);
          
@@ -77,10 +85,12 @@ public class VRSelectionManager : MonoBehaviour
         Transform container = GameObject.Find("Objects Container").transform;
         foreach (Transform parent in container)
         {
-            if (parent.childCount <= 0)
+            if (parent.childCount <= 0 || (parent.childCount == 1 && parent.GetChild(0) == _selected.transform)) // Destroy is applied at the end of the frame 
+            {
+                OnIParentDeleted.Invoke(parent.GetComponent<InteractableParent>());
                 Destroy(parent.gameObject);
+            }
         }
-
 
         ChangeSelected(null);
     }

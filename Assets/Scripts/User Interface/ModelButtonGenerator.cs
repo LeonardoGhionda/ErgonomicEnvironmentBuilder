@@ -10,9 +10,6 @@ using UnityEngine.UI;
 
 public static class ModelButtonGenerator
 {
-    private static readonly string modelsFolder = "Ready Models";
-    public static string ModelsFolder => Path.Combine(Application.persistentDataPath, modelsFolder);
-
     private const string 
         texturePlaceholder = "Textures/Placeholder",
         previewImageName = "Preview.png";
@@ -23,7 +20,7 @@ public static class ModelButtonGenerator
         List<ModelButton> list = new();
 
         //find or create the folder containing the models 
-        string modelsPath = ModelsFolder;
+        string modelsPath = ImportUtils.ModelsPath;
         if (!Directory.Exists(modelsPath))
         {
             Directory.CreateDirectory(modelsPath);
@@ -51,7 +48,7 @@ public static class ModelButtonGenerator
         List<HM_SpawnModel> list = new();
 
         //find or create the folder containing the models 
-        string modelsPath = ModelsFolder;
+        string modelsPath = ImportUtils.ModelsPath;
         if (!Directory.Exists(modelsPath))
         {
             Directory.CreateDirectory(modelsPath);
@@ -104,7 +101,7 @@ public static class ModelButtonGenerator
             }
             else
             {
-                GameObject OBJModel = new OBJLoader().Load(OBJPath);
+                GameObject OBJModel = new OBJLoader().FindMTLAndLoad(OBJPath);
                 if (OBJModel != null)
                 {
                     tex = PreviewGenerator.GeneratePrefabPreview(OBJModel);
@@ -189,8 +186,8 @@ public static class ModelButtonGenerator
         if(card.transform.TryGetComponentOnlyInChildren<Image>(out var image))
             image.sprite = previewImg;
 
-        var _path = Path.Combine(ModelButtonGenerator.ModelsFolder, name);
-        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        var _path = Path.Combine(ImportUtils.ModelsPath, name);
+        _path = Directory.GetFiles(_path, $"{name}.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
 
         var hmEntry = card.GetComponent<HM_SpawnModel>();
         hmEntry.modelFullPath = _path;

@@ -4,6 +4,8 @@ using SimpleFileBrowser;
 
 public static class ImportUtils
 {
+    public static string ModelsPath => Path.Combine(Application.persistentDataPath, "Ready Models");
+
     public static void ImportObject(System.Action onComplete)
     {
         FileBrowser.SetFilters(false, new FileBrowser.Filter("Models", ".obj", ".stp"));
@@ -20,7 +22,7 @@ public static class ImportUtils
     {
         string ext = Path.GetExtension(filePath).ToLower();
         string name = Path.GetFileNameWithoutExtension(filePath);
-        string destFolder = Path.Combine(Application.persistentDataPath, "Ready Models", name);
+        string destFolder = Path.Combine(ModelsPath, name);
 
         Directory.CreateDirectory(destFolder);
 

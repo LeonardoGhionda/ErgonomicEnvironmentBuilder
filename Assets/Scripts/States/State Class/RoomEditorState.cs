@@ -330,7 +330,7 @@ public class RoomEditorState : AbsAppState
             return;
         }
         OBJLoader loader = new();
-        GameObject obj = loader.Load(path);
+        GameObject obj = loader.FindMTLAndLoad(path);
 
         SetUpModel(obj, path, GameObject.Find("Objects Container"), _camController.Camera);
 

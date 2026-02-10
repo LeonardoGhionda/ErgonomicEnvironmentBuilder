@@ -15,11 +15,7 @@ public class MenuRoomView : MonoBehaviour
     [SerializeField] ContinuousMoveProvider moveProvider;
 
     [Header("Menu Entry")]
-    [SerializeField] HM_Base LockPosition;
-    //[SerializeField] HM_Base LockRotation;
-
-    public Action<bool> OnLockPosition;
-    public Action<bool> OnLockRotation;
+    [SerializeField] List<HM_Base> LockPosition;
 
     string _roomsPath;
 

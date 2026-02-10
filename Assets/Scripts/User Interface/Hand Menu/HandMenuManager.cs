@@ -13,7 +13,6 @@ public enum HandMenuInput
 
 public static class HandMenuComunication
 {
-    public static Action OnSnapPerformed;
     public static Action OnStopFollow;
 }
 

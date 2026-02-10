@@ -17,6 +17,12 @@ using System.IO;
 using UnityEngine;
 using System;
 using Dummiesman;
+using System.Text;
+using System.Globalization;
+using UnityEngine.XR.Interaction.Toolkit.Attachment;
+
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -46,7 +52,7 @@ namespace Dummiesman
         //materials, accessed by objobjectbuilder
         internal Dictionary<string, Material> Materials;
 
-        //file info for files loaded from file path, used for GameObject naming and MTL finding
+        //file info for files loaded from file folderPath, used for GameObject naming and MTL finding
         private FileInfo _objInfo;
 
 #if UNITY_EDITOR
@@ -294,10 +300,10 @@ namespace Dummiesman
         }
 
         /// <summary>
-        /// Load an OBJ and MTL file from a file path.
+        /// Load an OBJ and MTL file from a file folderPath.
         /// </summary>
-        /// <param name="path">Input OBJ path</param>
-        /// /// <param name="mtlPath">Input MTL path</param>
+        /// <param name="path">Input OBJ folderPath</param>
+        /// /// <param name="mtlPath">Input MTL folderPath</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(string path, string mtlPath)
         {
@@ -326,6 +332,7 @@ namespace Dummiesman
                     var MRs = go.GetComponentsInChildren<MeshRenderer>();
                     foreach (var mr in MRs)
                     {
+                        mr.material.SetFloat("_Cull", 0);
                         if (mr.material.name == "default (Instance)")
                             mr.material = dMaterial;
                     }
@@ -335,13 +342,15 @@ namespace Dummiesman
         }
 
         /// <summary>
-        /// Load an OBJ file from a file path. This function will also attempt to load the MTL defined in the OBJ file.
+        /// Load an OBJ file from a file folderPath. This function will also attempt to load the MTL defined in the OBJ file.
+        /// Remove scaled model modification id before looking for the mtl file 
         /// </summary>
-        /// <param name="path">Input OBJ path</param>
+        /// <param name="path">Input OBJ folderPath</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(string path)
         {
             string mtlPath = Path.ChangeExtension(path, "mtl");
+
             if (File.Exists(mtlPath))
             {
                 return Load(path, mtlPath);

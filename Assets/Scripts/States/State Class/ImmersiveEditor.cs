@@ -14,6 +14,7 @@ public class ImmersiveEditor : AbsAppState
     private readonly VRSelectionManager _selectionManager;
     private readonly MeasureManager _measureManager;
     private readonly HandMenuManager _handMenuManager;
+    private readonly ScaleManager _scaleManager;
 
     private Vector3 _insideWallPosition = Vector3.zero;
 
@@ -32,7 +33,8 @@ public class ImmersiveEditor : AbsAppState
         ImmersiveEditorView view,
         VRSelectionManager selectionManager,
         MeasureManager measureManager,
-        HandMenuManager handMenuManager) : base(manager, input)
+        HandMenuManager handMenuManager,
+        ScaleManager scaleManager) : base(manager, input)
     {
         _rbm = roomBuilderManager;
         _vrPlayer = vrPlayer;
@@ -40,6 +42,7 @@ public class ImmersiveEditor : AbsAppState
         _selectionManager = selectionManager;
         _measureManager = measureManager;
         _handMenuManager = handMenuManager;
+        _scaleManager = scaleManager;
     }
 
     public override void Enter()
@@ -64,8 +67,6 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.TakeMeasure.performed += TakeMeasurePerformed;
         _input.VR.CancelMeasure.performed += CancelMeasurePerformed;
 
-        // Selection Manager
-        _selectionManager.OnSelectionChanged += ObjectSelected;
 
         _snapTool = new();
 
@@ -80,6 +81,7 @@ public class ImmersiveEditor : AbsAppState
                 selection = _selectionManager,
                 state = _manager,
                 handMenu = _handMenuManager,
+                scale = _scaleManager,
             });
 
         _handMenuManager.Init();
@@ -105,8 +107,6 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.Disable();
 
         // Selection Manager
-        _selectionManager.OnSelectionChanged -= ObjectSelected;
-
         _measureManager.ClearAllMeasures();
         _measureManager.ResetTool();
 
@@ -173,83 +173,6 @@ public class ImmersiveEditor : AbsAppState
     {
         if (_measureManager.IsMeasuring)
             _measureManager.ResetTool();
-    }
-
-    // Selection Manager Callbacks
-    void ObjectSelected(XRGrabInteractable interactable)
-    {
-
-        if (interactable != null)
-        {
-            _view.OnSelected();
-        }
-        else
-        {
-            _view.OnDeselect();
-            _view.OnDeselect();
-        }
-
-    }
-
-    // Hand Menu Entry Button Click Response
-
-    private void LockRotation(bool state)
-    {
-        foreach (var grabbable in GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            grabbable.trackRotation = !state;
-    }
-
-    
-
-    private void ChangeSnapState(bool state)
-    {
-        if (state == false) _snapTool.Clear();
-        _snapEnabled = state;
-    }
-
-    private void SelectedStopFollow()
-    {
-        if (_selectionManager.SelectionExist)
-            GameObject.Destroy(_selectionManager.Selected.gameObject.GetComponent<SnapFollow>());
-    }
-
-    private void SelectedFollowClosest()
-    {
-        if (!_selectionManager.SelectionExist) return;
-
-        GameObject[] targets = 
-            GameObject.FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None)
-            .Where(x => x != _selectionManager.Selected)
-            .Select(x => x.gameObject)
-            .ToArray();
-
-        if (targets.Length > 0)
-        {
-            var snapFollow = _selectionManager.Selected.AddComponent<SnapFollow>();
-            if(snapFollow != null) snapFollow.Init(FindClosestToSelected(targets).transform);
-        }
-    }
-
-    private void ApplyGravity(bool state)
-    {
-        
-    }
-
-    private void ToggleSelectedGravity()
-    {
-        if(_selectionManager.SelectionExist)
-        {
-            if(_selectionManager.Selected.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.useGravity = !rb.useGravity;
-                rb.isKinematic = !rb.isKinematic;
-            }
-        }
-    }
-
-    private void StartP2PMeasure()
-    {
-
     }
 
     //Helpers

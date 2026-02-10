@@ -150,6 +150,10 @@ public class MTLLoader {
                 string materialName = processedLine.Substring(7);
                 // URP Lit Shader
                 var newMtl = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = materialName };
+
+                // Render face 0 = Both (Cull Off), 1 = Back, 2 = Front (Default)
+                newMtl.SetFloat("_Cull", 0);
+
                 mtlDict[materialName] = newMtl;
                 currentMaterial = newMtl;
                 continue;

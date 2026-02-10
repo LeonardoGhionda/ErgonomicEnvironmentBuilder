@@ -21,6 +21,7 @@ public class HM_Base : MonoBehaviour
         public MeasureManager measure;
         public GameObject player;
         public HandMenuManager handMenu;
+        public ScaleManager scale;
     }
 
     protected Dependencies _deps;
