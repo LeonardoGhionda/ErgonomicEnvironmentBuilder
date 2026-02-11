@@ -1,57 +1,53 @@
-using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class HM_ApplyGravity : HM_Toggle
 {
-    VRSelectionManager _sm;
-    XRGrabInteractable _target;
-    TextMeshProUGUI _cardText;
+    private XRGrabInteractable _target;
+    private VRSelectionManager _sm;
+    private static FieldInfo _gravityFieldInfo;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         _sm = _deps.selection;
         _sm.OnSelectionChanged += ChangeTarget;
-        
-        _cardText = GetComponentInChildren<TextMeshProUGUI>();
-        if (_cardText == null) Debug.LogError("Missing Text Component");
+
+
+        // Get private field "m_UsedGravity" trough Reflection 
+        _gravityFieldInfo = typeof(XRGrabInteractable).GetField("m_UsedGravity", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (_gravityFieldInfo == null)
+        { 
+            // Something wrong happened
+            Debug.LogError($"[ScaleManager] CRITICAL ERROR: 'm_UsedGravity' field do not exists anymore in XRGrabInteractable class,\n" +
+                           "This behaviour can be caused ny an update of the XR Toolkit library.\n" +
+                           "Need to update the varible name in this line: FieldInfo field = typeof(XRGrabInteractable).GetField(\"m_UsedGravity\", BindingFlags.NonPublic | BindingFlags.Instance);");
+
+            // Fallback
+            _state = false;
+        }
     }
 
     // Override single choices made previously 
     override public void OnClick()
     {
-        base.OnClick();
-
         if (_target != null)
         {
+            base.OnClick();
             var rb = _target.GetComponent<Rigidbody>();
             rb.useGravity = !rb.useGravity;
             rb.isKinematic = !rb.isKinematic;
-        }
-        else
-        {
-            Rigidbody[] rbs = GameObject
-                           .FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None)
-                           .Select(x => x.GetComponent<Rigidbody>())
-                           .NotNull()
-                           .ToArray();
-
-            foreach (var rb in rbs)
-            {
-                rb.useGravity = _state;
-                rb.isKinematic = !_state;
-            }
-        }
-           
+        }  
     }
 
     void ChangeTarget(XRGrabInteractable selected)
     {
         _target = selected;
-        _cardText.text = _target == null ? "Change\nGravity\n" : "Change\nSelected\nGravity";
-        _state = _target == null ? false: _target.GetComponent<Rigidbody>().useGravity;
+
+        _state = _target != null && (bool)_gravityFieldInfo.GetValue(_target);
+
+        UpdateVisual();
     }
 }

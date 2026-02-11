@@ -1,7 +1,9 @@
-using UnityEngine;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class MeasureManager : MonoBehaviour
 {
@@ -12,12 +14,15 @@ public class MeasureManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private GameObject Cursor;
+    [SerializeField, Range(0.0001f, 1.0f)] private float CursorScaleFactor = 0.5f;
     [SerializeField] private GameObject MeasureLine;
 
     // Internal State
     private MeasureStep _currentStep = MeasureStep.SelectFirst;
     private Vector3 _startPoint;
     private List<DimensionObject> _activeDimensions = new List<DimensionObject>();
+
+    bool _init = false;
 
     // Dependency 
     Camera _cam;
@@ -34,9 +39,8 @@ public class MeasureManager : MonoBehaviour
     {
         ResetTool();
         _cam = cam;
+        _init = true;
     }
-
-    // --- MAIN API ---
 
     public void ResetTool()
     {
@@ -55,6 +59,7 @@ public class MeasureManager : MonoBehaviour
             Debug.LogError("MeasureManager: CursorGO not assigned!");
             return;
         }
+
         Vector3 clickPos = Cursor.transform.position;
 
         if (_currentStep == MeasureStep.SelectFirst)
@@ -148,40 +153,6 @@ public class MeasureManager : MonoBehaviour
         return finalPoint;
     }
 
-    /*
-    private Vector3 GetSnapPoint(Camera cam, Vector2 mousePos)
-    {
-        Vector3 finalPoint = Vector3.zero;
-        Ray ray = cam.ScreenPointToRay(mousePos);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-        {
-            // Retrieve visual mesh from MeshFilter, regardless of Collider type
-            MeshFilter meshFilter = hit.transform.GetComponent<MeshFilter>();
-
-            if (meshFilter != null && meshFilter.sharedMesh != null)
-            {
-                // Pass the Mesh and Transform directly instead of the Collider
-                // Note: You must update GetClosestStructuralPoint signature to accept (Vector3, Mesh, Transform)
-                Vector3 snapCandidate = GetClosestStructuralPoint(hit.point, meshFilter.sharedMesh, hit.transform);
-
-                // Check threshold
-                if (Vector3.Distance(hit.point, snapCandidate) < snapThreshold)
-                {
-                    finalPoint = snapCandidate;
-                    return finalPoint;
-                }
-            }
-
-            // Fallback: Snap to surface
-            finalPoint = hit.point;
-            return finalPoint;
-        }
-
-        return finalPoint;
-    }
-    */
-
     /// <summary>
     /// Creates a new permanent dimension line between two points.
     /// </summary>
@@ -196,7 +167,7 @@ public class MeasureManager : MonoBehaviour
 
         if (dim != null)
         {
-            dim.Initialize(start, end, _cam);
+            dim.Initialize(start, end, _cam, GetObjectAtPosition(start), GetObjectAtPosition(end));
             _activeDimensions.Add(dim);
         }
         else
@@ -275,6 +246,33 @@ public class MeasureManager : MonoBehaviour
         return trans.TransformPoint(bestPoint);
     }
 
+    /// <summary>
+    ///  Helper method to find a collider near a specific point
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    private Transform GetObjectAtPosition(Vector3 position)
+    {
+        // Radius of 1cm to handle slight floating point inaccuracies
+        Collider[] hitColliders = Physics.OverlapSphere(position, 0.01f);
+
+        // Filter the colliders to find the first one with an InteractableObject component
+        var target = hitColliders
+            .Select(h => h.GetComponent<InteractableObject>())
+            .Where(io => io != null)
+            .Select(io => io.transform)
+            .FirstOrDefault();
+
+        if (hitColliders.Length > 0)
+        {
+            // Return the first collider found
+            // You might want to filter out specific layers (like the Player or UI) here
+            return target;
+        }
+
+        return null;
+    }
+
     public void ClearAllMeasures()
     {
         foreach (var dim in _activeDimensions)
@@ -284,5 +282,19 @@ public class MeasureManager : MonoBehaviour
                 Destroy(dim.gameObject);
             }
         }
+    }
+
+    private void Update()
+    {
+        if (_init == false ) return;
+
+        UpdateCursorVisual();
+    }
+
+    private void UpdateCursorVisual()
+    {
+        float nScale = Vector3.Distance(_cam.transform.position, Cursor.transform.position) * CursorScaleFactor;
+        nScale = Mathf.Clamp(nScale, 0.00001f, 0.1f);
+        Cursor.transform.localScale = new(nScale, nScale, nScale);
     }
 }

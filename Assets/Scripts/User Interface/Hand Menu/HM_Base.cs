@@ -53,10 +53,14 @@ public class HM_Toggle: HM_Base
 {
     private Color _selectedColor, _unselectedColor;
     protected bool _state;
+    Image _image;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+        _image = GetComponent<Image>();
+        if (_image == null) Debug.LogError($"Can't find component Image");
 
         if (!ColorUtility.TryParseHtmlString("#80A8FF", out _selectedColor) ||
             !ColorUtility.TryParseHtmlString("#3373FF", out _unselectedColor))
@@ -76,10 +80,9 @@ public class HM_Toggle: HM_Base
         UpdateVisual();
     }
     
-    private void UpdateVisual()
+    protected void UpdateVisual()
     {
-        Image _image = GetComponent<Image>();
-        if (_image != null) _image.color = _state ? _selectedColor : _unselectedColor;
+        _image.color = _state ? _selectedColor : _unselectedColor;
     }
 
 }
