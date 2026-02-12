@@ -17,8 +17,10 @@ public class HM_ScaleMode : HM_Base
         _deps.handMenu.Lock = true;
     }
 
-    private void EndScaling(XRGrabInteractable interactable)
+    private void EndScaling(VRSelectionManager.SelectionChangedArgs args)
     {
+        XRGrabInteractable interactable = args.selection;
+
         if (interactable == null)
         {
             // Save Scale 

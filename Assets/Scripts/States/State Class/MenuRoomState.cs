@@ -108,7 +108,7 @@ public class MenuRoomState : AbsAppState
     }
 
     // Selection Manager Callbacks
-    void ObjectSelected(XRGrabInteractable interactable)
+    void ObjectSelected(VRSelectionManager.SelectionChangedArgs interactable)
     {
     }
 

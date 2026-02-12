@@ -14,7 +14,7 @@ public class HM_RotationMode : HM_Toggle
     {
         base.OnInitialized();
         _deps.selection.OnSelectionChanged += ChangeTarget;
-        ChangeTarget(_deps.selection.Selected);
+        ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _deps.selection.Selected });
     }
     
 
@@ -57,9 +57,9 @@ public class HM_RotationMode : HM_Toggle
         OnClick();
     }
 
-    void ChangeTarget(XRGrabInteractable selected)
+    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
     {
-        _target = selected;
+        _target = args.selection;
         if (_state) _pm.Target = _target; 
     }
 }

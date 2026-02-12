@@ -42,9 +42,10 @@ public class HM_ApplyGravity : HM_Toggle
         }  
     }
 
-    void ChangeTarget(XRGrabInteractable selected)
-    {
-        _target = selected;
+    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
+    { 
+        _target = args.selection;
+        if (_target == null) return;
 
         _state = _target != null && (bool)_gravityFieldInfo.GetValue(_target);
 

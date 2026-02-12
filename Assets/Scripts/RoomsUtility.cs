@@ -449,7 +449,7 @@ static public class RoomsUtility
         var xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = false;
         xrg.useDynamicAttach = true;
-        xrg.selectEntered.AddListener(_ => sm.ChangeSelected(xrg));
+        xrg.selectEntered.AddListener(args => sm.ChangeSelected(args));
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 

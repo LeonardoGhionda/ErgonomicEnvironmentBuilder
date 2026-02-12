@@ -1,17 +1,29 @@
 using System;
+using TMPro;
 using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class HM_Snap : HM_Base
+public class HM_SnapTarget : HM_Base
 {
     XRGrabInteractable _snap1;
     Renderer s1Renderer => _snap1.GetComponent<MeshRenderer>();
     SnapTools _sTool;
     [SerializeField] FollowCameraUI _tutorialText;
     [SerializeField] Material _snapSelectedMaterial;
+    [SerializeField, Range(0.01f, 16f)] float textScaleFactor = 0.1f;
+    [SerializeField] float minFont, maxFont;
     Material _originalMaterial;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if(_snap1 != null)
+            SetupTutorialTXT();
+    }
+#endif
+
 
     protected override void OnInitialized()
     {
@@ -35,13 +47,11 @@ public class HM_Snap : HM_Base
         _originalMaterial = s1Renderer.material;
         s1Renderer.material = _snapSelectedMaterial;
 
-        // UI Setup
-        _tutorialText.gameObject.SetActive(true);
-        _tutorialText.transform.SetParent(_snap1.transform);
-        _tutorialText.transform.localPosition = Vector3.zero;
+        // Tutorial Text Setup
+        SetupTutorialTXT();
 
         // Subscribe
-        _deps.selection.OnSelectionChangedNotNull += ExecuteSnap;
+        _deps.selection.OnSelectionChanged += ExecuteSnap;
 
         // Lock UI
         _deps.handMenu.Show(false);
@@ -55,10 +65,13 @@ public class HM_Snap : HM_Base
         ResetState();
     }
 
-    private void ExecuteSnap(XRGrabInteractable interactable)
+    private void ExecuteSnap(VRSelectionManager.SelectionChangedArgs args)
     {
+        var interactable = args.selection;
+        if (interactable == null) return;
+
         // Stop listening immediately!
-        _deps.selection.OnSelectionChangedNotNull -= ExecuteSnap;
+        _deps.selection.OnSelectionChanged -= ExecuteSnap;
 
         // Handle Cancellation (User deselected or cleared)
         if (interactable == null)
@@ -72,13 +85,13 @@ public class HM_Snap : HM_Base
 
         _deps.selection.ClearSelection();
 
-       float maxSnapDistance = _snap1.GetComponent<BoxCollider>().size.MaxComponent() + snap2.GetComponent<BoxCollider>().size.MaxComponent() + 6f;
 
-        bool success = _sTool.SnapToTarget(_snap1.transform, snap2.transform, maxSnapDistance);
-
+        SnapFollow snapComp;
         // Update or add the target to follow
-        if (_snap1.TryGetComponent<SnapFollow>(out var snapFollow)) snapFollow.Init(snap2.transform);
-        else _snap1.AddComponent<SnapFollow>().Init(snap2.transform);
+        if (!_snap1.TryGetComponent(out snapComp))
+            snapComp = _snap1.AddComponent<SnapFollow>();
+
+        snapComp.Init(snap2.transform, args.contactPoint);
 
         _deps.handMenu.Show(false);
 
@@ -101,10 +114,23 @@ public class HM_Snap : HM_Base
             s1Renderer.material = _originalMaterial;
         }
 
+        _snap1 = null;
+
         // Unlock Hand
         _deps.handMenu.Lock = false;
 
         // Ensure we don't have lingering listeners (safe to call even if not subscribed)
-        _deps.selection.OnSelectionChangedNotNull -= ExecuteSnap;
+        _deps.selection.OnSelectionChanged -= ExecuteSnap;
+    }
+
+    private void SetupTutorialTXT()
+    {
+        _tutorialText.gameObject.SetActive(true);
+        _tutorialText.transform.SetParent(_snap1.transform);
+        var snap1BC = _snap1.GetComponent<BoxCollider>();
+        _tutorialText.transform.localPosition = snap1BC.center;
+        var textComp = _tutorialText.GetComponent<TextMeshPro>();
+        textComp.fontSize = snap1BC.size.MinComponent() * textScaleFactor;
+        textComp.fontSize = Mathf.Clamp(textComp.fontSize, minFont, maxFont);
     }
 }

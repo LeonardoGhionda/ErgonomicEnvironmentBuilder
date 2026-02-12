@@ -33,7 +33,7 @@ public class ScaleManager : MonoBehaviour
     private void Start()
     {
         _sm = FindAnyObjectByType<VRSelectionManager>();
-        if (_sm != null) _sm.OnIParentDeleted += DeleteModFile;
+        if (_sm != null) _sm.OnGroupDeleted += DeleteModFile;
     }
 
     /// <summary>

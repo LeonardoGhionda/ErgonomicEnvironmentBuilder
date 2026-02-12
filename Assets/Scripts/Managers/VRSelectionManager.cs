@@ -7,18 +7,34 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class VRSelectionManager : MonoBehaviour
 {
-
-    private XRGrabInteractable _selected;
-    public bool SelectionExist => _selected != null;  
+    // GETTERS
+    public bool SelectionExist => _selected != null;
     public XRGrabInteractable Selected => _selected;
 
+    // PRIVATE
+    private XRGrabInteractable _selected;
+    private Vector3 _contactPoint;
     private Material _selectedMaterial;
     private Material _baseMaterial;
 
-    public Action<XRGrabInteractable> OnSelectionChanged;
-    public Action<XRGrabInteractable> OnSelectionChangedNotNull;
-    public Action<InteractableParent> OnIParentDeleted;
+    public class SelectionChangedArgs
+    {
+        public XRGrabInteractable selection;
+        public Vector3 contactPoint;
 
+        public SelectionChangedArgs(XRGrabInteractable selection = null, Vector3 contactPoint = default)
+        {
+            this.selection = selection;
+            this.contactPoint = contactPoint;
+        }
+
+    }
+
+    // ACTIONS
+    public Action<SelectionChangedArgs> OnSelectionChanged;
+    public Action<InteractableParent> OnGroupDeleted;
+
+    // SERIALIZED
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
     [SerializeField] ColliderVisual colliderVisual;
@@ -29,8 +45,10 @@ public class VRSelectionManager : MonoBehaviour
     }
 
 
-    public void ChangeSelected(XRGrabInteractable selected)
+    public void ChangeSelected(SelectEnterEventArgs args)
     {
+        XRGrabInteractable selected = args.interactableObject as XRGrabInteractable;
+
         if (AlreadySelected(selected)) return;
 
         // Unselect currently selected true -> avoid to notify twice 
@@ -45,11 +63,23 @@ public class VRSelectionManager : MonoBehaviour
             _baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
             selected.gameObject.GetComponent<MeshRenderer>().material = _selectedMaterial;
             colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
+
+            // Get point where selection occurred
+            if (args.interactorObject is XRRayInteractor rayInteractor &&
+                rayInteractor.TryGetHitInfo(out Vector3 hitPosition, out _, out _, out _))
+            {
+                _contactPoint = hitPosition;
+            }
+            else
+            {
+                // Fallback for Poke and Direct: Use the hand/finger's attach position
+                // This is where the 'finger tip' or 'hand center' is located
+                _contactPoint = args.interactorObject.GetAttachTransform(args.interactableObject).position;
+            }
         }
-            
+
         // Notify of the change 
-        if(_selected) OnSelectionChangedNotNull?.Invoke(_selected);
-        OnSelectionChanged?.Invoke(_selected);
+        OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
     }
 
 
@@ -69,7 +99,7 @@ public class VRSelectionManager : MonoBehaviour
 
         if (skipCallback) return;
 
-        OnSelectionChanged?.Invoke(null);
+        OnSelectionChanged?.Invoke(new());
     }
 
     public void DeleteSelected()
@@ -87,7 +117,7 @@ public class VRSelectionManager : MonoBehaviour
         {
             if (parent.childCount <= 0 || (parent.childCount == 1 && parent.GetChild(0) == _selected.transform)) // Destroy is applied at the end of the frame 
             {
-                OnIParentDeleted.Invoke(parent.GetComponent<InteractableParent>());
+                OnGroupDeleted.Invoke(parent.GetComponent<InteractableParent>());
                 Destroy(parent.gameObject);
             }
         }

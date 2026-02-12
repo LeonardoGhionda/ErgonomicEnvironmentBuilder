@@ -11,11 +11,6 @@ public enum HandMenuInput
     CONFIRM
 }
 
-public static class HandMenuComunication
-{
-    public static Action OnStopFollow;
-}
-
 public class HandMenuManager : MonoBehaviour
 {
     [SerializeField] ControllerInputActionManager hand;
