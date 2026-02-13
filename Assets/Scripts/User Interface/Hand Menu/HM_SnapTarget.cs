@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using static UnityEngine.Rendering.GPUSort;
 
 public class HM_SnapTarget : HM_Base
 {
@@ -51,34 +52,64 @@ public class HM_SnapTarget : HM_Base
         SetupTutorialTXT();
 
         // Subscribe
+        // This one trigger onSelection of any XRGrabbableInteractor
         _deps.selection.OnSelectionChanged += ExecuteSnap;
+        _deps.selection.OnRaycastPerformed += ExecuteSnap;
+
 
         // Lock UI
         _deps.handMenu.Show(false);
         _deps.handMenu.Lock = true;
     }
 
-    // Usually called if the user switches tools or closes the menu manually
-    public override void OnRemove()
+    private void ExecuteSnap(RaycastHit hit)
     {
-        base.OnRemove();
+        // Block execution because the other function will be called aswell
+        if (hit.collider.GetComponent<XRGrabInteractable>() != null) return;
+
+        // Stop listening immediately!
+        _deps.selection.OnSelectionChanged -= ExecuteSnap;
+        _deps.selection.OnRaycastPerformed -= ExecuteSnap;
+
+        BoxCollider snap2 = hit.collider as BoxCollider;
+
+        if (snap2 == null)
+        {
+            ResetState();
+            return;
+        }
+
+        // Perform Logic
+        _deps.selection.ClearSelection();
+
+
+        SnapFollow snapComp;
+        // Update or add the target to follow
+        if (!_snap1.TryGetComponent(out snapComp))
+            snapComp = _snap1.AddComponent<SnapFollow>();
+
+        snapComp.Init(snap2.transform, hit.point);
+
+        _deps.handMenu.Show(false);
+
+        // Clean up and Unlock
         ResetState();
     }
 
     private void ExecuteSnap(VRSelectionManager.SelectionChangedArgs args)
     {
         var interactable = args.selection;
-        if (interactable == null) return;
 
-        // Stop listening immediately!
-        _deps.selection.OnSelectionChanged -= ExecuteSnap;
-
-        // Handle Cancellation (User deselected or cleared)
         if (interactable == null)
         {
             ResetState();
             return;
         }
+
+        // Stop listening immediately!
+        _deps.selection.OnSelectionChanged -= ExecuteSnap;
+        _deps.selection.OnRaycastPerformed -= ExecuteSnap;
+        
 
         // Perform Logic
         XRGrabInteractable snap2 = interactable;
@@ -132,5 +163,12 @@ public class HM_SnapTarget : HM_Base
         var textComp = _tutorialText.GetComponent<TextMeshPro>();
         textComp.fontSize = snap1BC.size.MinComponent() * textScaleFactor;
         textComp.fontSize = Mathf.Clamp(textComp.fontSize, minFont, maxFont);
+    }
+
+    // Usually called if the user switches tools or closes the menu manually
+    public override void OnRemove()
+    {
+        base.OnRemove();
+        ResetState();
     }
 }

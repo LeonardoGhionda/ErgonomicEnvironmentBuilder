@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using static UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics.HapticsUtility;
 
 public class VRSelectionManager : MonoBehaviour
 {
-    // GETTERS
+    // PUBLIC
     public bool SelectionExist => _selected != null;
     public XRGrabInteractable Selected => _selected;
 
@@ -33,11 +34,15 @@ public class VRSelectionManager : MonoBehaviour
     // ACTIONS
     public Action<SelectionChangedArgs> OnSelectionChanged;
     public Action<InteractableParent> OnGroupDeleted;
+    public Action<RaycastHit> OnRaycastPerformed;
 
     // SERIALIZED
     [SerializeField] private Camera VRCam;
     [SerializeField] Material selectedObjectMaterial;
     [SerializeField] ColliderVisual colliderVisual;
+
+    [SerializeField] Transform leftController;
+    [SerializeField] Transform rightController;
 
     private void Awake()
     {
@@ -77,6 +82,7 @@ public class VRSelectionManager : MonoBehaviour
                 _contactPoint = args.interactorObject.GetAttachTransform(args.interactableObject).position;
             }
         }
+        
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
@@ -122,7 +128,7 @@ public class VRSelectionManager : MonoBehaviour
             }
         }
 
-        ChangeSelected(null);
+        ClearSelection();
     }
 
     public void ReleaseCurrentlySelectedObject()
@@ -140,4 +146,22 @@ public class VRSelectionManager : MonoBehaviour
 
     public bool AlreadySelected(XRGrabInteractable grabbable) => grabbable == _selected;
 
+    /// <summary>
+    /// Perform SphereCast and Raycast from controller (first one has priority).
+    /// Invoke OnRaycastPerformed with the result RaycastHit
+    /// </summary>
+    /// <param name="controller"></param>
+    public void PeformControllerRaycast(Transform controller)
+    {
+        RaycastHit hit;
+        // Sphere collision takes priority (Direct)
+        Physics.SphereCast(controller.position, 0.5f, controller.forward, out RaycastHit sphereHit);
+        if( sphereHit.collider is BoxCollider) hit = sphereHit;
+
+        // Raycast
+        bool hitWithRay = Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);
+        hit = rayHit;
+
+        OnRaycastPerformed?.Invoke(hit);
+    }
 }

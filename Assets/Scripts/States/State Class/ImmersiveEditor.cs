@@ -1,10 +1,7 @@
-using Dummiesman;
-using System.Linq;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.Inputs;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class ImmersiveEditor : AbsAppState
 {
@@ -17,12 +14,10 @@ public class ImmersiveEditor : AbsAppState
     private readonly ScaleManager _scaleManager;
 
     private Vector3 _insideWallPosition = Vector3.zero;
-
     private bool _hmWaitRelease = false;
-
     private bool _snapEnabled = false;
-
     private SnapTools _snapTool;
+    private Transform _leftController, _rightController;
 
 
     public ImmersiveEditor(
@@ -43,6 +38,14 @@ public class ImmersiveEditor : AbsAppState
         _measureManager = measureManager;
         _handMenuManager = handMenuManager;
         _scaleManager = scaleManager;
+
+        // Get controllers from VR player
+        if(_vrPlayer.TryGetComponent<XRInputModalityManager>(out var imManager))
+        {
+            _leftController = imManager.leftController.transform;
+            _rightController = imManager.rightController.transform; 
+        }
+        else Debug.LogError($"Missing XRInputModalityManager from Vr player");
     }
 
     public override void Enter()
@@ -66,6 +69,8 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.Deselect.performed += DeselectPerformed;
         _input.VR.TakeMeasure.performed += TakeMeasurePerformed;
         _input.VR.CancelMeasure.performed += CancelMeasurePerformed;
+        _input.VR.LeftTrigger.performed += TriggerPerformed;
+        _input.VR.RightTrigger.performed += TriggerPerformed;
 
 
         _snapTool = new();
@@ -104,6 +109,8 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.Deselect.performed -= DeselectPerformed;
         _input.VR.TakeMeasure.performed -= TakeMeasurePerformed;
         _input.VR.CancelMeasure.performed -= CancelMeasurePerformed;
+        _input.VR.LeftTrigger.performed -= TriggerPerformed;
+        _input.VR.RightTrigger.performed -= TriggerPerformed;
         _input.VR.Disable();
 
         // Selection Manager
@@ -175,31 +182,21 @@ public class ImmersiveEditor : AbsAppState
             _measureManager.ResetTool();
     }
 
-    //Helpers
-    GameObject FindClosestToSelected(GameObject[] targets)
+    private void TriggerPerformed(InputAction.CallbackContext context)
     {
-        GameObject closest = null;
-        float closestDistSqr = Mathf.Infinity;
-        Vector3 currentPos = _selectionManager.Selected.transform.position;
-
-        foreach (GameObject potentialTarget in targets)
+        if (context.action == _input.VR.LeftTrigger)
         {
-            if (potentialTarget == null) continue;
-
-            Vector3 directionToTarget = potentialTarget.transform.position - currentPos;
-            float dSqrToTarget = directionToTarget.sqrMagnitude;
-
-            if (dSqrToTarget < closestDistSqr)
-            {
-                closestDistSqr = dSqrToTarget;
-                closest = potentialTarget;
-            }
+            _selectionManager.PeformControllerRaycast(_leftController);
         }
-
-        return closest;
+        else if (context.action == _input.VR.RightTrigger)
+        {
+            _selectionManager.PeformControllerRaycast(_rightController);
+        }
+        else
+        {
+            Debug.LogError($"Trigger performet that is neither left or right");
+        }
     }
-
-
 }
 
 

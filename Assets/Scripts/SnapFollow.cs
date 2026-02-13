@@ -7,7 +7,6 @@ public class SnapFollow : MonoBehaviour
     private Transform _target;
     private XRGrabInteractable _grabInteractable;
     private bool _initialized;
-    private bool _isGrabbed;
 
     private Vector3 _positionOffset;
     private Quaternion _rotationOffset;
@@ -16,30 +15,16 @@ public class SnapFollow : MonoBehaviour
     private Vector3 _myLocalAxis;
     private float _pivotToFaceDistance;
 
+
+    private Vector3 _lastScale;
+    private Vector3 _targetLastScale;
+
     private BoxCollider _bcInternal;
     private BoxCollider boxCollider => _bcInternal ??= GetComponent<BoxCollider>();
 
     private void Awake()
     {
         _grabInteractable = GetComponent<XRGrabInteractable>();
-    }
-
-    private void OnEnable()
-    {
-        if (_grabInteractable != null)
-        {
-            _grabInteractable.selectEntered.AddListener(OnGrab);
-            _grabInteractable.selectExited.AddListener(OnRelease);
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (_grabInteractable != null)
-        {
-            _grabInteractable.selectEntered.RemoveListener(OnGrab);
-            _grabInteractable.selectExited.RemoveListener(OnRelease);
-        }
     }
 
     public void Init(Transform t, Vector3 contactPoint)
@@ -55,13 +40,9 @@ public class SnapFollow : MonoBehaviour
 
         _target = t;
 
-        // Enable tracking so user can slide the object on the surface
-        if (_grabInteractable != null)
-        {
-            _grabInteractable.trackPosition = true;
-            _grabInteractable.trackRotation = true;
-            _isGrabbed = _grabInteractable.isSelected;
-        }
+        // Initailize scale check
+        _lastScale = transform.localScale;
+        _targetLastScale = _target.localScale;
 
         PerformInitialSnap(t, contactPoint);
     }
@@ -121,9 +102,20 @@ public class SnapFollow : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Safety check 
         if (!_initialized || _target == null) return;
 
-        if (_isGrabbed)
+        // If scale change reset Snap t match box colliders
+        if (!_grabInteractable.isSelected &&                                                        // Snapped is not currently grabbed 
+           (!_target.TryGetComponent<XRGrabInteractable>(out var grab) || !grab.isSelected) &&      // Target is not currently grabbed
+            ScaleChanged())                                                                         // Scale of one of the two Transform involved changed
+        {
+            Init(_target, _target.GetComponent<BoxCollider>().ClosestPoint(transform.position));
+            _lastScale = transform.localScale;
+        }
+
+
+        if (_grabInteractable.isSelected)
         {
             // Allow user movement but lock to the target plane
             ConstrainMovement();
@@ -157,20 +149,17 @@ public class SnapFollow : MonoBehaviour
         transform.rotation = correction * transform.rotation;
     }
 
-    private void FollowTarget()
-    {
-        transform.position = _target.position + _target.rotation * _positionOffset;
-        transform.rotation = _target.rotation * _rotationOffset;
-    }
-
     private void UpdateFollowOffsets()
     {
         _positionOffset = Quaternion.Inverse(_target.rotation) * (transform.position - _target.position);
         _rotationOffset = Quaternion.Inverse(_target.rotation) * transform.rotation;
     }
 
-    private void OnGrab(SelectEnterEventArgs args) => _isGrabbed = true;
-    private void OnRelease(SelectExitEventArgs args) => _isGrabbed = false;
+    private void FollowTarget()
+    {
+        transform.position = _target.position + _target.rotation * _positionOffset;
+        transform.rotation = _target.rotation * _rotationOffset;
+    }
 
     private Vector3 GetTargetPlanePoint(Transform t, BoxCollider box, Vector3 localNormal)
     {
@@ -211,5 +200,13 @@ public class SnapFollow : MonoBehaviour
     public bool targetCmp(Transform t)
     {
         return _target == t;
+    }
+
+    private bool ScaleChanged()
+    {
+        bool changed = transform.localScale != _lastScale || _target.localScale != _targetLastScale;
+        _lastScale = transform.localScale;
+        _targetLastScale = _target.localScale;
+        return changed;
     }
 }

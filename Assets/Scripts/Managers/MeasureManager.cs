@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MeasureManager : MonoBehaviour
@@ -22,6 +19,8 @@ public class MeasureManager : MonoBehaviour
     private Vector3 _startPoint;
     private List<DimensionObject> _activeDimensions = new List<DimensionObject>();
 
+    private Transform _t1, _t2;
+
     bool _init = false;
 
     // Dependency 
@@ -40,6 +39,19 @@ public class MeasureManager : MonoBehaviour
         ResetTool();
         _cam = cam;
         _init = true;
+    }
+
+    public void StartMeasure()
+    {
+        Cursor.SetActive(true);
+        CurrentStep = MeasureStep.SelectFirst;
+    }
+
+
+    private void Update()
+    {
+        if (_init == false) return;
+        UpdateCursorVisual();
     }
 
     public void ResetTool()
@@ -84,27 +96,29 @@ public class MeasureManager : MonoBehaviour
         if (_currentStep != MeasureStep.None)
         {
 #if USE_XR
-            var cursorPos = GetSnapPoint(controller);
+            var res = GetSnapPoint(controller);
+
 #else
             var cursorPos = GetSnapPoint(_cam, mousePos);
 #endif
-            Cursor.transform.position = cursorPos;
+            Cursor.transform.position = res.point;
 
+            if (CurrentStep == MeasureStep.SelectFirst)
+            {
+                _t1 = res.hitObject;
+            }
             //show temporary measurement line
             if (_currentStep == MeasureStep.SelectSecond)
             {
-                MeasureLine.GetComponent<DimensionObject>().Initialize(_startPoint, cursorPos, _cam);
+                _t2 = res.hitObject;
+                MeasureLine.GetComponent<DimensionObject>().Initialize(_startPoint, res.point, _cam, _t1);
             }
         }
     }
 
-    public void StartMeasure()
-    {
-        Cursor.SetActive(true);
-        CurrentStep = MeasureStep.SelectFirst;
-    }
-
     // --- PRIVATE HELPERS ---
+
+
     /// <summary>
     /// Calculates the best snap point based on mouse position.
     /// Updates the visual cursor automatically.
@@ -112,45 +126,49 @@ public class MeasureManager : MonoBehaviour
     /// 
 
 #if USE_XR
-    // VR Signature: Uses the Controller Transform (Origin + Forward)
-    private Vector3 GetSnapPoint(Transform controller)
+    // Calculates snap point and hit object from XR controller origin
+    private (Vector3 point, Transform hitObject) GetSnapPoint(Transform controller)
 #else
-// Desktop: Uses Camera + Mouse Coordinates
-    private Vector3 GetSnapPoint(Camera cam, Vector2 mousePos)
+    // Calculates snap point and hit object from camera and mouse position
+    private (Vector3 point, Transform hitObject) GetSnapPoint(Camera cam, Vector2 mousePos)
 #endif
     {
         Vector3 finalPoint = Vector3.zero;
+        GameObject finalObject = null;
 
-        // 1. Generate the Ray based on the platform
+        // Create the ray based on the active platform
 #if USE_XR
         Ray ray = new Ray(controller.position, controller.forward);
 #else
-    Ray ray = cam.ScreenPointToRay(mousePos);
+        Ray ray = cam.ScreenPointToRay(mousePos);
 #endif
 
-        // 2. Shared Raycast & Snapping Logic
+        // Perform raycast and handle structural snapping
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
+            finalObject = hit.transform.gameObject;
             MeshFilter meshFilter = hit.transform.GetComponent<MeshFilter>();
 
             if (meshFilter != null && meshFilter.sharedMesh != null)
             {
-                // Note: Ensure GetClosestStructuralPoint handles the transform.localToWorldMatrix 
-                // to support rotation/scaling correctly.
+                // Find nearest structural vertex in world space
                 Vector3 snapCandidate = GetClosestStructuralPoint(hit.point, meshFilter.sharedMesh, hit.transform);
 
+                // Apply snap position if within allowed threshold
                 if (Vector3.Distance(hit.point, snapCandidate) < snapThreshold)
                 {
                     finalPoint = snapCandidate;
-                    return finalPoint;
+                    return (finalPoint, finalObject.transform);
                 }
             }
 
+            // Fallback to exact hit point if no valid snap candidate is found
             finalPoint = hit.point;
-            return finalPoint;
+            return (finalPoint, finalObject.transform);
         }
 
-        return finalPoint;
+        // Return defaults if the raycast hits nothing entirely
+        return (finalPoint, finalObject.transform);
     }
 
     /// <summary>
@@ -167,7 +185,7 @@ public class MeasureManager : MonoBehaviour
 
         if (dim != null)
         {
-            dim.Initialize(start, end, _cam, GetObjectAtPosition(start), GetObjectAtPosition(end));
+            dim.Initialize(start, end, _cam, _t1, _t2);
             _activeDimensions.Add(dim);
         }
         else
@@ -246,33 +264,6 @@ public class MeasureManager : MonoBehaviour
         return trans.TransformPoint(bestPoint);
     }
 
-    /// <summary>
-    ///  Helper method to find a collider near a specific point
-    /// </summary>
-    /// <param name="position"></param>
-    /// <returns></returns>
-    private Transform GetObjectAtPosition(Vector3 position)
-    {
-        // Radius of 1cm to handle slight floating point inaccuracies
-        Collider[] hitColliders = Physics.OverlapSphere(position, 0.01f);
-
-        // Filter the colliders to find the first one with an InteractableObject component
-        var target = hitColliders
-            .Select(h => h.GetComponent<InteractableObject>())
-            .Where(io => io != null)
-            .Select(io => io.transform)
-            .FirstOrDefault();
-
-        if (hitColliders.Length > 0)
-        {
-            // Return the first collider found
-            // You might want to filter out specific layers (like the Player or UI) here
-            return target;
-        }
-
-        return null;
-    }
-
     public void ClearAllMeasures()
     {
         foreach (var dim in _activeDimensions)
@@ -282,13 +273,6 @@ public class MeasureManager : MonoBehaviour
                 Destroy(dim.gameObject);
             }
         }
-    }
-
-    private void Update()
-    {
-        if (_init == false ) return;
-
-        UpdateCursorVisual();
     }
 
     private void UpdateCursorVisual()

@@ -1107,6 +1107,24 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right Trigger"",
+                    ""type"": ""Button"",
+                    ""id"": ""2c1a04c6-e556-4e4a-a2fc-0d17b53ba38e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Left Trigger"",
+                    ""type"": ""Button"",
+                    ""id"": ""51d4838a-07b9-4723-96bc-02165614f7ac"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1151,6 +1169,28 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Cancel Measure"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""565924ff-80ae-4d5b-8f40-a9b6fc4019ee"",
+                    ""path"": ""<XRController>{LeftHand}/{TriggerButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left Trigger"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""52a35fe1-0401-4ecf-b8b0-9d5438282baf"",
+                    ""path"": ""<XRController>{RightHand}/{TriggerButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right Trigger"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1199,6 +1239,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VR_Deselect = m_VR.FindAction("Deselect", throwIfNotFound: true);
         m_VR_TakeMeasure = m_VR.FindAction("Take Measure", throwIfNotFound: true);
         m_VR_CancelMeasure = m_VR.FindAction("Cancel Measure", throwIfNotFound: true);
+        m_VR_RightTrigger = m_VR.FindAction("Right Trigger", throwIfNotFound: true);
+        m_VR_LeftTrigger = m_VR.FindAction("Left Trigger", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1859,6 +1901,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_VR_Deselect;
     private readonly InputAction m_VR_TakeMeasure;
     private readonly InputAction m_VR_CancelMeasure;
+    private readonly InputAction m_VR_RightTrigger;
+    private readonly InputAction m_VR_LeftTrigger;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR".
     /// </summary>
@@ -1882,6 +1926,14 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "VR/CancelMeasure".
         /// </summary>
         public InputAction @CancelMeasure => m_Wrapper.m_VR_CancelMeasure;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/RightTrigger".
+        /// </summary>
+        public InputAction @RightTrigger => m_Wrapper.m_VR_RightTrigger;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/LeftTrigger".
+        /// </summary>
+        public InputAction @LeftTrigger => m_Wrapper.m_VR_LeftTrigger;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1917,6 +1969,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @CancelMeasure.started += instance.OnCancelMeasure;
             @CancelMeasure.performed += instance.OnCancelMeasure;
             @CancelMeasure.canceled += instance.OnCancelMeasure;
+            @RightTrigger.started += instance.OnRightTrigger;
+            @RightTrigger.performed += instance.OnRightTrigger;
+            @RightTrigger.canceled += instance.OnRightTrigger;
+            @LeftTrigger.started += instance.OnLeftTrigger;
+            @LeftTrigger.performed += instance.OnLeftTrigger;
+            @LeftTrigger.canceled += instance.OnLeftTrigger;
         }
 
         /// <summary>
@@ -1937,6 +1995,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @CancelMeasure.started -= instance.OnCancelMeasure;
             @CancelMeasure.performed -= instance.OnCancelMeasure;
             @CancelMeasure.canceled -= instance.OnCancelMeasure;
+            @RightTrigger.started -= instance.OnRightTrigger;
+            @RightTrigger.performed -= instance.OnRightTrigger;
+            @RightTrigger.canceled -= instance.OnRightTrigger;
+            @LeftTrigger.started -= instance.OnLeftTrigger;
+            @LeftTrigger.performed -= instance.OnLeftTrigger;
+            @LeftTrigger.canceled -= instance.OnLeftTrigger;
         }
 
         /// <summary>
@@ -2225,5 +2289,19 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCancelMeasure(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Right Trigger" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRightTrigger(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Left Trigger" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLeftTrigger(InputAction.CallbackContext context);
     }
 }
