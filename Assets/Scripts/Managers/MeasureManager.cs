@@ -111,7 +111,7 @@ public class MeasureManager : MonoBehaviour
             if (_currentStep == MeasureStep.SelectSecond)
             {
                 _t2 = res.hitObject;
-                MeasureLine.GetComponent<DimensionObject>().Initialize(_startPoint, res.point, _cam, _t1);
+                MeasureLine.GetComponent<DimensionObject>().Initialize(_startPoint, res.point, _cam, false, _t1);
             }
         }
     }
@@ -185,7 +185,7 @@ public class MeasureManager : MonoBehaviour
 
         if (dim != null)
         {
-            dim.Initialize(start, end, _cam, _t1, _t2);
+            dim.Initialize(start, end, _cam, true, _t1, _t2);
             _activeDimensions.Add(dim);
         }
         else
