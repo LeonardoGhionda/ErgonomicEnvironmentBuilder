@@ -31,6 +31,7 @@ public class HandMenuManager : MonoBehaviour
     private bool _open = false;
 
     public bool Lock { get; set; }
+    public Transform HandTransform => hand.transform;
 
     private void Awake()
     {
@@ -116,6 +117,8 @@ public class HandMenuManager : MonoBehaviour
 
     void MoveMenuEntries(bool right)
     {
+        if (Lock) return;
+
         if (_entries.Count <= 1) return; // No movement needed for 0 or 1 item
 
         // Simply update the selected index

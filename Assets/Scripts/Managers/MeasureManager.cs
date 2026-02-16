@@ -20,6 +20,7 @@ public class MeasureManager : MonoBehaviour
     private List<DimensionObject> _activeDimensions = new List<DimensionObject>();
 
     private Transform _t1, _t2;
+    private Transform _startPosEmpty;
 
     bool _init = false;
 
@@ -34,11 +35,16 @@ public class MeasureManager : MonoBehaviour
         get { return _currentStep; }
     }
 
+    // Events
+    public Action OnMeasureEnd;
+
     public void Init(Camera cam)
     {
         ResetTool();
         _cam = cam;
         _init = true;
+
+        _startPosEmpty = new GameObject("MeasureStartPoint").transform; 
     }
 
     public void StartMeasure()
@@ -47,11 +53,26 @@ public class MeasureManager : MonoBehaviour
         CurrentStep = MeasureStep.SelectFirst;
     }
 
+    public void StartMeasure(Vector3 m1, Transform t1 = null)
+    {
+        Cursor.SetActive(true);
+        CurrentStep = MeasureStep.SelectFirst;
+
+        Cursor.transform.position = m1;
+        _t1 = t1;
+
+        RegisterClick();
+    }
 
     private void Update()
     {
         if (_init == false) return;
         UpdateCursorVisual();
+
+        if(CurrentStep == MeasureStep.SelectSecond)
+        {
+            UpdateTempMeasure();
+        }
     }
 
     public void ResetTool()
@@ -59,6 +80,7 @@ public class MeasureManager : MonoBehaviour
         _currentStep = MeasureStep.None;
         if (Cursor) Cursor.SetActive(false);
 
+        if(_startPosEmpty != null) Destroy(_startPosEmpty.gameObject);
     }
 
     /// <summary>
@@ -77,11 +99,17 @@ public class MeasureManager : MonoBehaviour
         if (_currentStep == MeasureStep.SelectFirst)
         {
             _startPoint = clickPos;
+            if (_t1 != null)
+            {
+                _startPosEmpty.position = _startPoint;
+                _startPosEmpty.SetParent(_t1, true);
+            }
             MeasureLine.SetActive(true); // show temporary line 
             _currentStep = MeasureStep.SelectSecond;
         }
         else
         {
+            OnMeasureEnd?.Invoke();
             CreateDimension(_startPoint, clickPos);
             ResetTool(); 
         }
@@ -208,6 +236,14 @@ public class MeasureManager : MonoBehaviour
 
         Cursor.SetActive(active);
         if (active) Cursor.transform.position = pos;
+    }
+
+    private void UpdateTempMeasure()
+    {
+        if (_t1 != null)
+        {
+            _startPoint = _startPosEmpty.position; 
+        }
     }
 
     /// <summary>
