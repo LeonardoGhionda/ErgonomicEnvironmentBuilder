@@ -18,6 +18,7 @@ public class HM_BellyMeasure : HM_Base
     MeasureManager _mm;
 
     string _text;
+    float _fontSize;
     TextMeshProUGUI _tmp;
 
     protected override void OnInitialized()
@@ -27,6 +28,7 @@ public class HM_BellyMeasure : HM_Base
         _mm = FindAnyObjectByType<MeasureManager>();
         _tmp = GetComponentInChildren<TextMeshProUGUI>();
         _text = _tmp.text;
+        _fontSize = _tmp.fontSize;
 
         _fase = Fase.Init;
     }
@@ -47,6 +49,7 @@ public class HM_BellyMeasure : HM_Base
         {
             _tmp.text = _text;
             _tmp.enableAutoSizing = false;
+            _tmp.fontSize = _fontSize;
 
             _bpm.Calibrate();
             _fase = Fase.MeasureStart;

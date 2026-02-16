@@ -44,7 +44,8 @@ public class MeasureManager : MonoBehaviour
         _cam = cam;
         _init = true;
 
-        _startPosEmpty = new GameObject("MeasureStartPoint").transform; 
+        if(_startPosEmpty == null)
+            _startPosEmpty = new GameObject("MeasureStartPoint").transform; 
     }
 
     public void StartMeasure()
@@ -79,8 +80,6 @@ public class MeasureManager : MonoBehaviour
     {
         _currentStep = MeasureStep.None;
         if (Cursor) Cursor.SetActive(false);
-
-        if(_startPosEmpty != null) Destroy(_startPosEmpty.gameObject);
     }
 
     /// <summary>
