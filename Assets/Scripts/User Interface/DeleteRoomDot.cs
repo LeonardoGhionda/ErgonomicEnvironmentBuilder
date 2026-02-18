@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class DeleteRoomDot : MonoBehaviour
@@ -16,7 +15,7 @@ public class DeleteRoomDot : MonoBehaviour
             targetDot = roomDot;
             rect.anchoredPosition = roomDot.Rect.anchoredPosition;
 
-        }   
+        }
     }
 
     void Start()

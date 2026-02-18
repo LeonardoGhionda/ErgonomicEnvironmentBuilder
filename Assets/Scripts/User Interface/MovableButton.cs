@@ -21,11 +21,11 @@ public class MovableButton : MonoBehaviour
     {
         if (IsMouseInside(mousePos))
         {
-            if(!moving) 
+            if (!moving)
                 lastMousePosition = mousePos;
             moving = true;
         }
-        else         
+        else
         {
             moving = false;
         }

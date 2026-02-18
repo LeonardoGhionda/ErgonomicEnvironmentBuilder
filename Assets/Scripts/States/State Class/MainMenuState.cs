@@ -39,17 +39,17 @@ public class MainMenuState : AbsAppState
         _view.OnOptionsClicked -= GoOption;
         _view.Hide();
 
-        _actionStarted=false;
+        _actionStarted = false;
         _backAction.started -= OnGoBackLongStarted;
         _backAction.canceled -= OnGoBackLongCanceled;
         _backAction.performed -= OnGoBackLongPerformed;
         _input.Ui.Disable();
-        
+
     }
 
-    override public void UpdateState() 
+    override public void UpdateState()
     {
-        if(_actionStarted) 
+        if (_actionStarted)
             _view.UpdateLoadingCircle(_backAction.GetTimeoutCompletionPercentage());
     }
 
@@ -68,7 +68,7 @@ public class MainMenuState : AbsAppState
         throw new NotImplementedException();
     }
 
-    private void OnGoBackLongStarted(InputAction.CallbackContext _) 
+    private void OnGoBackLongStarted(InputAction.CallbackContext _)
     {
         _actionStarted = true;
     }
@@ -81,7 +81,7 @@ public class MainMenuState : AbsAppState
 
     private void OnGoBackLongPerformed(InputAction.CallbackContext _)
     {
-        if( _actionStarted )
+        if (_actionStarted)
             _manager.ChangeState(null);
     }
 

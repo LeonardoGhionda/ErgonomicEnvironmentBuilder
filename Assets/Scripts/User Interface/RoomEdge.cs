@@ -1,8 +1,6 @@
-using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class RoomEdge : MonoBehaviour, IPointerDownHandler
 {
@@ -56,7 +54,7 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     // Update is called once per frame
     void Update()
     {
-        
+
         UpdateText(); //Can't be called only when position changes due to the scale selector not updating the selectedName otherwise
 
         //Only update if one of the connected dots is being moved (held by the mouse)

@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
 
 public class NewRoomState : AbsAppState
 {
@@ -26,7 +26,7 @@ public class NewRoomState : AbsAppState
 
     public override void Enter()
     {
-        _actionStarted= false;
+        _actionStarted = false;
         // Enable Input & View
         _input.Ui.Enable();
         _backAction.started += OnGoBackLongStarted;

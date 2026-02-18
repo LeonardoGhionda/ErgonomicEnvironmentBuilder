@@ -35,7 +35,7 @@ namespace HelloWorld
 
         void Update()
         {
-            if(IsClient)
+            if (IsClient)
             {
                 transform.position = Position.Value;
             }

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class HM_DeleteSelected : HM_Base
 {
     public override void OnClick()

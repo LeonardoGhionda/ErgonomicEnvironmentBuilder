@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class HM_ScaleMode : HM_Base
@@ -7,7 +5,7 @@ public class HM_ScaleMode : HM_Base
     public override void OnClick()
     {
         base.OnClick();
-        if(_deps.selection.SelectionExist)
+        if (_deps.selection.SelectionExist)
         {
             _deps.scale.StartScaling(_deps.selection.Selected.gameObject);
         }

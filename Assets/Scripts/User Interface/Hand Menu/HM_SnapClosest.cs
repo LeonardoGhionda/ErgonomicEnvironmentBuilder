@@ -1,8 +1,3 @@
-using System;
-using TMPro;
-using Unity.VisualScripting;
-using Unity.XR.CoreUtils;
-using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class HM_SnapClosest : HM_Base

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 public static class ModelButtonGenerator
 {
-    private const string 
+    private const string
         texturePlaceholder = "Textures/Placeholder",
         previewImageName = "Preview.png";
 
@@ -123,7 +122,7 @@ public static class ModelButtonGenerator
             tex = Resources.Load<Texture2D>(texturePlaceholder);
         }
 
-        Assert.AreNotEqual(tex, null,  "File not found in Resources: " + texturePlaceholder);
+        Assert.AreNotEqual(tex, null, "File not found in Resources: " + texturePlaceholder);
 
         //return the new sprite
         return Sprite.Create(
@@ -159,7 +158,7 @@ public static class ModelButtonGenerator
         r.sizeDelta = new(tWidth, tHeight);
 
         // Set position directly below parent
-        r.anchoredPosition = new Vector2(0, -contentMenu.cellSize.y/ 2 - tHeight/2);
+        r.anchoredPosition = new Vector2(0, -contentMenu.cellSize.y / 2 - tHeight / 2);
 
         r.SetParent(go.transform, false);
         var t = text.GetComponent<TextMeshProUGUI>();
@@ -180,10 +179,10 @@ public static class ModelButtonGenerator
         GameObject card = GameObject.Instantiate(template.gameObject);
         card.name = name;
 
-        if(card.transform.TryGetComponentOnlyInChildren<TextMeshProUGUI>(out var text))
+        if (card.transform.TryGetComponentOnlyInChildren<TextMeshProUGUI>(out var text))
             text.text = name;
 
-        if(card.transform.TryGetComponentOnlyInChildren<Image>(out var image))
+        if (card.transform.TryGetComponentOnlyInChildren<Image>(out var image))
             image.sprite = previewImg;
 
         var _path = Path.Combine(ImportUtils.ModelsPath, name);

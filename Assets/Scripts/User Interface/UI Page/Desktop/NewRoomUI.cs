@@ -43,7 +43,7 @@ public class NewRoomUI : MonoBehaviour
         roomLayoutRect.localScale = Vector3.one * (1 + value);
     }
 
-    
+
 
     public void ShowError(string message)
     {

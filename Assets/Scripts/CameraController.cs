@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
 public class CameraController : MonoBehaviour
@@ -16,7 +15,7 @@ public class CameraController : MonoBehaviour
     private GameObject roof;
 
     // Components
-    public Camera Camera {  get { return _cam; } }
+    public Camera Camera { get { return _cam; } }
     private Camera _cam;
 
     private Rigidbody _rb;
@@ -160,7 +159,7 @@ public class CameraController : MonoBehaviour
 
         //sprint
         if (_input.CameraMovement.Sprint.IsPressed()) currentSpeed *= sprintMultiplier;
-        
+
         // Perform Move
         float dist = currentSpeed * Time.fixedDeltaTime;
 

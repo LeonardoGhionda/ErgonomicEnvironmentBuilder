@@ -6,8 +6,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.InputSystem.HID;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
@@ -75,14 +73,18 @@ public class BoxColliderData
 [Serializable]
 public class ChildrenData
 {
+    public string id; // Unique identifier for the child object
     public string name;
     public TransformData transform;
     public BoxColliderData colliderData;
+    public bool gravityEnabled; // Whether gravity is enabled for this child
+    public string SnapFollowTargetId; // Optional: name of the target for SnapFollow, if applicable
 }
 
 [Serializable]
 public class ObjectData
 {
+    public string id;
     public string objFilePath;
     public TransformData transform;
     public List<ChildrenData> children;
@@ -111,12 +113,12 @@ public static class ValidationErrors
 static public class RoomsUtility
 {
 
-    public static readonly string roomsFolderPath =
-        Path.Combine(Application.persistentDataPath, "Rooms Saved");
+    public static readonly string roomsFolderPath;
 
     //Runs automatically the first time the class is accessed
     static RoomsUtility()
     {
+        roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
             Directory.CreateDirectory(roomsFolderPath);
     }
@@ -131,7 +133,7 @@ static public class RoomsUtility
     {
         //column serialization
         List<RoomDotData> roomDots = new();
-        
+
         //walls serialization
         List<RoomEdgeData> roomEdges = new();
 
@@ -194,7 +196,7 @@ static public class RoomsUtility
         //clear the user edited object saved to replace them with the new one
         //room elements (walls, ...) don't change 
         roomData.objects.Clear();
-        
+
         //Add new objects
         var container = GameObject.Find("Objects Container");
         foreach (Transform parent in container.transform)
@@ -203,6 +205,7 @@ static public class RoomsUtility
             //save parent
             ObjectData objData = new()
             {
+                id = parent.GetComponent<Interactable>().id,
                 objFilePath = parent.GetComponent<InteractableParent>().Path,
                 transform = new(),
                 children = new()
@@ -214,6 +217,7 @@ static public class RoomsUtility
             {
                 ChildrenData data = new()
                 {
+                    id = go.GetComponent<Interactable>().id,
                     name = go.name,
                     transform = new(),
                     colliderData = new(),
@@ -221,7 +225,16 @@ static public class RoomsUtility
 
                 data.transform.LoadFrom(go.transform);
                 data.colliderData.LoadFrom(go.GetComponent<BoxCollider>());
-                
+
+                // Sanp Follow
+                data.SnapFollowTargetId = string.Empty;
+                if (go.TryGetComponent<SnapFollow>(out var sf))
+                    data.SnapFollowTargetId = sf.TargetID;
+
+                // Gravity
+                if (go.TryGetComponent<Rigidbody>(out var rb)) data.gravityEnabled = rb.useGravity;
+                else data.gravityEnabled = false;
+
                 //add to list
                 objData.children.Add(data);
             }
@@ -286,7 +299,7 @@ static public class RoomsUtility
         string filepath = Path.Combine(roomsFolderPath, name + ".room");
         string json = LoadJson(filepath);
         RoomData data = JsonUtility.FromJson<RoomData>(json);
-       
+
         //walls data 
         var edges = data.edges;
 
@@ -300,25 +313,30 @@ static public class RoomsUtility
         GameObject roof = Resources.Load<GameObject>("Room Builder/Roof");
         GameObject ground = Resources.Load<GameObject>("Room Builder/Ground");
 
+        int wallCnt = 0;
         //create walls
         foreach (var e in edges)
         {
             var wallPivot = UnityEngine.Object.Instantiate(baseWallPivot);
-            
+
+            // wall name with index to easily find them, if needed.
+            // Wall are always in the same order of the edges list, so index like this is correct
+            wallPivot.name += wallCnt++; 
+
             //All room element are stored in this container
             wallPivot.transform.SetParent(roomContainer.transform, true);
             wallPivot.SetActive(true);
-   
+
             //set lenght
             float wallLength = e.width / data.scaleBase * data.scale;
-            
+
             //set position
             wallPivot.transform.position = new Vector3(
                 (e.apx - data.maxSize.x / 2) / data.scaleBase * data.scale - wallLength / 2,
                 0f,
                 (e.apy - data.maxSize.y / 2) / data.scaleBase * data.scale
             );
-            
+
             //set scale
             wallPivot.transform.localScale = new Vector3(wallLength, data.wallHeigth, data.wallThickness);
 
@@ -342,7 +360,7 @@ static public class RoomsUtility
             column.transform.SetParent(roomContainer.transform, true);
 
             column.SetActive(true);
-            
+
             //set position
             column.transform.position = new Vector3(
                 (d.apx - data.maxSize.x / 2) / data.scaleBase * data.scale,
@@ -387,6 +405,8 @@ static public class RoomsUtility
             // Position setup will be overwritten, camera to null
             RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer, null);
 
+            parent.GetComponent<Interactable>().id = parentData.id;
+
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
 
@@ -426,25 +446,48 @@ static public class RoomsUtility
                 //find correct child by name
                 var child = parent.transform.Find(childData.name);
 
+                child.GetComponent<Interactable>().id = childData.id;
+
                 //copy saved data
                 childData.transform.ApplyTo(child.transform);
                 childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
 
 
 #if USE_XR // Add XRGrabInteractable if XR is enabled
-                SetUpVrObject(child, sm);             
+                SetUpVrObject(child, sm, childData.gravityEnabled);
 #endif
+
+                // SnapFollow
+                string id = childData.SnapFollowTargetId;
+                if (!string.IsNullOrEmpty(id))
+                {
+                    var sf = child.gameObject.AddComponent<SnapFollow>();
+                    Transform target = null;
+                    if (id.StartsWith("WGF")) // Find closest wall face
+                    {
+                        string targetName = Path.GetFileNameWithoutExtension(id); // remove "WGF/" prefix
+                        target = roomContainer.transform.Find(targetName);
+                    }
+                    else // Find by name
+                    {
+                        target = objectsContainer.GetComponentsInChildren<Interactable>().First(i => i.id == id).transform;
+                    }
+
+                    sf.Init(target);
+                }
+
+
             }
         }
     }
 
-    public static void SetUpVrObject(Transform obj, VRSelectionManager sm)
+    public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled)
     {
-        if(obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
+        if (obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
 
         var rb = obj.AddComponent<Rigidbody>();
-        rb.useGravity = false;
-        rb.isKinematic = true;
+        rb.useGravity = gravityEnabled;
+        rb.isKinematic = !gravityEnabled;
 
         var xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = false;
@@ -496,7 +539,7 @@ static public class RoomsUtility
         if (!Regex.IsMatch(name, @"^[a-zA-Z0-9_-]+$"))
         {
             throw new Exception(ValidationErrors.invalid);
-        
+
         }
 
         // Spaces

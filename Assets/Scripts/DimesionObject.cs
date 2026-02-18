@@ -1,10 +1,10 @@
-using UnityEngine;
-using TMPro;
 using System;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.XR.Interaction.Toolkit;
-using System.Linq;
 using System.Collections;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class DimensionObject : MonoBehaviour
 {
@@ -16,7 +16,7 @@ public class DimensionObject : MonoBehaviour
 
     [SerializeField, Range(0.0001f, 1.0f)] private float lineScaleFactor = 0.5f;
     [SerializeField] float minLineThickness = .05f;
-    [SerializeField] float maxLineThickness = .2f; 
+    [SerializeField] float maxLineThickness = .2f;
 
     private Transform _t1, _t2;
     private Vector3 _p1, _p2; // Current world positions
@@ -43,10 +43,10 @@ public class DimensionObject : MonoBehaviour
         else _p2 = p2;
 
         // Delte measure data initialization
-        if(isFinal)
+        if (isFinal)
         {
             _interactable = new GameObject("delete collider", typeof(BoxCollider), typeof(XRSimpleInteractable));
-            
+
             _iCollider = _interactable.GetComponent<BoxCollider>();
 
             _iSimpleInt = _interactable.GetComponent<XRSimpleInteractable>();
@@ -86,12 +86,12 @@ public class DimensionObject : MonoBehaviour
         yield return new WaitForSeconds(3f);
 
         _deleteMode = false;
-        textLabel.color= Color.yellow;
+        textLabel.color = Color.yellow;
     }
 
     private void Update()
     {
-        if (_interactable != null) 
+        if (_interactable != null)
             _interactable.transform.SetLocalPositionAndRotation(textLabel.transform.localPosition, textLabel.transform.localRotation);
     }
 

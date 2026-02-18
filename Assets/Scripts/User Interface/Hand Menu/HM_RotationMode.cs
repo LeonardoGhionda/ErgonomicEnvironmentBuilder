@@ -1,5 +1,3 @@
-using System.Linq;
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
@@ -8,7 +6,7 @@ public class HM_RotationMode : HM_Toggle
 {
     [SerializeField] PivotManager _pm;
     [SerializeField] HM_Base pivotCard;
-    XRGrabInteractable _target; 
+    XRGrabInteractable _target;
 
     protected override void OnInitialized()
     {
@@ -16,7 +14,7 @@ public class HM_RotationMode : HM_Toggle
         _deps.selection.OnSelectionChanged += ChangeTarget;
         ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _deps.selection.Selected });
     }
-    
+
 
     // Override single choices made previously 
     override public void OnClick()
@@ -32,7 +30,7 @@ public class HM_RotationMode : HM_Toggle
                 // Lock Translation
                 item.trackPosition = true;
                 // Lock Scale
-                if(item.TryGetComponent<XRGeneralGrabTransformer>(out var scale)) scale.enabled = false;
+                if (item.TryGetComponent<XRGeneralGrabTransformer>(out var scale)) scale.enabled = false;
             }
         }
         else
@@ -60,6 +58,6 @@ public class HM_RotationMode : HM_Toggle
     void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
     {
         _target = args.selection;
-        if (_state) _pm.Target = _target; 
+        if (_state) _pm.Target = _target;
     }
 }

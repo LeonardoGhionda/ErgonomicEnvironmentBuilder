@@ -4,9 +4,9 @@ public class ColliderVisual : MonoBehaviour
 {
     [SerializeField] private GameObject edgeTemplate;
     [SerializeField] private float colliderThickness = 0.2f;
-    
+
     GameObject[] _edges;
-    readonly int cubeEdgeN = 12; 
+    readonly int cubeEdgeN = 12;
 
     BoxCollider _boxCollider;
 
@@ -104,7 +104,7 @@ public class ColliderVisual : MonoBehaviour
 
     private void Update()
     {
-        UpdateEdgesTickness(); 
+        UpdateEdgesTickness();
     }
 
     void UpdateEdgesTickness()

@@ -35,7 +35,7 @@ public class NumberSelector : MonoBehaviour
         {
             float currentNumber = float.Parse(numberText.text);
             currentNumber += step;
-            if(currentNumber > max)
+            if (currentNumber > max)
             {
                 currentNumber = max;
             }
@@ -54,7 +54,7 @@ public class NumberSelector : MonoBehaviour
         {
             float currentNumber = float.Parse(numberText.text);
             currentNumber -= step;
-            if(currentNumber < min)
+            if (currentNumber < min)
             {
                 currentNumber = min;
             }

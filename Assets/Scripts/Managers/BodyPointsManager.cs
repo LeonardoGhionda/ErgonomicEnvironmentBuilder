@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BodyPointsManager : MonoBehaviour
@@ -6,18 +7,13 @@ public class BodyPointsManager : MonoBehaviour
     [Tooltip("The Main Camera or Head transform")]
     [SerializeField] private Transform headTransform;
 
-    [Header("Settings")]
-    [Tooltip("Visual debug size for the editor scene")]
-    [SerializeField] private float gizmoSize = 0.1f;
-
     // Internal state
     private Vector3 _calibratedOffset;
     private bool _isCalibrated = false;
     private Transform _calibrationController;
-    private Transform _bellyVisual;
+    private Transform _bellyButtonEmpty;
 
-    // Returns the current World Position of the belly anchor
-    public Transform BellyButton => _bellyVisual;
+    public Transform BellyButton => _bellyButtonEmpty;
 
     private void Update()
     {
@@ -31,17 +27,9 @@ public class BodyPointsManager : MonoBehaviour
     {
         _calibrationController = calibrateTransform;
 
-        if (_bellyVisual == null)
+        if (_bellyButtonEmpty == null)
         {
-            _bellyVisual = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
-            _bellyVisual.transform.localScale = Vector3.one * gizmoSize;
-            _bellyVisual.name = "BellyVisual_Debug";
-
-            // Remove collider to avoid physics collisions with the player
-            if (_bellyVisual.TryGetComponent<Collider>(out var collider))
-            {
-                Destroy(collider);
-            }
+            _bellyButtonEmpty = new GameObject("Belly Button Position").transform;
         }
     }
 
@@ -62,6 +50,7 @@ public class BodyPointsManager : MonoBehaviour
 
         // Force an immediate update to snap the visual to the correct spot
         UpdateAnchorPosition();
+
     }
 
     private void UpdateAnchorPosition()
@@ -73,9 +62,9 @@ public class BodyPointsManager : MonoBehaviour
         Vector3 targetPosition = headTransform.position + (currentFlatRotation * _calibratedOffset);
 
         // Direct assignment without Lerp for instant movement
-        _bellyVisual.position = targetPosition;
+        _bellyButtonEmpty.position = targetPosition;
 
         // Keep the visual rotation aligned with the body yaw
-        _bellyVisual.rotation = currentFlatRotation;
+        _bellyButtonEmpty.rotation = currentFlatRotation;
     }
 }

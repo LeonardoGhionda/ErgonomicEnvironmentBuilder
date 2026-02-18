@@ -1,7 +1,3 @@
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -90,7 +86,7 @@ public class GizmoManager : MonoBehaviour
     // Mouse wrapping variables
     private int _mouseWrapMarginX;
     private int _mouseWrapMarginY;
-    
+
     private bool _firstDrag = true;
     private Vector2 _lastMousePos;
 
@@ -119,7 +115,7 @@ public class GizmoManager : MonoBehaviour
     {
         enabled = true;
 
-        _cam = cam; 
+        _cam = cam;
         _camController = cameraController;
 
         _tMode = TransformMode.Translate;
@@ -181,7 +177,7 @@ public class GizmoManager : MonoBehaviour
             }
         }
 
-        if (bestHit != null) 
+        if (bestHit != null)
             _currentGizmo.SelectHandle(bestHit);
 
         _firstDrag = true;
@@ -259,7 +255,7 @@ public class GizmoManager : MonoBehaviour
         {
             case TransformMode.Translate:
                 ApplyTranslation(selected, projected, worldScale);
-                if(snap && _snapTool.TrySnap(selected)) DeselectHandle(selected);
+                if (snap && _snapTool.TrySnap(selected)) DeselectHandle(selected);
                 break;
             case TransformMode.Rotate:
                 ApplyRotation(selected, projected, worldScale);
@@ -328,9 +324,9 @@ public class GizmoManager : MonoBehaviour
     public void ScaleHandlesByCameraDistance(Transform selected)
     {
         if (_currentGizmo == null) return;
-        
+
         float scale;
-        
+
         if (_cam.orthographic)
         {
             scale = _cam.orthographicSize * 0.3f;

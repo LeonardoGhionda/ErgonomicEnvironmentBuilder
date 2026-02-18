@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MeasureManager : MonoBehaviour
 {
-    public enum MeasureStep {None, SelectFirst, SelectSecond }
+    public enum MeasureStep { None, SelectFirst, SelectSecond }
 
     [Header("Settings")]
     [SerializeField] private float snapThreshold = 0.3f;
@@ -44,8 +44,8 @@ public class MeasureManager : MonoBehaviour
         _cam = cam;
         _init = true;
 
-        if(_startPosEmpty == null)
-            _startPosEmpty = new GameObject("MeasureStartPoint").transform; 
+        if (_startPosEmpty == null)
+            _startPosEmpty = new GameObject("MeasureStartPoint").transform;
     }
 
     public void StartMeasure()
@@ -70,7 +70,7 @@ public class MeasureManager : MonoBehaviour
         if (_init == false) return;
         UpdateCursorVisual();
 
-        if(CurrentStep == MeasureStep.SelectSecond)
+        if (CurrentStep == MeasureStep.SelectSecond)
         {
             UpdateTempMeasure();
         }
@@ -110,7 +110,7 @@ public class MeasureManager : MonoBehaviour
         {
             OnMeasureEnd?.Invoke();
             CreateDimension(_startPoint, clickPos);
-            ResetTool(); 
+            ResetTool();
         }
     }
 
@@ -126,7 +126,7 @@ public class MeasureManager : MonoBehaviour
             var res = GetSnapPoint(controller);
 
 #else
-            var cursorPos = GetSnapPoint(_cam, mousePos);
+            var res = GetSnapPoint(_cam, mousePos);
 #endif
             Cursor.transform.position = res.point;
 
@@ -241,7 +241,7 @@ public class MeasureManager : MonoBehaviour
     {
         if (_t1 != null)
         {
-            _startPoint = _startPosEmpty.position; 
+            _startPoint = _startPosEmpty.position;
         }
     }
 

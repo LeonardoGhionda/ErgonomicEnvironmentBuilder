@@ -20,7 +20,7 @@ public class DTSelectionManager : MonoBehaviour
     #region lifecycle
     public void Init(Camera cam)
     {
-        _cam = cam;     
+        _cam = cam;
     }
     #endregion
 

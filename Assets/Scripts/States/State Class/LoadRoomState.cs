@@ -1,11 +1,11 @@
-﻿using SimpleFileBrowser; 
+﻿using SimpleFileBrowser;
 using System.IO;
 
 public class LoadRoomState : AbsAppState
 {
     RoomBuilderManager _rbm;
-    public LoadRoomState(StateManager manager, AppActions input, RoomBuilderManager rbm) : base(manager, input) 
-    { 
+    public LoadRoomState(StateManager manager, AppActions input, RoomBuilderManager rbm) : base(manager, input)
+    {
         _rbm = rbm;
     }
 
@@ -37,7 +37,7 @@ public class LoadRoomState : AbsAppState
         FileBrowser.HideDialog();
     }
 
-    public override void UpdateState() {}
+    public override void UpdateState() { }
 
     private void OnSuccess(string[] paths)
     {

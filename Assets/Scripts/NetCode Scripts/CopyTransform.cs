@@ -14,6 +14,6 @@ public class CopyTransform : NetworkBehaviour
             return;
         }
 
-        transform.SetPositionAndRotation(target.position - new Vector3( 0, target.position.y, 0), target.rotation);
+        transform.SetPositionAndRotation(target.position - new Vector3(0, target.position.y, 0), target.rotation);
     }
 }

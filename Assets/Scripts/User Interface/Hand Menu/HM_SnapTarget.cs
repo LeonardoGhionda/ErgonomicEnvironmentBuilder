@@ -4,7 +4,6 @@ using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using static UnityEngine.Rendering.GPUSort;
 
 public class HM_SnapTarget : HM_Base
 {
@@ -20,7 +19,7 @@ public class HM_SnapTarget : HM_Base
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        if(_snap1 != null)
+        if (_snap1 != null)
             SetupTutorialTXT();
     }
 #endif
@@ -109,7 +108,7 @@ public class HM_SnapTarget : HM_Base
         // Stop listening immediately!
         _deps.selection.OnSelectionChanged -= ExecuteSnap;
         _deps.selection.OnRaycastPerformed -= ExecuteSnap;
-        
+
 
         // Perform Logic
         XRGrabInteractable snap2 = interactable;

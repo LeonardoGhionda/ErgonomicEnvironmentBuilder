@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public static class PreviewGenerator
@@ -46,7 +45,7 @@ public static class PreviewGenerator
             GameObject go = t.gameObject;
             go.layer = LayerMask.NameToLayer(layerName);
         }
-        
+
         // Center camera on prefab
         Bounds bounds = GetBounds(tempObj);
         cam.transform.position = bounds.center + new Vector3(0, bounds.extents.magnitude, bounds.extents.magnitude * 2);
@@ -63,7 +62,7 @@ public static class PreviewGenerator
         tex.Apply();
         RenderTexture.active = null;
 
-        
+
 
         // Cleanup
         GameObject.DestroyImmediate(tempObj);

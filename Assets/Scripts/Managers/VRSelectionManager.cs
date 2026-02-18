@@ -1,10 +1,8 @@
 using System;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
-using static UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics.HapticsUtility;
 
 public class VRSelectionManager : MonoBehaviour
 {
@@ -16,7 +14,7 @@ public class VRSelectionManager : MonoBehaviour
     private XRGrabInteractable _selected;
     private Vector3 _contactPoint;
     private Material _selectedMaterial;
-    private Material _baseMaterial;
+    private Material[] _baseMaterials;
 
     public class SelectionChangedArgs
     {
@@ -63,10 +61,19 @@ public class VRSelectionManager : MonoBehaviour
         _selected = selected;
 
         // Set up new selected 
-        if (_selected != null) 
+        if (_selected != null)
         {
-            _baseMaterial = selected.gameObject.GetComponent<MeshRenderer>().material;
-            selected.gameObject.GetComponent<MeshRenderer>().material = _selectedMaterial;
+            // Materials swap
+            MeshRenderer renderer = selected.gameObject.GetComponent<MeshRenderer>();
+            _baseMaterials = renderer.sharedMaterials;
+            Material[] highlightMaterials = new Material[_baseMaterials.Length];
+            for (int i = 0; i < highlightMaterials.Length; i++)
+            {
+                highlightMaterials[i] = _selectedMaterial;
+            }
+            renderer.materials = highlightMaterials;
+
+
             colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
 
             // Get point where selection occurred
@@ -82,7 +89,7 @@ public class VRSelectionManager : MonoBehaviour
                 _contactPoint = args.interactorObject.GetAttachTransform(args.interactableObject).position;
             }
         }
-        
+
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
@@ -94,13 +101,13 @@ public class VRSelectionManager : MonoBehaviour
     {
         if (_selected)
         {
-            _selected.gameObject.GetComponent<MeshRenderer>().material = _baseMaterial;
+            _selected.gameObject.GetComponent<MeshRenderer>().materials = _baseMaterials;
             ReleaseCurrentlySelectedObject();
         }
 
         colliderVisual.ChangeTarget(null);
 
-        _baseMaterial = null;
+        _baseMaterials = null;
         _selected = null;
 
         if (skipCallback) return;
@@ -115,7 +122,7 @@ public class VRSelectionManager : MonoBehaviour
         colliderVisual.ChangeTarget(null);
 
         Destroy(_selected.gameObject);
-         
+
         // I have to procede this "ugly" way because when an object is grabbed XRI moves it outside of
         // its parenting chain and there is no way to retrive the original parent 
         Transform container = GameObject.Find("Objects Container").transform;
@@ -156,7 +163,7 @@ public class VRSelectionManager : MonoBehaviour
         RaycastHit hit;
         // Sphere collision takes priority (Direct)
         Physics.SphereCast(controller.position, 0.5f, controller.forward, out RaycastHit sphereHit);
-        if( sphereHit.collider is BoxCollider) hit = sphereHit;
+        if (sphereHit.collider is BoxCollider) hit = sphereHit;
 
         // Raycast
         bool hitWithRay = Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);

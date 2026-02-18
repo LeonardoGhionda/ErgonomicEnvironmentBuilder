@@ -17,14 +17,14 @@ public class MoveUiElement : MonoBehaviour
 
     private void Update()
     {
-        if(horizontal != null && horizontal.gameObject.activeSelf != hState)
+        if (horizontal != null && horizontal.gameObject.activeSelf != hState)
         {
             hState = horizontal.gameObject.activeSelf;
             float width = horizontal.rect.width;
             ((RectTransform)transform).anchoredPosition += new Vector2(hState ? width : -width, 0);
         }
 
-        if(vertical != null && vertical.gameObject.activeSelf != hState)
+        if (vertical != null && vertical.gameObject.activeSelf != hState)
         {
             vState = vertical.gameObject.activeSelf;
             float height = vertical.rect.height;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 
 public class InteractableParent : Interactable
@@ -8,17 +7,17 @@ public class InteractableParent : Interactable
     private string path;
     public string Path
     {
-        get { return path;  }
+        get { return path; }
         set { path = value; }
     }
 
-    private Material selectedMaterial;
-    private Dictionary<int, Material> materialsMap;
+    private Material _selectedMaterial;
+    private Dictionary<int, Material[]> _materialsMap;
 
     void Awake()
     {
-        selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
-        materialsMap = new();
+        _selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
+        _materialsMap = new();
         // Set layer to Ignore Raycast to avoid children "hiding"
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
     }
@@ -39,8 +38,14 @@ public class InteractableParent : Interactable
         {
             if (child.TryGetComponent(out MeshRenderer mr))
             {
-                materialsMap[mr.GetInstanceID()] = mr.material;
-                mr.material = selectedMaterial;
+                // Material save and swap
+                _materialsMap[mr.GetInstanceID()] = mr.materials;
+                Material[] highlightMaterials = new Material[mr.materials.Length];
+                for (int i = 0; i < highlightMaterials.Length; i++)
+                {
+                    highlightMaterials[i] = _selectedMaterial;
+                }
+                mr.materials = highlightMaterials;
                 visualBounds.Encapsulate(mr.bounds);
             }
             child.transform.SetParent(null);
@@ -94,10 +99,10 @@ public class InteractableParent : Interactable
         MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
         foreach (var mr in childrenMRs)
         {
-            if (materialsMap.TryGetValue(mr.GetInstanceID(), out Material material))
-                mr.material = material;
+            if (_materialsMap.TryGetValue(mr.GetInstanceID(), out Material[] materials))
+                mr.materials = materials;
         }
-        materialsMap.Clear();
+        _materialsMap.Clear();
         Destroy(gameObject.GetComponent<BoxCollider>());
     }
 

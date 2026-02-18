@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class HM_P2PMeasure : HM_Base
 {
     public override void OnClick()

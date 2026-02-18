@@ -40,7 +40,7 @@ public class StateManager : MonoBehaviour
 
     // --- DT STATES ---
     public MainMenuState MainMenu { get; private set; }
-    public NewRoomState NewRoom {  get; private set; }
+    public NewRoomState NewRoom { get; private set; }
     public LoadRoomState LoadRoom { get; private set; }
     public OptionState Option { get; private set; }
     public PauseMenuState Pause { get; private set; }

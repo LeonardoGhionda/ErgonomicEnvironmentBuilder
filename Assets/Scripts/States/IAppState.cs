@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public interface IAppState
 {
     // Called when state start (Setup input, UI, Camera)

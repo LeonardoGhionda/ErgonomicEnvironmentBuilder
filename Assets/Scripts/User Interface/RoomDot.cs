@@ -58,13 +58,13 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         rect = GetComponent<RectTransform>();
         deleteRoomDot = canvas.GetComponentInChildren<DeleteRoomDot>();
 
-/* Removing player spawn check: it will be performed later
-        playerSpawn = GameObject.FindWithTag("Player Spawn UI").GetComponent<RectTransform>();
-        if (playerSpawn == null)
-        {
-            Debug.Log("DOT: Can't find Player Spawn RectTransform");
-        }
-*/
+        /* Removing player spawn check: it will be performed later
+                playerSpawn = GameObject.FindWithTag("Player Spawn UI").GetComponent<RectTransform>();
+                if (playerSpawn == null)
+                {
+                    Debug.Log("DOT: Can't find Player Spawn RectTransform");
+                }
+        */
         snapAction = roomBuilderManager.GetSnapAction();
     }
 
@@ -94,7 +94,7 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             {
                 Debug.LogError("RoomDot: DeleteRoomDot button not found in scene!");
                 return;
-            }   
+            }
             deleteRoomDot.SetTargetDot(this);
         }
         timerOver = false;
@@ -133,11 +133,11 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         //----------SNAP-------------
         if (snapAction.IsPressed())
         {
-             anchored += CheckForSnap(anchored);
+            anchored += CheckForSnap(anchored);
         }
 
         //move the dot but save old position to recover if there's invalid movement
-        Vector2 oldPos = rect.anchoredPosition; 
+        Vector2 oldPos = rect.anchoredPosition;
         rect.anchoredPosition = (Vector3)anchored;
 
         //VALID MOVE CHECKS 
@@ -166,12 +166,12 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             Vector2 a = edge.C1.Rect.anchoredPosition;
             Vector2 b = edge.C2.Rect.anchoredPosition;
-/*
-            //PLAYER INSIDE
-            //----------------------
-            for(int i = 0; i < 4; i++)
-                if (SegmentIntersection(a, b, raySpawns[i], rayEnd)) cnt[i]++;
-*/
+            /*
+                        //PLAYER INSIDE
+                        //----------------------
+                        for(int i = 0; i < 4; i++)
+                            if (SegmentIntersection(a, b, raySpawns[i], rayEnd)) cnt[i]++;
+            */
 
 
             //EDGE INTRERSACTION
@@ -186,21 +186,21 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 return;
             }
         }
-/*
-        //PLAYER INSIDE
-        //----------------------
-        for (int i = 0; i < 4; i++)
-        {
-            if (cnt[i] % 2 == 0)
-            {
-                rect.anchoredPosition = oldPos;
-                return;
-            }
-        }  
-*/
+        /*
+                //PLAYER INSIDE
+                //----------------------
+                for (int i = 0; i < 4; i++)
+                {
+                    if (cnt[i] % 2 == 0)
+                    {
+                        rect.anchoredPosition = oldPos;
+                        return;
+                    }
+                }  
+        */
         foreach (RoomDot d in roomBuilderManager.RoomDots)
         {
-            
+
             foreach (RoomEdge edge in roomBuilderManager.RoomEdges)
             {
                 //skip edge that connects this RoomDot
@@ -277,7 +277,7 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             if (Mathf.Abs(dy) < threshold && Mathf.Abs(dy) < Mathf.Abs(best))
             {
                 best = dy;
-                bestDelta = new Vector2(0f, dy);    
+                bestDelta = new Vector2(0f, dy);
             }
         }
 

@@ -7,11 +7,11 @@ public class XrManager : MonoBehaviour
 
     public GameObject xrOrigin;
     public GameObject playerBody;
-    public Camera desktopCamera; 
+    public Camera desktopCamera;
 
 
     void Start()
-    { 
+    {
         m_NetworkManager = GetComponent<NetworkManager>();
         if (m_NetworkManager == null)
         {

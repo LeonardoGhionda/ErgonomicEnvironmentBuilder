@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(RectTransform))]
 public class RoomBuilderManager : MonoBehaviour
@@ -14,8 +12,8 @@ public class RoomBuilderManager : MonoBehaviour
 
     private NewRoomUI _view;
 
-    [SerializeField]private NumberSelector scaleSelector;
-    [SerializeField]private NumberSelector heightSelector;
+    [SerializeField] private NumberSelector scaleSelector;
+    [SerializeField] private NumberSelector heightSelector;
     [Tooltip("Pivot (direct parent of a wall) positioned in the corner of a wall")]
     [SerializeField] private GameObject baseWallPivot;
     [Tooltip("Pivot (direct parent of a wall) positioned in the corner of a column")]
@@ -46,7 +44,7 @@ public class RoomBuilderManager : MonoBehaviour
     //ui units that correspond to scale unit in world units
     public float ScaleBase
     {
-        get { return 100f; } 
+        get { return 100f; }
     }
 
     public float WallHeight
@@ -61,7 +59,8 @@ public class RoomBuilderManager : MonoBehaviour
 
     public string RoomName
     {
-        get { 
+        get
+        {
             //clear roomName from textMeshPro added characters
             string roomName = this.roomName.text.Trim();
             roomName = Regex.Replace(roomName, @"\p{C}+", "");
@@ -69,13 +68,13 @@ public class RoomBuilderManager : MonoBehaviour
         }
         set { roomName.text = value; }
     }
-    
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Init(NewRoomUI view, InputAction snapAction)
     {
         _view = view;
         _snapAction = snapAction;
-        
+
         roomRect = _view.GetComponent<RectTransform>();
         roomDots = new List<RoomDot>(_view.GetComponentsInChildren<RoomDot>());
         if (roomDots == null)
@@ -174,14 +173,14 @@ public class RoomBuilderManager : MonoBehaviour
         RoomDot newDot = Instantiate(roomDots[0], roomDots[0].transform.parent);
         if (newDot == null) Debug.LogError("newDotNull");
         newDot.C1 = d1;
-        newDot.C2 = d2; 
+        newDot.C2 = d2;
         d1.ChangeConnections(d2, newDot);
         d2.ChangeConnections(d1, newDot);
         newDot.MoveDotToMouse(false);
         roomDots.Add(newDot);
         DeleteAllEdges();
         GenerateEdges();
-     
+
         return newDot;
     }
 

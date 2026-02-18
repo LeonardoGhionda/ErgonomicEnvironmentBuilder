@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEditor.Overlays;
-using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
+﻿using UnityEngine;
 
 public class MenuRoomState : AbsAppState
 {
@@ -13,11 +10,11 @@ public class MenuRoomState : AbsAppState
     private bool _hmWaitRelease = false;
 
     public MenuRoomState(
-        StateManager manager, 
-        AppActions input, 
-        GameObject container, 
+        StateManager manager,
+        AppActions input,
+        GameObject container,
         MenuRoomView view,
-        RoomBuilderManager roomBuilderManager, 
+        RoomBuilderManager roomBuilderManager,
         VRSelectionManager selectionManager) : base(manager, input)
     {
         _container = container;
@@ -55,7 +52,7 @@ public class MenuRoomState : AbsAppState
         _input.HandMenu.Confirm.performed -= HandMenuConfirm;
         _input.HandMenu.Open.performed -= MenuButtonClicked;
         _input.HandMenu.Disable();
-        
+
         // View
         _view.RoomCardClicked -= StartEdit;
 

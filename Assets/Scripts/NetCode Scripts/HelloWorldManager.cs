@@ -10,7 +10,7 @@ public class HelloWorldManager : MonoBehaviour
     public Camera desktopCamera;
 
     void Start()
-    { 
+    {
         m_NetworkManager = GetComponent<NetworkManager>();
         if (m_NetworkManager == null)
         {
@@ -47,7 +47,7 @@ public class HelloWorldManager : MonoBehaviour
     }
 
     void SubmitNewPosition()
-    { 
+    {
         if (GUILayout.Button("Move"))
         {
             if (m_NetworkManager.IsServer && !m_NetworkManager.IsClient)

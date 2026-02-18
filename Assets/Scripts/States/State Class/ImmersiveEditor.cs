@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.Inputs;
@@ -40,10 +39,10 @@ public class ImmersiveEditor : AbsAppState
         _scaleManager = scaleManager;
 
         // Get controllers from VR player
-        if(_vrPlayer.TryGetComponent<XRInputModalityManager>(out var imManager))
+        if (_vrPlayer.TryGetComponent<XRInputModalityManager>(out var imManager))
         {
             _leftController = imManager.leftController.transform;
-            _rightController = imManager.rightController.transform; 
+            _rightController = imManager.rightController.transform;
         }
         else Debug.LogError($"Missing XRInputModalityManager from Vr player");
     }
@@ -132,7 +131,7 @@ public class ImmersiveEditor : AbsAppState
         {
 #if USE_XR //change the vr/DT difference, don't use conditional compiling
             var rController = _vrPlayer.GetComponent<XRInputModalityManager>().rightController.transform;
-            _measureManager.MoveCursor(rController); 
+            _measureManager.MoveCursor(rController);
 #endif
             return;
         }
@@ -165,7 +164,7 @@ public class ImmersiveEditor : AbsAppState
     }
 
     void DeselectPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
-    { 
+    {
         _selectionManager.ReleaseCurrentlySelectedObject();
         _selectionManager.ClearSelection();
     }

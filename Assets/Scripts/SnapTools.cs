@@ -4,7 +4,7 @@ using UnityEngine;
 public class SnapTools
 {
     // Snap requirements
-    readonly private float minDistanceToSnap = 0.5f; 
+    readonly private float minDistanceToSnap = 0.5f;
     readonly private float minAngleToSnap = 20.0f;
 
     // Runtime state
@@ -132,7 +132,7 @@ public class SnapTools
             // Remove colliders no longer intersecting
             _snapIgnore.RemoveAll(ignoredCollider =>
             {
-                if (ignoredCollider == null) return true; 
+                if (ignoredCollider == null) return true;
                 return !selectedBoundsExpanded.Intersects(ignoredCollider.bounds);
             });
         }
@@ -186,7 +186,7 @@ public class SnapTools
         if (hitFound)
         {
             ExecuteSnap(selected, selectedBC, bestHit, bestLocalDirection);
-            return (BoxCollider) bestHit.collider;
+            return (BoxCollider)bestHit.collider;
         }
         return null;
     }
@@ -209,8 +209,8 @@ public class SnapTools
         float distCenterToEdge = GetDistanceToEdge(bc, localSnapDirection);
         Vector3 targetWorldCenter = hit.point + (hit.normal * distCenterToEdge);
         Vector3 pivotOffsetLocal = Vector3.Scale(bc.center, selected.lossyScale);
-        Vector3 pivotOffsetRotated = finalRotation * pivotOffsetLocal; 
-        Vector3 finalPosition = targetWorldCenter - (finalRotation * pivotOffsetLocal); 
+        Vector3 pivotOffsetRotated = finalRotation * pivotOffsetLocal;
+        Vector3 finalPosition = targetWorldCenter - (finalRotation * pivotOffsetLocal);
         finalPosition = targetWorldCenter - (finalRotation * Vector3.Scale(bc.center, selected.lossyScale));
 
         // Apply

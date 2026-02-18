@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -39,7 +38,7 @@ public class HandMenuManager : MonoBehaviour
         _right = new LinkedList<int>();
         _left = new LinkedList<int>();
     }
-    
+
     public void Init()
     {
         Lock = false;
@@ -51,13 +50,14 @@ public class HandMenuManager : MonoBehaviour
     // --- Entries Movement ---
     private void SetUp()
     {
-       
+
         // Disable all initially to ensure clean state
-        _entries.ForEach(e => {
+        _entries.ForEach(e =>
+        {
 
             e.gameObject.SetActive(false);
 
-            if(e.TryGetComponent<CircularMoveUI>(out var circularMove))
+            if (e.TryGetComponent<CircularMoveUI>(out var circularMove))
                 circularMove.Radius = radius;
         });
 
@@ -84,7 +84,7 @@ public class HandMenuManager : MonoBehaviour
 
     public void ProcessInput(HandMenuInput input)
     {
-        if(gameObject.activeInHierarchy == false) return;
+        if (gameObject.activeInHierarchy == false) return;
 
         switch (input)
         {
@@ -151,8 +151,8 @@ public class HandMenuManager : MonoBehaviour
         if (_selected < 0) Debug.LogError("Index is negative");
         else if (_selected >= _entries.Count) Debug.LogError("Index is too big");
 
-            // 2. Setup Selected
-            var selectedEntry = _entries[_selected];
+        // 2. Setup Selected
+        var selectedEntry = _entries[_selected];
         selectedEntry.gameObject.SetActive(true);
 
         // 3. Populate Right List
@@ -224,7 +224,8 @@ public class HandMenuManager : MonoBehaviour
     // --- Entries Handling ---
     public void AddMenuEntries(List<HM_Base> entries, HM_Base.Dependencies deps)
     {
-        entries.ForEach(e => {
+        entries.ForEach(e =>
+        {
             e.transform.SetParent(transform, false);
             e.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
             e.Initialize(deps);
@@ -249,12 +250,13 @@ public class HandMenuManager : MonoBehaviour
 
     public void RemoveMenuEntries(List<HM_Base> entries)
     {
-        _entries.Where(e => entries.Contains(e)).ToList().ForEach(e => {
+        _entries.Where(e => entries.Contains(e)).ToList().ForEach(e =>
+        {
             RemoveEntry(e);
             _entries.Remove(e);
         });
 
-        if (_entries.Count > 0) 
+        if (_entries.Count > 0)
             SetUp();
     }
 

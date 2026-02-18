@@ -14,7 +14,7 @@ public class HM_SpawnModel : HM_Base
             Debug.LogError("Model card is missing path to the model");
             return;
         }
-        
+
         OBJLoader loader = new();
         GameObject obj = loader.FindMTLAndLoad(modelFullPath);
         obj.name = $"[P] {obj.name}";
@@ -25,7 +25,7 @@ public class HM_SpawnModel : HM_Base
 
         foreach (Transform child in obj.transform)
         {
-            RoomsUtility.SetUpVrObject(child, _deps.selection);
+            RoomsUtility.SetUpVrObject(child, _deps.selection, false);
             child.AddComponent<InteractableObject>();
         }
 

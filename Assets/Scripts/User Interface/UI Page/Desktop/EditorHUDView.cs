@@ -87,11 +87,11 @@ public class EditorHUDView : MonoBehaviour
         HideAllMenus();
 
         // Setup Transform Input Fields
-        SetupGroup(localTranslateX,  localTranslateY,  localTranslateZ,  TransSpace.Local,  TransType.Position);
-        SetupGroup(localRotateX,     localRotateY,     localRotateZ,     TransSpace.Local,  TransType.Rotation);
-        SetupGroup(localScaleX,      localScaleY,      localScaleZ,      TransSpace.Local,  TransType.Scale);
+        SetupGroup(localTranslateX, localTranslateY, localTranslateZ, TransSpace.Local, TransType.Position);
+        SetupGroup(localRotateX, localRotateY, localRotateZ, TransSpace.Local, TransType.Rotation);
+        SetupGroup(localScaleX, localScaleY, localScaleZ, TransSpace.Local, TransType.Scale);
         SetupGroup(globalTranslateX, globalTranslateY, globalTranslateZ, TransSpace.Global, TransType.Position);
-        SetupGroup(globalRotateX,    globalRotateY,    globalRotateZ,    TransSpace.Global, TransType.Rotation);
+        SetupGroup(globalRotateX, globalRotateY, globalRotateZ, TransSpace.Global, TransType.Rotation);
 
     }
 
@@ -136,7 +136,7 @@ public class EditorHUDView : MonoBehaviour
     }
 
     // --- model button --
-    
+
     public void modelButtonPopulate(List<ModelButton> modelButtons)
     {
         ClearModelButton();

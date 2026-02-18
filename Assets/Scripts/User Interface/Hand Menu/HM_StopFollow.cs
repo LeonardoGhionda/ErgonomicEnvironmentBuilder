@@ -8,7 +8,7 @@ public class HM_StopFollow : HM_Toggle
     {
         base.OnInitialized();
         _deps.selection.OnSelectionChanged += UpdateTarget;
-        UpdateTarget( new(_deps.selection.Selected));
+        UpdateTarget(new(_deps.selection.Selected));
     }
 
     public override void OnClick()
@@ -21,7 +21,7 @@ public class HM_StopFollow : HM_Toggle
     {
         XRGrabInteractable target = args.selection;
 
-        if(target != null) _targetComponent = target.GetComponent<SnapFollow>();
+        if (target != null) _targetComponent = target.GetComponent<SnapFollow>();
         else _targetComponent = null;
 
         _state = _targetComponent != null;

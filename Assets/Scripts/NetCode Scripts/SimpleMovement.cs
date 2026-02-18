@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,6 +24,6 @@ public class PlayerMovement : NetworkBehaviour
         input.Normalize();
 
         Vector3 move = speed * Time.deltaTime * new Vector3(input.x, 0, input.y);
-        transform.Translate(move, Space.World); 
+        transform.Translate(move, Space.World);
     }
 }

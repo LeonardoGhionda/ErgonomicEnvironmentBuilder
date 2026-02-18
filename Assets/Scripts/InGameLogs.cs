@@ -1,6 +1,6 @@
-using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class InGameLogs : MonoBehaviour

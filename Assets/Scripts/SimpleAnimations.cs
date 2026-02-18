@@ -21,8 +21,8 @@ public class CustomAnimation : MonoBehaviour
     [SerializeField] private AxisSettings z;
 
     [Header("Events")]
-    public UnityEvent OnStart; 
-    public UnityEvent OnComplete; 
+    public UnityEvent OnStart;
+    public UnityEvent OnComplete;
 
     [SerializeField] private bool playOnce = false;
 

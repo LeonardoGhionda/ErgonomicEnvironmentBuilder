@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class SnapFollow : MonoBehaviour
@@ -22,9 +21,46 @@ public class SnapFollow : MonoBehaviour
     private BoxCollider _bcInternal;
     private BoxCollider boxCollider => _bcInternal ??= GetComponent<BoxCollider>();
 
+    // Getters
+    public string TargetID { get { if (_target.TryGetComponent<Interactable>(out var i)) return i.id; else return "WGF/" + _target.name; } } //WGF = Wall Ground or Floor
+
     private void Awake()
     {
         _grabInteractable = GetComponent<XRGrabInteractable>();
+    }
+
+    public void Init(Transform t)
+    {
+        // Check for valid target and avoid self-assignment
+        if (t == null || t == transform) return;
+
+        // Prevent recursive loops by removing existing SnapFollow on target
+        if (t.TryGetComponent<SnapFollow>(out var snapComp) && snapComp.targetCmp(transform))
+        {
+            Destroy(snapComp);
+        }
+
+        _target = t;
+
+        // Calculate contact point as the closest point on the target's BoxCollider
+        Vector3 calculatedContactPoint;
+        if (t.TryGetComponent<BoxCollider>(out var box))
+        {
+            calculatedContactPoint = box.ClosestPoint(transform.position);
+        }
+        else
+        {
+
+            Debug.LogWarning($"No box collider found for {t.name}");
+            // Fallback to target position if no BoxCollider is found
+            calculatedContactPoint = t.position;
+        }
+
+        // Initialize scale check
+        _lastScale = transform.localScale;
+        _targetLastScale = _target.localScale;
+
+        PerformInitialSnap(t, calculatedContactPoint);
     }
 
     public void Init(Transform t, Vector3 contactPoint)
@@ -43,7 +79,7 @@ public class SnapFollow : MonoBehaviour
         // Initailize scale check
         _lastScale = transform.localScale;
         _targetLastScale = _target.localScale;
-
+        
         PerformInitialSnap(t, contactPoint);
     }
 

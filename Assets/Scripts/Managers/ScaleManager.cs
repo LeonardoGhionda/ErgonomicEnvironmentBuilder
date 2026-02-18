@@ -1,11 +1,6 @@
-using Dummiesman;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class ScaleManager : MonoBehaviour
@@ -91,35 +86,44 @@ public class ScaleManager : MonoBehaviour
         handle.name = $"ScaleHandle_{axis}";
         handle.transform.SetParent(_targetObject.transform, false);
 
-        // Visuals
+        // Visuals - URP Compatible
         var rend = handle.GetComponent<Renderer>();
-        rend.material.color = color;
-        if (rend.material.shader.name == "Standard")
-            rend.material.SetFloat("_Glossiness", 0f);
 
-        // Collider (Must be IsTrigger = true for SimpleInteractable usually, 
-        // but False is okay if you have a Rigidbody. Let's stick to your setup).
+        // Using the URP Lit shader
+        Shader urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
+        if (urpLitShader != null)
+        {
+            rend.material = new Material(urpLitShader);
+        }
+
+        rend.material.color = color;
+
+        // In URP, Glossiness is usually handled by _Smoothness
+        if (rend.material.HasProperty("_Smoothness"))
+        {
+            rend.material.SetFloat("_Smoothness", 0f);
+        }
+
+        // Collider
         var col = handle.GetComponent<BoxCollider>();
         col.isTrigger = false;
 
-        // Rigidbody (Kinematic so it doesn't fall)
+        // Rigidbody (Kinematic)
         var rb = handle.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
 
-        // --- THE FIX ---
-        // Use XRSimpleInteractable instead of XRGrabInteractable.
-        // It listens for "Select" (Grab button) but touches NOTHING transform-wise.
+        // XR Interaction
         var interactable = handle.AddComponent<XRSimpleInteractable>();
 
         // Manually assign collider
         interactable.colliders.Clear();
         interactable.colliders.Add(col);
 
-        // Copy interaction layers so your hands can touch it
-        if (_targetObject.TryGetComponent<XRGrabInteractable>(out var targetGrab))
+        // Copy interaction layers from target
+        if (_targetObject.TryGetComponent<XRBaseInteractable>(out var targetInteractable))
         {
-            interactable.interactionLayers = targetGrab.interactionLayers;
+            interactable.interactionLayers = targetInteractable.interactionLayers;
         }
 
         // Match Physics Layer

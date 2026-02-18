@@ -1039,6 +1039,15 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Show Hand Mesures"",
+                    ""type"": ""Button"",
+                    ""id"": ""d19d090a-c157-4756-895b-dd719c42aaaa"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1072,6 +1081,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Open"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a90b173d-521f-4fd7-a585-376ea5a1edaf"",
+                    ""path"": ""<XRController>{RightHand}/{MenuButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Show Hand Mesures"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1234,6 +1254,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_HandMenu_MoveEntries = m_HandMenu.FindAction("Move Entries", throwIfNotFound: true);
         m_HandMenu_Confirm = m_HandMenu.FindAction("Confirm", throwIfNotFound: true);
         m_HandMenu_Open = m_HandMenu.FindAction("Open", throwIfNotFound: true);
+        m_HandMenu_ShowHandMesures = m_HandMenu.FindAction("Show Hand Mesures", throwIfNotFound: true);
         // VR
         m_VR = asset.FindActionMap("VR", throwIfNotFound: true);
         m_VR_Deselect = m_VR.FindAction("Deselect", throwIfNotFound: true);
@@ -1783,6 +1804,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_HandMenu_MoveEntries;
     private readonly InputAction m_HandMenu_Confirm;
     private readonly InputAction m_HandMenu_Open;
+    private readonly InputAction m_HandMenu_ShowHandMesures;
     /// <summary>
     /// Provides access to input actions defined in input action map "HandMenu".
     /// </summary>
@@ -1806,6 +1828,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "HandMenu/Open".
         /// </summary>
         public InputAction @Open => m_Wrapper.m_HandMenu_Open;
+        /// <summary>
+        /// Provides access to the underlying input action "HandMenu/ShowHandMesures".
+        /// </summary>
+        public InputAction @ShowHandMesures => m_Wrapper.m_HandMenu_ShowHandMesures;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1841,6 +1867,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Open.started += instance.OnOpen;
             @Open.performed += instance.OnOpen;
             @Open.canceled += instance.OnOpen;
+            @ShowHandMesures.started += instance.OnShowHandMesures;
+            @ShowHandMesures.performed += instance.OnShowHandMesures;
+            @ShowHandMesures.canceled += instance.OnShowHandMesures;
         }
 
         /// <summary>
@@ -1861,6 +1890,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Open.started -= instance.OnOpen;
             @Open.performed -= instance.OnOpen;
             @Open.canceled -= instance.OnOpen;
+            @ShowHandMesures.started -= instance.OnShowHandMesures;
+            @ShowHandMesures.performed -= instance.OnShowHandMesures;
+            @ShowHandMesures.canceled -= instance.OnShowHandMesures;
         }
 
         /// <summary>
@@ -2260,6 +2292,13 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnOpen(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Show Hand Mesures" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnShowHandMesures(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "VR" which allows adding and removing callbacks.

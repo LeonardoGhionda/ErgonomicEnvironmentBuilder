@@ -32,9 +32,9 @@ public class HM_Base : MonoBehaviour
         OnInitialized();
     }
 
-    protected virtual void OnInitialized() 
+    protected virtual void OnInitialized()
     {
-    } 
+    }
 
     public virtual void OnClick()
     {
@@ -42,14 +42,14 @@ public class HM_Base : MonoBehaviour
     }
 
     public virtual void OnRemove()
-    { 
+    {
     }
 }
 
 /// <summary>
 /// Same as HM_BASE but with 2 states
 /// </summary>
-public class HM_Toggle: HM_Base
+public class HM_Toggle : HM_Base
 {
     private Color _selectedColor, _unselectedColor;
     protected bool _state;
@@ -79,7 +79,7 @@ public class HM_Toggle: HM_Base
         _state = !_state;
         UpdateVisual();
     }
-    
+
     protected void UpdateVisual()
     {
         _image.color = _state ? _selectedColor : _unselectedColor;
@@ -146,7 +146,7 @@ public class HM_Group : HM_Base
             _textComp.text = closeText;
         }
         else
-        { 
+        {
             // Restore menu entries
             _deps.handMenu.RemoveAllEntries();
             _deps.handMenu.AddMenuEntries(_resetGroup, _deps);
@@ -157,6 +157,6 @@ public class HM_Group : HM_Base
             //Text
             _textComp.text = _baseText;
         }
-        
+
     }
 }

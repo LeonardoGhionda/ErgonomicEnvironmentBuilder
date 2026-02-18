@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using UnityEngine;
 
 public static class StepToObjWrapper
 {
@@ -15,7 +14,7 @@ public static class StepToObjWrapper
     {
         var msg = new StringBuilder(512);
         int result = LoadStepAndTriangulate(path, msg, msg.Capacity);
-        if(result == 0 && scale != 1)
+        if (result == 0 && scale != 1)
         {
             //readline 
             path = Path.ChangeExtension(path, "obj");

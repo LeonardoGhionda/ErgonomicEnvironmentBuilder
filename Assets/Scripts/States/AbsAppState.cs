@@ -1,9 +1,7 @@
-using UnityEngine;
-
 /// <summary>
 /// This class was created to have manager and input in all the state classes
 /// </summary>
-public abstract class AbsAppState: IAppState
+public abstract class AbsAppState : IAppState
 {
     protected StateManager _manager;
     protected AppActions _input;

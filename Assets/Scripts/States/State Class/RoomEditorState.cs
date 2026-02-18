@@ -71,7 +71,7 @@ public class RoomEditorState : AbsAppState
         _input.Ui.Select.canceled += OnSelectActionCanceled;
         _input.Ui.EnablePointer.performed += OnToggleMouseRight;
         _input.Ui.Delete.performed += OnDeleteSelected;
-        
+
         _input.Ui.Cancel.performed += OnCloseMenu;
 
 
@@ -221,7 +221,8 @@ public class RoomEditorState : AbsAppState
 
     private void OnSelectActionCanceled(InputAction.CallbackContext context)
     {
-        if (_selectionManager.SelectionExist) { 
+        if (_selectionManager.SelectionExist)
+        {
             _gizmoManager.DeselectHandle(_selectionManager.SelectionTransform);
         }
     }
@@ -336,7 +337,7 @@ public class RoomEditorState : AbsAppState
 
         _view.HideAllMenus();
 
-        
+
         _selectionManager.ChangeSelectedObject(obj.GetComponentInChildren<InteractableParent>());
         _gizmoManager.NewTarget(_selectionManager.SelectionTransform);
 

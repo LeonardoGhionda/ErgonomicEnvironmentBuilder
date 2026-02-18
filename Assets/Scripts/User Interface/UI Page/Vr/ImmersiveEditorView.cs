@@ -20,5 +20,5 @@ public class ImmersiveEditorView : MonoBehaviour
     public void HandMenuActions(HandMenuInput input)
     {
         handMenu.ProcessInput(input);
-    }    
+    }
 }

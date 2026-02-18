@@ -32,7 +32,7 @@ public class UiTransformation : MonoBehaviour
         set
         {
             selected = value;
-            UpdateUiFromTransform(); 
+            UpdateUiFromTransform();
         }
     }
 

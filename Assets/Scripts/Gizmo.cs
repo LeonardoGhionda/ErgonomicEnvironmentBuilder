@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -24,7 +23,7 @@ public class Gizmo : MonoBehaviour
     {
         if (cHandle != null)
             _handles = new Transform[] { xHandle, yHandle, zHandle, cHandle };
-        else 
+        else
             _handles = new Transform[] { xHandle, yHandle, zHandle };
     }
 
@@ -46,7 +45,7 @@ public class Gizmo : MonoBehaviour
     public void DeselectHandle()
     {
         _selected = null;
-        if(_handles == null) return;
+        if (_handles == null) return;
 
         foreach (var item in _handles)
             item.gameObject.SetActive(true);
@@ -80,7 +79,7 @@ public class Gizmo : MonoBehaviour
             zHandle.up = selectedObj.forward;
         }
         else
-        {       
+        {
             // Global: Align with World Axes
             xHandle.up = Vector3.right;
             yHandle.up = Vector3.up;
@@ -90,7 +89,7 @@ public class Gizmo : MonoBehaviour
 
     public Vector3 SelectedDirection()
     {
-        if(_selected == null) return Vector3.zero;
+        if (_selected == null) return Vector3.zero;
         if (_selected != xHandle &&
             _selected != yHandle &&
             _selected != zHandle) return Vector3.one;
