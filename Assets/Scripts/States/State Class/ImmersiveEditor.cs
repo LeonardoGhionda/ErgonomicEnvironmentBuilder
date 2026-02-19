@@ -67,7 +67,6 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.Enable();
         _input.VR.Deselect.performed += DeselectPerformed;
         _input.VR.TakeMeasure.performed += TakeMeasurePerformed;
-        _input.VR.CancelMeasure.performed += CancelMeasurePerformed;
         _input.VR.LeftTrigger.performed += TriggerPerformed;
         _input.VR.RightTrigger.performed += TriggerPerformed;
 
@@ -107,7 +106,6 @@ public class ImmersiveEditor : AbsAppState
 
         _input.VR.Deselect.performed -= DeselectPerformed;
         _input.VR.TakeMeasure.performed -= TakeMeasurePerformed;
-        _input.VR.CancelMeasure.performed -= CancelMeasurePerformed;
         _input.VR.LeftTrigger.performed -= TriggerPerformed;
         _input.VR.RightTrigger.performed -= TriggerPerformed;
         _input.VR.Disable();
@@ -173,12 +171,6 @@ public class ImmersiveEditor : AbsAppState
     {
         if (_measureManager.IsMeasuring)
             _measureManager.RegisterClick();
-    }
-
-    void CancelMeasurePerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
-    {
-        if (_measureManager.IsMeasuring)
-            _measureManager.ResetTool();
     }
 
     private void TriggerPerformed(InputAction.CallbackContext context)

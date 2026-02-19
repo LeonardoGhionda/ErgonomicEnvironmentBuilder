@@ -967,28 +967,6 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "4972f600-c341-4028-844c-838f17379903",
-                    "path": "<XRController>{LeftHand}/{Primary2DAxis}",
-                    "interactions": "",
-                    "processors": "StickDeadzone(min=0.7)",
-                    "groups": "",
-                    "action": "Move Entries",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "21e1bdd5-821d-4177-8514-ffdb26b836b7",
-                    "path": "<XRController>{LeftHand}/{Primary2DAxisClick}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Confirm",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "86d011ee-80b3-454e-b06c-128012ceca7b",
                     "path": "<XRController>{LeftHand}/{MenuButton}",
                     "interactions": "",
@@ -1008,6 +986,72 @@
                     "action": "Show Hand Mesures",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "HTC vive",
+                    "id": "95878d37-2df4-4dc5-836c-e0ebd198b554",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move Entries",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "38afdfc7-17d9-4164-86fd-b6c1d22eddcc",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxisClick}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move Entries",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "a23abc02-5877-4bf0-8a83-5a2c2dcdc309",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "AxisDeadzone(min=0.5)",
+                    "groups": "",
+                    "action": "Move Entries",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Center Click",
+                    "id": "655506a3-817d-4c58-b346-04bf46998731",
+                    "path": "CenterClick(centerTolerance=0.5)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "click",
+                    "id": "492ef8d2-ffa2-4039-a9ee-6209a5610cab",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxisClick}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "trackpadAxis",
+                    "id": "f404e958-c959-4469-9d6f-186d5c2ffa11",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },
@@ -1028,15 +1072,6 @@
                     "name": "Take Measure",
                     "type": "Button",
                     "id": "bda66b00-5af9-4660-b66e-d34b6e4d59ed",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Cancel Measure",
-                    "type": "Button",
-                    "id": "2a264bab-671a-4164-ac3b-d796152df4a1",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1086,23 +1121,12 @@
                 },
                 {
                     "name": "",
-                    "id": "67970128-c8fa-4af2-81c5-52aec0a4e1db",
-                    "path": "<XRController>{RightHand}/{Primary2DAxisClick}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Take Measure",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "685f72eb-a652-4a65-9cd5-2e858fd3f2a8",
+                    "id": "aef056c2-db74-4f47-b582-4e804899cb51",
                     "path": "<XRController>{RightHand}/{GripButton}",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cancel Measure",
+                    "action": "Take Measure",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
