@@ -31,7 +31,6 @@ public class VRSelectionManager : MonoBehaviour
 
     // ACTIONS
     public Action<SelectionChangedArgs> OnSelectionChanged;
-    public Action<InteractableParent> OnGroupDeleted;
     public Action<RaycastHit> OnRaycastPerformed;
 
     // SERIALIZED
@@ -130,11 +129,11 @@ public class VRSelectionManager : MonoBehaviour
         {
             if (parent.childCount <= 0 || (parent.childCount == 1 && parent.GetChild(0) == _selected.transform)) // Destroy is applied at the end of the frame 
             {
-                OnGroupDeleted.Invoke(parent.GetComponent<InteractableParent>());
                 Destroy(parent.gameObject);
             }
         }
 
+        RoomsUtility.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
         ClearSelection();
     }
 

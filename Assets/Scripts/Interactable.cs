@@ -4,7 +4,7 @@ using UnityEngine;
 abstract public class Interactable : MonoBehaviour
 {
     private Guid _idInternal;
-    public string id
+    public string ID
     {
         get { if (_idInternal == null) _idInternal = Guid.NewGuid(); return _idInternal.ToString(); }
         set { if (!string.IsNullOrEmpty(value)) _idInternal = new Guid(value); }

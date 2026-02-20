@@ -1094,6 +1094,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Show Logs",
+                    "type": "Button",
+                    "id": "711368f8-8d6c-4f33-bdcc-e6bafba2d4d9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1149,6 +1158,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Right Trigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6906bb84-7231-48db-bd55-46f1e1530a08",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
+                    "interactions": "MultiTap(tapCount=3)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Show Logs",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

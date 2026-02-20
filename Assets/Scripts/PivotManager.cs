@@ -101,6 +101,7 @@ public class PivotManager : MonoBehaviour
         _currentWrapper.transform.position = transform.position; // Position at pivot
         _currentWrapper.transform.rotation = _target.transform.rotation; // Match rotation
 
+
         // 3. Parent target to wrapper
         _target.transform.SetParent(_currentWrapper.transform, true);
 

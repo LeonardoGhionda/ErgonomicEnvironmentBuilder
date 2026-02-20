@@ -7,13 +7,28 @@ public class BodyPointsManager : MonoBehaviour
     [Tooltip("The Main Camera or Head transform")]
     [SerializeField] private Transform headTransform;
 
-    // Internal state
-    private Vector3 _calibratedOffset;
+    [Header("Settings")]
+    [Tooltip("Percentage of total height for belly button")]
+    [Range(0.1f, 1f)]
+    [SerializeField] private float bellyButtonHeightRatio = 0.6f;
+    [Tooltip("Estimated length of the neck for pitch correction")]
+    [SerializeField] private float neckPivotLength = 0.15f;
+
     private bool _isCalibrated = false;
-    private Transform _calibrationController;
     private Transform _bellyButtonEmpty;
 
-    public Transform BellyButton => _bellyButtonEmpty;
+    public Transform BellyButton
+    {
+        get { if (_isCalibrated) return _bellyButtonEmpty; else return null; }
+    }
+
+    private void Start()
+    {
+        if (_bellyButtonEmpty == null)
+        {
+            _bellyButtonEmpty = new GameObject("Belly Button Position").transform;
+        }
+    }
 
     private void Update()
     {
@@ -23,48 +38,38 @@ public class BodyPointsManager : MonoBehaviour
         }
     }
 
-    public void InitBellyButtonCalibration(Transform calibrateTransform)
-    {
-        _calibrationController = calibrateTransform;
-
-        if (_bellyButtonEmpty == null)
-        {
-            _bellyButtonEmpty = new GameObject("Belly Button Position").transform;
-        }
-    }
-
     public void Calibrate()
     {
-        if (_calibrationController == null || headTransform == null) return;
-
-        // Create a rotation that only considers the Y axis (Yaw)
-        Quaternion flatHeadRotation = Quaternion.Euler(0, headTransform.eulerAngles.y, 0);
-
-        // Calculate the vector from Head to the Controller in world space
-        Vector3 worldDist = _calibrationController.position - headTransform.position;
-
-        // Convert world distance to a local offset relative to the head's forward direction
-        _calibratedOffset = Quaternion.Inverse(flatHeadRotation) * worldDist;
+        if (headTransform == null) return;
 
         _isCalibrated = true;
-
-        // Force an immediate update to snap the visual to the correct spot
         UpdateAnchorPosition();
-
     }
 
     private void UpdateAnchorPosition()
     {
-        // Get current head orientation ignoring pitch and roll
-        Quaternion currentFlatRotation = Quaternion.Euler(0, headTransform.eulerAngles.y, 0);
+        float headPitch = headTransform.eulerAngles.x;
 
-        // Calculate target world position by applying the stored local offset
-        Vector3 targetPosition = headTransform.position + (currentFlatRotation * _calibratedOffset);
+        if (headPitch > 180f)
+        {
+            headPitch -= 360f;
+        }
 
-        // Direct assignment without Lerp for instant movement
-        _bellyButtonEmpty.position = targetPosition;
+        float pitchInRadians = headPitch * Mathf.Deg2Rad;
+        float forwardShift = Mathf.Sin(pitchInRadians) * neckPivotLength;
 
-        // Keep the visual rotation aligned with the body yaw
-        _bellyButtonEmpty.rotation = currentFlatRotation;
+        Vector3 flatForward = headTransform.forward;
+        flatForward.y = 0f;
+        flatForward.Normalize();
+
+        Vector3 neckHorizontalPosition = headTransform.position - (flatForward * forwardShift);
+
+        Vector3 targetPosition = neckHorizontalPosition;
+        targetPosition.y = headTransform.position.y * bellyButtonHeightRatio;
+
+        Quaternion flatRotation = Quaternion.Euler(0, headTransform.eulerAngles.y, 0);
+
+        _bellyButtonEmpty.SetPositionAndRotation(targetPosition, flatRotation);
+
     }
 }

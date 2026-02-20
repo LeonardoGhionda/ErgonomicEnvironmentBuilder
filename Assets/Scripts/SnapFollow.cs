@@ -22,7 +22,7 @@ public class SnapFollow : MonoBehaviour
     private BoxCollider boxCollider => _bcInternal ??= GetComponent<BoxCollider>();
 
     // Getters
-    public string TargetID { get { if (_target.TryGetComponent<Interactable>(out var i)) return i.id; else return "WGF/" + _target.name; } } //WGF = Wall Ground or Floor
+    public string TargetID { get { if (_target.TryGetComponent<Interactable>(out var i)) return i.ID; else return "WGF/" + _target.name; } } //WGF = Wall Ground or Floor
 
     private void Awake()
     {

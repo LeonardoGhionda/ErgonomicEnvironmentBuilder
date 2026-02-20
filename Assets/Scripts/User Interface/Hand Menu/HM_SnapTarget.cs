@@ -9,12 +9,11 @@ public class HM_SnapTarget : HM_Base
 {
     XRGrabInteractable _snap1;
     Renderer s1Renderer => _snap1.GetComponent<MeshRenderer>();
-    SnapTools _sTool;
     [SerializeField] FollowCameraUI _tutorialText;
     [SerializeField] Material _snapSelectedMaterial;
     [SerializeField, Range(0.01f, 16f)] float textScaleFactor = 0.1f;
     [SerializeField] float minFont, maxFont;
-    Material _originalMaterial;
+    Material[] _originalMaterials;
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -24,11 +23,9 @@ public class HM_SnapTarget : HM_Base
     }
 #endif
 
-
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _sTool = new SnapTools();
     }
 
     public override void OnClick()
@@ -43,9 +40,11 @@ public class HM_SnapTarget : HM_Base
         // Clear strictly AFTER saving the reference
         _deps.selection.ClearSelection();
 
-        // Save and Change Material
-        _originalMaterial = s1Renderer.material;
-        s1Renderer.material = _snapSelectedMaterial;
+        // Save and Change Materials
+        _originalMaterials = s1Renderer.materials;
+        Material[] newMats = new Material[_originalMaterials.Length];
+        for (int i = 0; i < newMats.Length; i++)    newMats[i] = _snapSelectedMaterial;
+        s1Renderer.materials = newMats;
 
         // Tutorial Text Setup
         SetupTutorialTXT();
@@ -61,8 +60,19 @@ public class HM_SnapTarget : HM_Base
         _deps.handMenu.Lock = true;
     }
 
+    /// <summary>
+    /// This version of ExecuteSnap is for the case where we raycast on a snap point without actually selecting a grabbable.
+    /// It's needed to snap walls ground and celing, which are not grabbable but should still be snap targets.
+    /// </summary>
+    /// <param name="hit"></param>
     private void ExecuteSnap(RaycastHit hit)
     {
+        if(_snap1 == null)
+        {
+            ResetState();
+            return;
+        }
+
         // Block execution because the other function will be called aswell
         if (hit.collider.GetComponent<XRGrabInteractable>() != null) return;
 
@@ -83,6 +93,7 @@ public class HM_SnapTarget : HM_Base
 
 
         SnapFollow snapComp;
+
         // Update or add the target to follow
         if (!_snap1.TryGetComponent(out snapComp))
             snapComp = _snap1.AddComponent<SnapFollow>();
@@ -91,12 +102,32 @@ public class HM_SnapTarget : HM_Base
 
         _deps.handMenu.Show(false);
 
+        // snap + gravity cause weird physics interactions.
+        if (_snap1.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
         // Clean up and Unlock
         ResetState();
     }
 
+
+    /// <summary>
+    /// this version of ExecuteSnap is for the case where we actually select a grabbable instead of just raycasting on a snap point. 
+    /// We want to allow both options to give the user more freedom, 
+    /// but we have to be careful about the order of execution since both will trigger onSelectionChanged.
+    /// </summary>
+    /// <param name="args"></param>
     private void ExecuteSnap(VRSelectionManager.SelectionChangedArgs args)
     {
+        if (_snap1 == null)
+        {
+            ResetState();
+            return;
+        }
+
         var interactable = args.selection;
 
         if (interactable == null)
@@ -125,6 +156,14 @@ public class HM_SnapTarget : HM_Base
 
         _deps.handMenu.Show(false);
 
+
+        // snap + gravity cause weird physics interactions.
+        if (interactable.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
         // Clean up and Unlock
         ResetState();
     }
@@ -141,7 +180,7 @@ public class HM_SnapTarget : HM_Base
         if (_snap1 != null)
         {
             // Material Reset
-            s1Renderer.material = _originalMaterial;
+            s1Renderer.materials = _originalMaterials;
         }
 
         _snap1 = null;
@@ -151,6 +190,7 @@ public class HM_SnapTarget : HM_Base
 
         // Ensure we don't have lingering listeners (safe to call even if not subscribed)
         _deps.selection.OnSelectionChanged -= ExecuteSnap;
+
     }
 
     private void SetupTutorialTXT()

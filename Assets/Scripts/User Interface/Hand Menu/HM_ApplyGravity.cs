@@ -14,6 +14,14 @@ public class HM_ApplyGravity : HM_Toggle
         _sm = _deps.selection;
         _sm.OnSelectionChanged += ChangeTarget;
 
+        /* 
+         * I need to know if gravity is on to highlight the button. 
+         * Problem is that if object is grabbed, gravity is set temporary off.
+         * XRGrabInteractable keep tracks of the previous value of gravity trough a private field called "m_UsedGravity", 
+         * but this field is not accessible from outside the class,
+         * so I have to use Reflection to get the value of the private field "m_UsedGravity" from XRGrabInteractable class. 
+         */
+
         // Get private field "m_UsedGravity" trough Reflection 
         _gravityFieldInfo = typeof(XRGrabInteractable).GetField("m_UsedGravity", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -32,12 +40,12 @@ public class HM_ApplyGravity : HM_Toggle
     // Override single choices made previously 
     override public void OnClick()
     {
-        if (_target != null)
+        if (_target != null && !_target.TryGetComponent<SnapFollow>(out var _)) // Snap follow + gravity break physics, so we disable gravity toggle if snap follow is present
         {
             base.OnClick();
             var rb = _target.GetComponent<Rigidbody>();
-            rb.useGravity = !rb.useGravity;
-            rb.isKinematic = !rb.isKinematic;
+            rb.useGravity = _state;
+            rb.isKinematic = !_state;
         }
     }
 

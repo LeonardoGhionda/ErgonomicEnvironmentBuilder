@@ -205,7 +205,7 @@ static public class RoomsUtility
             //save parent
             ObjectData objData = new()
             {
-                id = parent.GetComponent<Interactable>().id,
+                id = parent.GetComponent<Interactable>().ID,
                 objFilePath = parent.GetComponent<InteractableParent>().Path,
                 transform = new(),
                 children = new()
@@ -217,7 +217,7 @@ static public class RoomsUtility
             {
                 ChildrenData data = new()
                 {
-                    id = go.GetComponent<Interactable>().id,
+                    id = go.GetComponent<Interactable>().ID,
                     name = go.name,
                     transform = new(),
                     colliderData = new(),
@@ -405,7 +405,7 @@ static public class RoomsUtility
             // Position setup will be overwritten, camera to null
             RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer, null);
 
-            parent.GetComponent<Interactable>().id = parentData.id;
+            parent.GetComponent<Interactable>().ID = parentData.id;
 
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
@@ -446,7 +446,7 @@ static public class RoomsUtility
                 //find correct child by name
                 var child = parent.transform.Find(childData.name);
 
-                child.GetComponent<Interactable>().id = childData.id;
+                child.GetComponent<Interactable>().ID = childData.id;
 
                 //copy saved data
                 childData.transform.ApplyTo(child.transform);
@@ -470,7 +470,7 @@ static public class RoomsUtility
                     }
                     else // Find by name
                     {
-                        target = objectsContainer.GetComponentsInChildren<Interactable>().First(i => i.id == id).transform;
+                        target = objectsContainer.GetComponentsInChildren<Interactable>().First(i => i.ID == id).transform;
                     }
 
                     sf.Init(target);

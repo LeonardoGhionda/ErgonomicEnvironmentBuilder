@@ -1,63 +1,70 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 public class HM_RotationMode : HM_Toggle
 {
     [SerializeField] PivotManager _pm;
     [SerializeField] HM_Base pivotCard;
+    [SerializeField] PivotManager _pivot;
+
+
     XRGrabInteractable _target;
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        _deps.selection.OnSelectionChanged += ChangeTarget;
-        ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _deps.selection.Selected });
-    }
-
+    bool _tp, _tr, _ts;
 
     // Override single choices made previously 
     override public void OnClick()
     {
         base.OnClick();
+        OnStateChange(_state);
+    }
 
-        if (_state)
+    private void OnStateChange(bool state)
+    {
+        if (state)
         {
+            _deps.selection.OnSelectionChanged += ChangeTarget;
+            ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _deps.selection.Selected });
             _deps.handMenu.AddMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard }, _deps);
-            _pm.Target = _target;
-            foreach (var item in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            {
-                // Lock Translation
-                item.trackPosition = true;
-                // Lock Scale
-                if (item.TryGetComponent<XRGeneralGrabTransformer>(out var scale)) scale.enabled = false;
-            }
+
         }
         else
         {
+            _deps.selection.OnSelectionChanged -= ChangeTarget;
+            ChangeTarget(new());
             _deps.handMenu.RemoveMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
-
-            _pm.Target = null;
-            foreach (var item in FindObjectsByType<XRGrabInteractable>(FindObjectsSortMode.None))
-            {
-                // Unlock translation
-                item.trackPosition = true;
-                // Unlock scale 
-                if (item.TryGetComponent<XRGeneralGrabTransformer>(out var scale)) scale.enabled = true;
-            }
         }
     }
 
     public override void OnRemove()
     {
         base.OnRemove();
-        _state = true; //true because it will get changed by base.OnClick
-        OnClick();
+        OnStateChange(false);
     }
 
-    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
+    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args) 
     {
+        // Reset previous tracking 
+        if (_target != null)
+        {
+            _target.trackPosition = _tp;
+            _target.trackRotation = _tr;
+            _target.trackScale = _ts;
+        }
+
         _target = args.selection;
-        if (_state) _pm.Target = _target;
+        _pivot.Target = _target;
+
+        if (_target == null) return;
+
+        // Save current tracking
+        _tp = _target.trackPosition;
+        _tr = _target.trackRotation;
+        _ts = _target.trackScale;
+
+        // Set rotation mode
+        _target.trackPosition = false;
+        _target.trackRotation = true;
+        _target.trackScale = false;
     }
 }

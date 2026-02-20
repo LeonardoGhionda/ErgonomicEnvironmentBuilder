@@ -16,6 +16,12 @@ public class HM_BellyCalibration : HM_Base
     float _fontSize;
     TextMeshProUGUI _tmp;
 
+    [SerializeField] private GameObject _lookPointPrefab;
+    [SerializeField] private Camera _playerCamera;
+    [SerializeField] private float _lookPointDistance = 10f;
+
+    private GameObject _spawnedLookPoint;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -31,16 +37,24 @@ public class HM_BellyCalibration : HM_Base
     {
         if (_fase == Fase.Init)
         {
-            _tmp.text = "1. Stand Up\n2.Place controller on your belly\n3. Look forward and confirm";
+            _tmp.text = "Stand Up, look the yellow point in front of you and confirm";
             _tmp.enableAutoSizing = true;
 
-            _bpm.InitBellyButtonCalibration(_deps.handMenu.HandTransform);
+            Vector3 camPos = _playerCamera.transform.position;
+            Vector3 camForward = _playerCamera.transform.forward;
+            Vector3 flatForward = new Vector3(camForward.x, 0f, camForward.z).normalized;
+            Vector3 spawnPosition = camPos + (flatForward * _lookPointDistance);
+
+            _spawnedLookPoint = Instantiate(_lookPointPrefab, spawnPosition, Quaternion.identity);
+
             _fase = Fase.Calibrate;
 
             _deps.handMenu.Lock = true;
         }
         else if (_fase == Fase.Calibrate)
         {
+            Destroy(_spawnedLookPoint);
+
             _tmp.text = _text;
             _tmp.enableAutoSizing = false;
             _tmp.fontSize = _fontSize;

@@ -24,7 +24,7 @@ public class ControllerMeasureView : MonoBehaviour
         forward.fontSize /= 2;
         right.fontSize /= 2;
 
-        height.color = Color.green;
+        height.color = Color.black;
         forward.color = Color.red;
         right.color = Color.red;
 
@@ -60,8 +60,8 @@ public class ControllerMeasureView : MonoBehaviour
             // Reset the font size to normal 
             forward.fontSize *= 2;
             right.fontSize *= 2;
-            forward.color = Color.green;
-            right.color = Color.green;
+            forward.color = Color.black;
+            right.color = Color.black;
 
         }
 

@@ -1180,6 +1180,15 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Show Logs"",
+                    ""type"": ""Button"",
+                    ""id"": ""711368f8-8d6c-4f33-bdcc-e6bafba2d4d9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1237,6 +1246,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""action"": ""Right Trigger"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6906bb84-7231-48db-bd55-46f1e1530a08"",
+                    ""path"": ""<XRController>{RightHand}/{TriggerButton}"",
+                    ""interactions"": ""MultiTap(tapCount=3)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Show Logs"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1285,6 +1305,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VR_TakeMeasure = m_VR.FindAction("Take Measure", throwIfNotFound: true);
         m_VR_RightTrigger = m_VR.FindAction("Right Trigger", throwIfNotFound: true);
         m_VR_LeftTrigger = m_VR.FindAction("Left Trigger", throwIfNotFound: true);
+        m_VR_ShowLogs = m_VR.FindAction("Show Logs", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1957,6 +1978,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_VR_TakeMeasure;
     private readonly InputAction m_VR_RightTrigger;
     private readonly InputAction m_VR_LeftTrigger;
+    private readonly InputAction m_VR_ShowLogs;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR".
     /// </summary>
@@ -1984,6 +2006,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "VR/LeftTrigger".
         /// </summary>
         public InputAction @LeftTrigger => m_Wrapper.m_VR_LeftTrigger;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/ShowLogs".
+        /// </summary>
+        public InputAction @ShowLogs => m_Wrapper.m_VR_ShowLogs;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2022,6 +2048,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @LeftTrigger.started += instance.OnLeftTrigger;
             @LeftTrigger.performed += instance.OnLeftTrigger;
             @LeftTrigger.canceled += instance.OnLeftTrigger;
+            @ShowLogs.started += instance.OnShowLogs;
+            @ShowLogs.performed += instance.OnShowLogs;
+            @ShowLogs.canceled += instance.OnShowLogs;
         }
 
         /// <summary>
@@ -2045,6 +2074,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @LeftTrigger.started -= instance.OnLeftTrigger;
             @LeftTrigger.performed -= instance.OnLeftTrigger;
             @LeftTrigger.canceled -= instance.OnLeftTrigger;
+            @ShowLogs.started -= instance.OnShowLogs;
+            @ShowLogs.performed -= instance.OnShowLogs;
+            @ShowLogs.canceled -= instance.OnShowLogs;
         }
 
         /// <summary>
@@ -2347,5 +2379,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLeftTrigger(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Show Logs" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnShowLogs(InputAction.CallbackContext context);
     }
 }
