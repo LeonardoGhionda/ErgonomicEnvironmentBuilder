@@ -61,7 +61,7 @@ public class MenuRoomView : MonoBehaviour
         // Enable/Disable controller manager based on handMenu menu state -> prevent conflicts
         moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
         // Toggle handMenu menu visibility
-        handMenu.gameObject.SetActive(!handMenu.gameObject.activeInHierarchy);
+        handMenu.Toggle();
     }
 
     // Helper functions 

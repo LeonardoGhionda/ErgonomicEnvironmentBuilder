@@ -5,12 +5,12 @@ using UnityEngine.InputSystem;
 public class ControllerMeasureView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI height;
-    [SerializeField] TextMeshProUGUI forward;
-    [SerializeField] TextMeshProUGUI right;
+    [SerializeField] TextMeshProUGUI distance;
 
     [SerializeField] Transform controller;
 
     [SerializeField] InputActionReference openAction;
+    [SerializeField] float fontSizeWarning;
 
     private Transform _bellyButtonPoint;
     private BodyPointsManager _bodyPointsManager;
@@ -21,15 +21,13 @@ public class ControllerMeasureView : MonoBehaviour
     private void Start()
     {
         _bodyPointsManager = FindAnyObjectByType<BodyPointsManager>();
-        forward.fontSize /= 2;
-        right.fontSize /= 2;
 
-        height.color = Color.black;
-        forward.color = Color.red;
-        right.color = Color.red;
+        distance.color = Color.red;
 
-        forward.text = "Calibration required";
-        right.text = "Calibration required";
+
+
+        distance.fontSize = fontSizeWarning;
+        distance.text = "Calibration required";
 
         _canvas = GetComponent<Canvas>();
         _canvas.enabled = _open;
@@ -58,11 +56,8 @@ public class ControllerMeasureView : MonoBehaviour
             _bellyButtonPoint = _bodyPointsManager.BellyButton;
 
             // Reset the font size to normal 
-            forward.fontSize *= 2;
-            right.fontSize *= 2;
-            forward.color = Color.black;
-            right.color = Color.black;
-
+            distance.color = Color.black;
+            distance.fontSize = height.fontSize;
         }
 
         // Calculate the vector from belly to controller
@@ -72,8 +67,7 @@ public class ControllerMeasureView : MonoBehaviour
         float distanceForward = Vector3.Dot(offset, _bellyButtonPoint.forward);
         float distanceRight = Vector3.Dot(offset, _bellyButtonPoint.right);
 
-        forward.text = $"{distanceForward:F2}";
-        right.text = $"{distanceRight:F2}";
+        distance.text = $"{Mathf.Sqrt( distanceForward * distanceForward + distanceRight * distanceRight ):F2}";
     }
 
     private void OnDestroy()

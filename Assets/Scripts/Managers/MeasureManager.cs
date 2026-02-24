@@ -19,6 +19,8 @@ public class MeasureManager : MonoBehaviour
     private Vector3 _startPoint;
     private List<DimensionObject> _activeDimensions = new List<DimensionObject>();
 
+    private DimensionObject[] _bbMeasuresDimesion = new DimensionObject[3];   
+
     private Transform _t1, _t2;
     private Transform _startPosEmpty;
 
@@ -316,4 +318,71 @@ public class MeasureManager : MonoBehaviour
         nScale = Mathf.Clamp(nScale, 0.00001f, 0.1f);
         Cursor.transform.localScale = new(nScale, nScale, nScale);
     }
+
+    public void ShowBBMeasures(BoxCollider targetBox)
+    {
+        if (targetBox == null) return;
+
+        Vector3 boxCenter = targetBox.transform.position + targetBox.center;
+
+        // Create or reuse dimension objects for each edge of the bounding box
+        for (int i = 0; i < 3; i++)
+        {
+            if (_bbMeasuresDimesion[i] != null)
+            {
+                Destroy(_bbMeasuresDimesion[i].gameObject);
+            }
+            _bbMeasuresDimesion[i] = Instantiate(MeasureLine).GetComponent<DimensionObject>();
+        }
+
+        Vector3 localCenter = targetBox.center;
+        Vector3 localExtents = targetBox.size * 0.5f;
+
+        Vector3 localOrigin = localCenter - localExtents;
+
+        Vector3 localXEnd = localOrigin + new Vector3(targetBox.size.x, 0f, 0f);
+        Vector3 localYEnd = localOrigin + new Vector3(0f, targetBox.size.y, 0f);
+        Vector3 localZEnd = localOrigin + new Vector3(0f, 0f, targetBox.size.z);
+
+        Vector3 worldOrigin = targetBox.transform.TransformPoint(localOrigin);
+        Vector3 worldXEnd = targetBox.transform.TransformPoint(localXEnd);
+        Vector3 worldYEnd = targetBox.transform.TransformPoint(localYEnd);
+        Vector3 worldZEnd = targetBox.transform.TransformPoint(localZEnd);
+
+        _bbMeasuresDimesion[0].Initialize(
+            worldXEnd,
+            worldOrigin,
+            _cam, true,
+            targetBox.transform,
+            targetBox.transform
+        );
+
+        _bbMeasuresDimesion[1].Initialize(
+            worldYEnd,
+            worldOrigin,
+            _cam, true,
+            targetBox.transform,
+            targetBox.transform
+        );
+
+        _bbMeasuresDimesion[2].Initialize(
+            worldZEnd,
+            worldOrigin,
+            _cam, true,
+            targetBox.transform,
+            targetBox.transform
+        );
+    }
+
+    public void HideBBMeasures()
+    {
+        for (int i = 0; i < _bbMeasuresDimesion.Length; i++)
+        {
+            if (_bbMeasuresDimesion[i] != null)
+            {
+                Destroy(_bbMeasuresDimesion[i].gameObject);
+            }
+        }
+    }
+
 }

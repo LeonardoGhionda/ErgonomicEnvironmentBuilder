@@ -1017,7 +1017,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""name"": ""Move Entries"",
                     ""type"": ""Value"",
                     ""id"": ""dcec051f-0855-44e1-9c0b-d658f03a403b"",
-                    ""expectedControlType"": ""Axis"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -1074,6 +1074,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": """",
+                    ""id"": ""1fe7a385-1275-4921-9828-c1197516405a"",
+                    ""path"": ""<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{RightHand}/primarybutton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Show Hand Mesures"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""HTC vive"",
                     ""id"": ""95878d37-2df4-4dc5-836c-e0ebd198b554"",
                     ""path"": ""OneModifier"",
@@ -1107,6 +1118,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
+                    ""name"": """",
+                    ""id"": ""f8a9e1d2-b3c4-4d5e-a6f7-c8b9a0e1f2d3"",
+                    ""path"": ""<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{LeftHand}/thumbstick"",
+                    ""interactions"": """",
+                    ""processors"": ""AxisDeadzone(min=0.2)"",
+                    ""groups"": """",
+                    ""action"": ""Move Entries"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""Center Click"",
                     ""id"": ""655506a3-817d-4c58-b346-04bf46998731"",
                     ""path"": ""CenterClick(centerTolerance=0.5)"",
@@ -1138,6 +1160,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""action"": ""Confirm"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3283a95-0826-4dab-8699-c3a7505b8453"",
+                    ""path"": ""<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{LeftHand}/primarybutton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },

@@ -1414,6 +1414,17 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "ed6e3a81-70c6-4a28-9655-84cc82c699fc",
+                    "path": "<QuestTouchPlusController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -2498,6 +2509,17 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "",
+                    "id": "714334f7-c643-42aa-9dad-9fda30663a89",
+                    "path": "<QuestTouchPlusController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Snap Turn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "One Modifier",
                     "id": "9c387ba2-984c-45d3-a336-33e5042109dd",
                     "path": "OneModifier",
@@ -2529,6 +2551,17 @@
                     "action": "Teleport Mode",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "48b77504-87bc-4638-bb1f-3d2b68aeede0",
+                    "path": "<QuestTouchPlusController>{RightHand}/thumbstick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Teleport Mode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

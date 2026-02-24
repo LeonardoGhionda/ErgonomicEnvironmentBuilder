@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
@@ -229,7 +230,9 @@ static public class RoomsUtility
                 // Sanp Follow
                 data.SnapFollowTargetId = string.Empty;
                 if (go.TryGetComponent<SnapFollow>(out var sf))
+                {
                     data.SnapFollowTargetId = sf.TargetID;
+                }
 
                 // Gravity
                 if (go.TryGetComponent<Rigidbody>(out var rb)) data.gravityEnabled = rb.useGravity;
@@ -395,6 +398,8 @@ static public class RoomsUtility
         //all object added at runtime are stored here
         GameObject objectsContainer = GameObject.Find("Objects Container");
 
+        List<(string, SnapFollow)> snapFollowTargets = new();
+
         //create objects
         ObjectData[] objsData = data.objects.ToArray();
         foreach (ObjectData parentData in objsData)
@@ -456,16 +461,26 @@ static public class RoomsUtility
 #if USE_XR // Add XRGrabInteractable if XR is enabled
                 SetUpVrObject(child, sm, childData.gravityEnabled);
 #endif
-
-                // SnapFollow
                 string id = childData.SnapFollowTargetId;
+                if (id != string.Empty && id != Guid.Empty.ToString())
+                {
+
+                    snapFollowTargets.Add((id, child.AddComponent<SnapFollow>()));
+                }
+            }
+        }
+
+        foreach (var item in snapFollowTargets)
+        {
+            try
+            {
+                string id = item.Item1;
                 if (!string.IsNullOrEmpty(id))
                 {
-                    var sf = child.gameObject.AddComponent<SnapFollow>();
                     Transform target = null;
-                    if (id.StartsWith("WGF")) // Find closest wall face
+                    if (id.StartsWith("WGC")) // Find closest wall face
                     {
-                        string targetName = Path.GetFileNameWithoutExtension(id); // remove "WGF/" prefix
+                        string targetName = Path.GetFileNameWithoutExtension(id); // remove "WGC/" prefix
                         target = roomContainer.transform.Find(targetName);
                     }
                     else // Find by name
@@ -473,10 +488,12 @@ static public class RoomsUtility
                         target = objectsContainer.GetComponentsInChildren<Interactable>().First(i => i.ID == id).transform;
                     }
 
-                    sf.Init(target);
+                    item.Item2.GetComponent<SnapFollow>().Init(target);
                 }
-
-
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"Failed to set up SnapFollow for {item.Item2.gameObject.name}: {ex.Message}");
             }
         }
     }

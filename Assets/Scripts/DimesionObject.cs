@@ -48,8 +48,10 @@ public class DimensionObject : MonoBehaviour
             _interactable = new GameObject("delete collider", typeof(BoxCollider), typeof(XRSimpleInteractable));
 
             _iCollider = _interactable.GetComponent<BoxCollider>();
+            _iCollider.isTrigger = true;
 
             _iSimpleInt = _interactable.GetComponent<XRSimpleInteractable>();
+            _iSimpleInt.colliders.Clear();
             _iSimpleInt.colliders.Add(_iCollider);
             _iSimpleInt.selectEntered.AddListener(DeleteMeasure);
 
@@ -59,6 +61,19 @@ public class DimensionObject : MonoBehaviour
         // Initial draw
         gameObject.SetActive(true);
 
+    }
+
+    public void ResetPosition(Vector3 p1, Vector3 p2, Transform target1 = null, Transform target2 = null)
+    {
+        _t1 = target1;
+        _t2 = target2;
+
+        // Store offset relative to target if it exists otherwise keep world position
+        if (_t1 != null) _offset1 = _t1.InverseTransformPoint(p1);
+        else _p1 = p1;
+
+        if (_t2 != null) _offset2 = _t2.InverseTransformPoint(p2);
+        else _p2 = p2;
     }
 
     private void DeleteMeasure(SelectEnterEventArgs args)

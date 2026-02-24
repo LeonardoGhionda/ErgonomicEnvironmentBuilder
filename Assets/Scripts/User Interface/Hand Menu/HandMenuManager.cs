@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -274,7 +275,6 @@ public class HandMenuManager : MonoBehaviour
 
         _open = visible;
         gameObject.SetActive(_open);
-        hand.LocomotionEnabled(!visible);
     }
 
     public void Toggle()
@@ -284,10 +284,26 @@ public class HandMenuManager : MonoBehaviour
 
     public void TurnOff()
     {
-        Lock = false; // Overraide lock state
+        Lock = false; // Override lock state
 
         Show(false);
         transform.SetParent(null, false);
         RemoveAllEntries();
+    }
+
+    private void OnEnable()
+    {
+        if (hand != null)
+        {
+            hand.LocomotionEnabled(false);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (hand != null)
+        {
+            hand.LocomotionEnabled(true);
+        }
     }
 }
