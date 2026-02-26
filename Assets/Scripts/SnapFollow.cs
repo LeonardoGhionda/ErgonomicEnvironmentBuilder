@@ -91,6 +91,7 @@ public class SnapFollow : MonoBehaviour
         PerformInitialSnap(t, contactPoint);
     }
 
+
     private void PerformInitialSnap(Transform t, Vector3 contactPoint)
     {
         BoxCollider targetBox = t.GetComponent<BoxCollider>();

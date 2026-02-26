@@ -33,6 +33,8 @@ public class HandMenuManager : MonoBehaviour
     public bool Lock { get; set; }
     public Transform HandTransform => hand.transform;
 
+    public Action<bool> OnMenuStateChange;
+
     private void Awake()
     {
         _entries = new List<HM_Base>();
@@ -275,6 +277,7 @@ public class HandMenuManager : MonoBehaviour
 
         _open = visible;
         gameObject.SetActive(_open);
+        OnMenuStateChange?.Invoke(_open);
     }
 
     public void Toggle()
@@ -289,21 +292,5 @@ public class HandMenuManager : MonoBehaviour
         Show(false);
         transform.SetParent(null, false);
         RemoveAllEntries();
-    }
-
-    private void OnEnable()
-    {
-        if (hand != null)
-        {
-            hand.LocomotionEnabled(false);
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (hand != null)
-        {
-            hand.LocomotionEnabled(true);
-        }
     }
 }

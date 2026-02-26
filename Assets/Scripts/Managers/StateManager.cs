@@ -101,6 +101,11 @@ public class StateManager : MonoBehaviour
         currentState?.Enter();
     }
 
+    public void ExitApplication()
+    {
+        ChangeState(null);
+    }
+
     private void OnDestroy()
     {
 #if UNITY_EDITOR

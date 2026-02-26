@@ -9,7 +9,7 @@ public class CustomAnimation : MonoBehaviour
     public struct AxisSettings
     {
         public bool enabled;
-        public float offset;   // How much to move
+        public float distance;   // How much to move
         public float duration; // How long it takes
         public float delay;    // When to start
         public AnimationCurve curve; // Easing (Linear, EaseIn, EaseOut)
@@ -75,9 +75,9 @@ public class CustomAnimation : MonoBehaviour
 
         // Ensure perfect final position
         transform.localPosition = new Vector3(
-            _startPosition.x + (x.enabled ? x.offset : 0),
-            _startPosition.y + (y.enabled ? y.offset : 0),
-            _startPosition.z + (z.enabled ? z.offset : 0)
+            _startPosition.x + (x.enabled ? x.distance : 0),
+            _startPosition.y + (y.enabled ? y.distance : 0),
+            _startPosition.z + (z.enabled ? z.distance : 0)
         );
 
         OnComplete?.Invoke();
@@ -103,7 +103,7 @@ public class CustomAnimation : MonoBehaviour
             ? axis.curve.Evaluate(t)
             : t;
 
-        return axis.offset * curvedT;
+        return axis.distance * curvedT;
     }
 
     private float GetMaxDuration()
