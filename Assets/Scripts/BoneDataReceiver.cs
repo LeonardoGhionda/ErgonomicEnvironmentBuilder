@@ -59,6 +59,12 @@ public class BoneDataReceiver : MonoBehaviour
             hasNewData = true;
             udpClient?.BeginReceive(ReceiveCallback, null);
         }
+        catch (ObjectDisposedException)
+        {
+            // Socket was closed intentionally on quit
+            // Avoid warning message
+            return;
+        }
         catch (Exception e)
         {
             Debug.LogWarning(e.Message);
