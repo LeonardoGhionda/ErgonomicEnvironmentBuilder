@@ -2,22 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class BoneDataReceiver : MonoBehaviour
 {
-    [SerializeField] private Transform RootBone;
-    [SerializeField] private Transform Avatar, Hips;
-    [SerializeField] private Transform vrCamera;
-    [Header("Calibration")]
-    [SerializeField] private bool Position = true;
-    [SerializeField] private bool AddHeadOffset;
-    [SerializeField] private bool RemoveHeadOffset;
-    [SerializeField] private float HeadOffset = 0.01f;
-
-    private float initPosX, initPosZ;
-
+    // -- Bones --
+    [SerializeField] private Transform RootBone; 
+    [SerializeField] private Transform Avatar;
+    [SerializeField] private Transform HeadBone;
+    [SerializeField] private Transform Hip;
     private List<Transform> bones;
+
+    // -- Calibration --
+    //[Header("Calibration")]
+    //[SerializeField] private Vector2 HeadOffset = Vector2.zero;
+    //[SerializeField] private float YRotationStep = 0.0f;
+
     public int port = 5000;
 
     private UdpClient udpClient;
@@ -25,53 +26,19 @@ public class BoneDataReceiver : MonoBehaviour
     private byte[] receiveBuffer;
     private bool hasNewData = false;
 
-    private void OnValidate()
-    {
-        if (Position)
-        {
-            Position = false;
-
-            // 1. Move Avatar so the Hips align horizontally with the Camera
-            Vector3 posOffset = new Vector3(vrCamera.position.x, Avatar.position.y, vrCamera.position.z) - Hips.position;
-            Avatar.position += posOffset;
-
-            // 2. Calculate the rotation needed
-            float cameraYaw = vrCamera.eulerAngles.y;
-            float hipsYaw = Hips.eulerAngles.y;
-            float deltaYaw = (cameraYaw - hipsYaw) + 180f;
-
-            // 3. Apply rotation around the Hips pivot
-            Avatar.RotateAround(Hips.position, Vector3.up, deltaYaw);
-        }
-        if( AddHeadOffset || RemoveHeadOffset)
-        {
-
-            float offsetDirection = AddHeadOffset? 1f : -1f;
-            AddHeadOffset = false;
-            RemoveHeadOffset = false;
-
-            // 4. Move Avatar in the direction of the Camera by HeadOffset
-            // We use only the X/Z direction of the camera to keep the skeleton on the ground
-            Vector3 cameraForwardFlat = vrCamera.forward;
-            cameraForwardFlat.y = 0;
-            cameraForwardFlat.Normalize();
-
-            Avatar.position += cameraForwardFlat * HeadOffset * offsetDirection;
-        }
-
-    }
 
     void Start()
     {
+
+        //Vector3 localHeadPos = Avatar.InverseTransformPoint(HeadBone.position);
+        //HeadOffset = new Vector2(localHeadPos.x, localHeadPos.z);
+        
+
         bones = new List<Transform>();
         GetBoneStructRecursive(RootBone);
 
-        //initPosX = PosXTarget.position.x;
-        //initPosZ = PosZTarget.position.z;
-
         udpClient = new UdpClient(port);
         endPoint = new IPEndPoint(IPAddress.Any, port);
-
         udpClient.BeginReceive(ReceiveCallback, null);
     }
 
@@ -90,7 +57,6 @@ public class BoneDataReceiver : MonoBehaviour
         {
             receiveBuffer = udpClient.EndReceive(ar, ref endPoint);
             hasNewData = true;
-
             udpClient?.BeginReceive(ReceiveCallback, null);
         }
         catch (Exception e)
@@ -104,35 +70,29 @@ public class BoneDataReceiver : MonoBehaviour
         if (hasNewData && receiveBuffer != null)
         {
             hasNewData = false;
-            int offset = 0;
 
-            int expectedSize = (sizeof(float) * 3) + (sizeof(float) * 4 * bones.Count);
+            int expectedSize = sizeof(float) * 3 + (sizeof(float) * 4 * bones.Count);
 
             if (receiveBuffer.Length >= expectedSize)
-            {                
-                float rootY = BitConverter.ToSingle(receiveBuffer, offset);
-                offset += sizeof(float);
+            {
+                // Casts byte memory to floats directly to avoid conversion overhead and memory allocation.
+                ReadOnlySpan<float> floats = MemoryMarshal.Cast<byte, float>(receiveBuffer);
 
-                //Avatar.position = new Vector3(/*rootX + */initPosX, Avatar.position.y, Avatar.position.z);
-                Hips.position = new Vector3(Hips.position.x, rootY, Hips.position.z);
-                //Avatar.position = new Vector3(Avatar.position.x, Avatar.position.y, /*rootZ + */initPosZ);
+                // Set Avatar position using the first 3 floats
+                Avatar.position = new (floats[0], Avatar.position.y, floats[2]);
+                Hip.position = new(Hip.position.x, floats[1], Hip.position.z);
 
-                // Set all bones rotations
                 for (int i = 0; i < bones.Count; i++)
                 {
-                    float x = BitConverter.ToSingle(receiveBuffer, offset);
-                    offset += sizeof(float);
+                    // Offset index by 3 to skip the position data
+                    int floatIndex = 3 + (i * 4);
 
-                    float y = BitConverter.ToSingle(receiveBuffer, offset);
-                    offset += sizeof(float);
-
-                    float z = BitConverter.ToSingle(receiveBuffer, offset);
-                    offset += sizeof(float);
-
-                    float w = BitConverter.ToSingle(receiveBuffer, offset);
-                    offset += sizeof(float);
-
-                    bones[i].localRotation = new Quaternion(x, y, z, w);
+                    bones[i].localRotation = new Quaternion(
+                        floats[floatIndex],
+                        floats[floatIndex + 1],
+                        floats[floatIndex + 2],
+                        floats[floatIndex + 3]
+                    );
                 }
             }
         }

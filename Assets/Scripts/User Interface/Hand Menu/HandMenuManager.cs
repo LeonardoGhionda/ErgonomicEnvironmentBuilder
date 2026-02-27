@@ -30,6 +30,8 @@ public class HandMenuManager : MonoBehaviour
 
     private bool _open = false;
 
+    public bool Open => _open;
+
     public bool Lock { get; set; }
     public Transform HandTransform => hand.transform;
 

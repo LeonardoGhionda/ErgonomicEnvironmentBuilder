@@ -1292,6 +1292,67 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""VR Calibration"",
+            ""id"": ""d0c94117-dacb-4346-949a-d5fd184dc781"",
+            ""actions"": [
+                {
+                    ""name"": ""HeadOffset"",
+                    ""type"": ""Value"",
+                    ""id"": ""d083792e-eacb-41dc-859b-6689d6088af7"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""HTC vive"",
+                    ""id"": ""8f471580-fae7-49f6-8ad4-fd49c3e69bc3"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HeadOffset"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""e4697427-c688-423b-8e11-e790d98a590b"",
+                    ""path"": ""<ViveController>{LeftHand}/{Primary2DAxisClick}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HeadOffset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""15ebb924-1b7c-4a80-987d-e01ab74da916"",
+                    ""path"": ""<ViveController>{LeftHand}/{Primary2DAxis}"",
+                    ""interactions"": """",
+                    ""processors"": ""AxisDeadzone(min=0.5)"",
+                    ""groups"": """",
+                    ""action"": ""HeadOffset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d4ed32a7-7a51-49c2-aafd-8082e542d8fd"",
+                    ""path"": ""<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{LeftHand}/thumbstick"",
+                    ""interactions"": """",
+                    ""processors"": ""AxisDeadzone(min=0.2)"",
+                    ""groups"": """",
+                    ""action"": ""HeadOffset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1339,6 +1400,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VR_RightTrigger = m_VR.FindAction("Right Trigger", throwIfNotFound: true);
         m_VR_LeftTrigger = m_VR.FindAction("Left Trigger", throwIfNotFound: true);
         m_VR_ShowLogs = m_VR.FindAction("Show Logs", throwIfNotFound: true);
+        // VR Calibration
+        m_VRCalibration = asset.FindActionMap("VR Calibration", throwIfNotFound: true);
+        m_VRCalibration_HeadOffset = m_VRCalibration.FindAction("HeadOffset", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1347,6 +1411,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Ui.enabled, "This will cause a leak and performance issues, AppActions.Ui.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_HandMenu.enabled, "This will cause a leak and performance issues, AppActions.HandMenu.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_VR.enabled, "This will cause a leak and performance issues, AppActions.VR.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_VRCalibration.enabled, "This will cause a leak and performance issues, AppActions.VRCalibration.Disable() has not been called.");
     }
 
     /// <summary>
@@ -2143,6 +2208,102 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="VRActions" /> instance referencing this action map.
     /// </summary>
     public VRActions @VR => new VRActions(this);
+
+    // VR Calibration
+    private readonly InputActionMap m_VRCalibration;
+    private List<IVRCalibrationActions> m_VRCalibrationActionsCallbackInterfaces = new List<IVRCalibrationActions>();
+    private readonly InputAction m_VRCalibration_HeadOffset;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "VR Calibration".
+    /// </summary>
+    public struct VRCalibrationActions
+    {
+        private @AppActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public VRCalibrationActions(@AppActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "VRCalibration/HeadOffset".
+        /// </summary>
+        public InputAction @HeadOffset => m_Wrapper.m_VRCalibration_HeadOffset;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_VRCalibration; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="VRCalibrationActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(VRCalibrationActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="VRCalibrationActions" />
+        public void AddCallbacks(IVRCalibrationActions instance)
+        {
+            if (instance == null || m_Wrapper.m_VRCalibrationActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_VRCalibrationActionsCallbackInterfaces.Add(instance);
+            @HeadOffset.started += instance.OnHeadOffset;
+            @HeadOffset.performed += instance.OnHeadOffset;
+            @HeadOffset.canceled += instance.OnHeadOffset;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="VRCalibrationActions" />
+        private void UnregisterCallbacks(IVRCalibrationActions instance)
+        {
+            @HeadOffset.started -= instance.OnHeadOffset;
+            @HeadOffset.performed -= instance.OnHeadOffset;
+            @HeadOffset.canceled -= instance.OnHeadOffset;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="VRCalibrationActions.UnregisterCallbacks(IVRCalibrationActions)" />.
+        /// </summary>
+        /// <seealso cref="VRCalibrationActions.UnregisterCallbacks(IVRCalibrationActions)" />
+        public void RemoveCallbacks(IVRCalibrationActions instance)
+        {
+            if (m_Wrapper.m_VRCalibrationActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="VRCalibrationActions.AddCallbacks(IVRCalibrationActions)" />
+        /// <seealso cref="VRCalibrationActions.RemoveCallbacks(IVRCalibrationActions)" />
+        /// <seealso cref="VRCalibrationActions.UnregisterCallbacks(IVRCalibrationActions)" />
+        public void SetCallbacks(IVRCalibrationActions instance)
+        {
+            foreach (var item in m_Wrapper.m_VRCalibrationActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_VRCalibrationActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="VRCalibrationActions" /> instance referencing this action map.
+    /// </summary>
+    public VRCalibrationActions @VRCalibration => new VRCalibrationActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -2419,5 +2580,20 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnShowLogs(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "VR Calibration" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="VRCalibrationActions.AddCallbacks(IVRCalibrationActions)" />
+    /// <seealso cref="VRCalibrationActions.RemoveCallbacks(IVRCalibrationActions)" />
+    public interface IVRCalibrationActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "HeadOffset" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHeadOffset(InputAction.CallbackContext context);
     }
 }

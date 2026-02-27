@@ -11,6 +11,7 @@ public class ImmersiveEditor : AbsAppState
     private readonly MeasureManager _measureManager;
     private readonly HandMenuManager _handMenuManager;
     private readonly ScaleManager _scaleManager;
+    private readonly LocomotionManager _locomotionManager;
 
     private Vector3 _insideWallPosition = Vector3.zero;
     private bool _hmWaitRelease = false;
@@ -45,6 +46,8 @@ public class ImmersiveEditor : AbsAppState
             _rightController = imManager.rightController.transform;
         }
         else Debug.LogError($"Missing XRInputModalityManager from Vr player");
+
+        _locomotionManager = GameObject.FindAnyObjectByType<LocomotionManager>();
     }
 
     public override void Enter()
@@ -88,6 +91,7 @@ public class ImmersiveEditor : AbsAppState
             });
 
         _handMenuManager.Init();
+        _locomotionManager.HandMenuControl(true);
     }
 
     public override void Exit()
@@ -114,6 +118,7 @@ public class ImmersiveEditor : AbsAppState
         _measureManager.ClearAllMeasures();
         _measureManager.ResetTool();
 
+        _locomotionManager.HandMenuControl(false);
         _handMenuManager.TurnOff();
     }
 

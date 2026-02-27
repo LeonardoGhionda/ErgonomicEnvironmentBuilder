@@ -1206,6 +1206,67 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "VR Calibration",
+            "id": "d0c94117-dacb-4346-949a-d5fd184dc781",
+            "actions": [
+                {
+                    "name": "HeadOffset",
+                    "type": "Value",
+                    "id": "d083792e-eacb-41dc-859b-6689d6088af7",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "HTC vive",
+                    "id": "8f471580-fae7-49f6-8ad4-fd49c3e69bc3",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HeadOffset",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "e4697427-c688-423b-8e11-e790d98a590b",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxisClick}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HeadOffset",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "15ebb924-1b7c-4a80-987d-e01ab74da916",
+                    "path": "<ViveController>{LeftHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "AxisDeadzone(min=0.5)",
+                    "groups": "",
+                    "action": "HeadOffset",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "d4ed32a7-7a51-49c2-aafd-8082e542d8fd",
+                    "path": "<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "AxisDeadzone(min=0.2)",
+                    "groups": "",
+                    "action": "HeadOffset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
