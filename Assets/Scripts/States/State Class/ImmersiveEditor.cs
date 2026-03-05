@@ -91,7 +91,6 @@ public class ImmersiveEditor : AbsAppState
             });
 
         _handMenuManager.Init();
-        _locomotionManager.HandMenuControl(true);
     }
 
     public override void Exit()
@@ -118,7 +117,6 @@ public class ImmersiveEditor : AbsAppState
         _measureManager.ClearAllMeasures();
         _measureManager.ResetTool();
 
-        _locomotionManager.HandMenuControl(false);
         _handMenuManager.TurnOff();
     }
 

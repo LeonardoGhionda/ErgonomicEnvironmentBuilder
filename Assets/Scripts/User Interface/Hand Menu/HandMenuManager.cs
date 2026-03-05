@@ -37,6 +37,8 @@ public class HandMenuManager : MonoBehaviour
 
     public Action<bool> OnMenuStateChange;
 
+    private LocomotionManager _locomotionManager;
+
     private void Awake()
     {
         _entries = new List<HM_Base>();
@@ -280,6 +282,8 @@ public class HandMenuManager : MonoBehaviour
         _open = visible;
         gameObject.SetActive(_open);
         OnMenuStateChange?.Invoke(_open);
+        if(_locomotionManager == null) _locomotionManager = FindAnyObjectByType<LocomotionManager>();
+        _locomotionManager.LockMove(_open);
     }
 
     public void Toggle()

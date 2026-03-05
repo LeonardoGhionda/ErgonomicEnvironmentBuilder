@@ -9,10 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 
 public class MenuRoomView : MonoBehaviour
 {
-    [SerializeField] GridLayoutGroup roomCardContainer;
     [SerializeField] RectTransform CardTemplate;
-    [SerializeField] HandMenuManager handMenu;
-    [SerializeField] ContinuousMoveProvider moveProvider;
 
     [Header("Menu Entry")]
     [SerializeField] List<HM_Base> LockPosition;
@@ -22,23 +19,12 @@ public class MenuRoomView : MonoBehaviour
     //-------------
     public event Action<string> RoomCardClicked;
 
-    public void StartHandMenu()
-    {
-        /*
-        List<HandMenuEntry> entries = new List<HandMenuEntry> { LockPosition, LockRotation};
-        // Initialize handMenu menu
-        handMenu.AddMenuEntries(entries, true);
 
-        LockPosition.GetComponent<Button>().onClick.AddListener(() => OnLockPosition?.Invoke(LockPosition.Toggle()));
-        LockRotation.GetComponent<Button>().onClick.AddListener(() => OnLockRotation?.Invoke(LockRotation.Toggle()));
-        */
-    }
-
-    public void RefreshRoomList()
+    public void RefreshRoomList(GridLayoutGroup container)
     {
         _roomsPath = RoomsUtility.roomsFolderPath;
         // Clear existing cards
-        foreach (Transform child in roomCardContainer.transform)
+        foreach (Transform child in container.transform)
         {
             if (child != CardTemplate.transform)
                 Destroy(child.gameObject);
@@ -50,28 +36,18 @@ public class MenuRoomView : MonoBehaviour
         // Generate cards for each room
         foreach (var room in rooms)
         {
-            GenerateRoomCard(room);
+            GenerateRoomCard(room, container);
         }
-    }
-
-    public void HandMenuActions(HandMenuInput input) => handMenu.ProcessInput(input);
-
-    public void ToggleHandMenu()
-    {
-        // Enable/Disable controller manager based on handMenu menu state -> prevent conflicts
-        moveProvider.enabled = handMenu.gameObject.activeInHierarchy;
-        // Toggle handMenu menu visibility
-        handMenu.Toggle();
     }
 
     // Helper functions 
     //-----------------
-    private void GenerateRoomCard(string room)
+    private void GenerateRoomCard(string room, GridLayoutGroup container)
     {
         string roomNameNoExt = Path.GetFileNameWithoutExtension(room);
 
         // SetUp
-        RectTransform newCard = Instantiate(CardTemplate, roomCardContainer.transform);
+        RectTransform newCard = Instantiate(CardTemplate, container.transform);
         newCard.gameObject.SetActive(true);
 
         // Add room name text
@@ -83,7 +59,7 @@ public class MenuRoomView : MonoBehaviour
             newCard.GetComponentInChildren<RawImage>().texture = image;
 
         // Add click listener 
-        newCard.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => RoomCardClicked?.Invoke(roomNameNoExt));
+        newCard.GetComponent<Button>().onClick.AddListener(() => RoomCardClicked?.Invoke(roomNameNoExt));
     }
 
     private List<string> GetFilesInFolder(string folderPath, string searchPattern = "*.*")
@@ -116,9 +92,9 @@ public class MenuRoomView : MonoBehaviour
     private Texture2D LoadTexture(string imagePath)
     {
 
-        if (System.IO.File.Exists(imagePath))
+        if (File.Exists(imagePath))
         {
-            byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
+            byte[] bytes = File.ReadAllBytes(imagePath);
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(bytes);
             return tex;

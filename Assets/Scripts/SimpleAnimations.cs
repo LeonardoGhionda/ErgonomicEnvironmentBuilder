@@ -114,4 +114,43 @@ public class CustomAnimation : MonoBehaviour
         if (z.enabled) max = Mathf.Max(max, z.delay + z.duration);
         return max;
     }
+
+    [ContextMenu("Play Reverse")]
+    public void PlayReverse()
+    {
+        if (playOnce && _played) return;
+
+        if (_animationRoutine != null) StopCoroutine(_animationRoutine);
+
+        OnStart?.Invoke();
+
+        _animationRoutine = StartCoroutine(AnimateReverseRoutine());
+    }
+
+    private IEnumerator AnimateReverseRoutine()
+    {
+        float maxDuration = GetMaxDuration();
+        float timer = maxDuration;
+
+        while (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+
+            float newX = _startPosition.x + EvaluateAxis(x, timer);
+            float newY = _startPosition.y + EvaluateAxis(y, timer);
+            float newZ = _startPosition.z + EvaluateAxis(z, timer);
+
+            transform.localPosition = new Vector3(newX, newY, newZ);
+
+            yield return null;
+        }
+
+        transform.localPosition = _startPosition;
+
+        OnComplete?.Invoke();
+
+        if (playOnce) _played = true;
+
+        _animationRoutine = null;
+    }
 }

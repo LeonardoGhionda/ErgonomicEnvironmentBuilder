@@ -90,6 +90,7 @@ public class StateManager : MonoBehaviour
 
     private void Update()
     {
+
         currentState.UpdateState();
     }
 

@@ -59,6 +59,8 @@ public class BoneDataReceiver : MonoBehaviour
             hasNewData = true;
             udpClient?.BeginReceive(ReceiveCallback, null);
         }
+        catch (ObjectDisposedException)
+        { }
         catch (Exception e)
         {
             Debug.LogWarning(e.Message);
@@ -79,8 +81,8 @@ public class BoneDataReceiver : MonoBehaviour
                 ReadOnlySpan<float> floats = MemoryMarshal.Cast<byte, float>(receiveBuffer);
 
                 // Set Avatar position using the first 3 floats
-                Avatar.position = new (floats[0], Avatar.position.y, floats[2]);
-                Hip.position = new(Hip.position.x, floats[1], Hip.position.z);
+                Avatar.localPosition = new (floats[0], Avatar.localPosition.y, floats[2]);
+                Hip.localPosition = new(Hip.localPosition.x, floats[1], Hip.localPosition.z);
 
                 for (int i = 0; i < bones.Count; i++)
                 {

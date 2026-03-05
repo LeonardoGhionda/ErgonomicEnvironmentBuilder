@@ -1,54 +1,61 @@
-using System;
-using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.UI.BodyUI;
 
 public class LocomotionManager : MonoBehaviour
 {
-    [SerializeField] InputActionReference leftHandMovement;
-    private bool _leftHandMovementEnabled;
+    [Header("Locomotion Actions")]
+    [SerializeField] InputActionReference moveAction;
+    [SerializeField] InputActionReference teleportAction;
+    [SerializeField] InputActionReference snapTurnAction;
+    [SerializeField] InputActionReference continuousTurnAction;
 
-    [SerializeField] InputActionReference rightHandMovement;
-    private bool _rightHandMovementEnabled;
+    private bool _moveEnabled = true;
+    private bool _teleportEnabled = true;
+    private bool _snapTurnEnabled = true;
+    private bool _continuousTurnEnabled = false;
 
-    HandMenuManager _handMenuManager;
-
-    private void Start()
+    public void LockMove(bool locked)
     {
-        _handMenuManager = FindAnyObjectByType<HandMenuManager>();
+        _moveEnabled = !locked;
     }
 
-    public void LockRightHandMovement(bool locked)
+    public void LockTeleport(bool locked)
     {
-        _rightHandMovementEnabled = !locked;
+        _teleportEnabled = !locked;
     }
 
-    public void LockLeftHandMovement(bool locked)
+    public void LockSnapTurn(bool locked)
     {
-        _leftHandMovementEnabled = !locked;
+        _snapTurnEnabled = !locked;
     }
 
-    public void HandMenuControl(bool value)
+    public void LockContinuousTurn(bool locked)
     {
-        // This is necessary because when locomotion is locked and i click
-        // controller triggerlocomotion turn on again and idk why.
-        if (value) leftHandMovement.action.started += IfMenuOpenBlockAndLock;
-        else leftHandMovement.action.started -= IfMenuOpenBlockAndLock;
+        _continuousTurnEnabled = !locked;
     }
 
-    public void IfMenuOpenBlockAndLock(InputAction.CallbackContext context)
-    {
-        LockLeftHandMovement(_handMenuManager.Open);
-    }
-
+    // XRInteraction toolkit can autonomously enable the actions 
+    // I need too check every frame if this happend and reToggle 
     private void Update()
     {
-        if (_leftHandMovementEnabled) leftHandMovement.action.Enable();
-        else leftHandMovement.action.Disable();
+        ToggleAction(moveAction, _moveEnabled);
+        ToggleAction(teleportAction, _teleportEnabled);
+        ToggleAction(snapTurnAction, _snapTurnEnabled);
+        ToggleAction(continuousTurnAction, _continuousTurnEnabled);
+    }
 
-        if (_rightHandMovementEnabled) rightHandMovement.action.Enable();
-        else rightHandMovement.action.Disable();
+    private void ToggleAction(InputActionReference actionRef, bool isEnabled)
+    {
+        if (actionRef?.action == null) return;
 
+        if (isEnabled)
+        {
+            if (!actionRef.action.enabled) actionRef.action.Enable();
+        }
+        else
+        {
+            if (actionRef.action.enabled) actionRef.action.Disable();
+        }
     }
 }

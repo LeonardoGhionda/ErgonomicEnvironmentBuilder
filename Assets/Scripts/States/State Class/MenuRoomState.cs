@@ -30,12 +30,11 @@ public class MenuRoomState : AbsAppState
     {
 
         // Input
-        _locomotionManager.LockLeftHandMovement(true);
+        //_locomotionManager.LockMove(true);
 
 
         //View
         _view.RoomCardClicked += StartEdit;
-        _view.StartHandMenu();
 
         _container.SetActive(true);
     }
@@ -44,7 +43,7 @@ public class MenuRoomState : AbsAppState
     public override void Exit()
     {
         // Input
-        _locomotionManager.LockLeftHandMovement(false);
+        //_locomotionManager.LockMove(false);
 
         // View
         _view.RoomCardClicked -= StartEdit;
