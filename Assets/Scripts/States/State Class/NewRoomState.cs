@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class NewRoomState : AbsAppState
 {
@@ -12,6 +13,8 @@ public class NewRoomState : AbsAppState
     private bool _actionStarted = false;
     private InputAction _backAction;
     private InputAction _moveInterface;
+
+    private Vector2 MousePos => _input.Ui.Point.ReadValue<Vector2>();
 
 
     // Constructor
@@ -33,6 +36,11 @@ public class NewRoomState : AbsAppState
         _backAction.canceled += OnGoBackLongCanceled;
         _backAction.performed += OnGoBackLongPerformed;
 
+        _moveInterface.started += MoveInterfaceStarted;
+        _moveInterface.canceled += MoveInterfaceOver;
+
+        _input.Ui.Zoom.performed += ChangeZoomFromInput;
+
         _view.Show();
         // Subscribe to UI Events
         _view.OnConfirmClicked += HandleConfirm;
@@ -49,9 +57,15 @@ public class NewRoomState : AbsAppState
 
         // Cleanup
         _actionStarted = false;
+
         _backAction.started -= OnGoBackLongStarted;
         _backAction.canceled -= OnGoBackLongCanceled;
         _backAction.performed -= OnGoBackLongPerformed;
+        _input.Ui.Zoom.performed -= ChangeZoomFromInput;
+
+        _moveInterface.started -= MoveInterfaceStarted;
+        _moveInterface.canceled -= MoveInterfaceOver;
+
         _input.Ui.Disable();
 
         _view.Hide();
@@ -59,10 +73,13 @@ public class NewRoomState : AbsAppState
 
     public override void UpdateState()
     {
+        // Go back
         if (_actionStarted)
             HandleBackInput();
+
+        // Move interface
         if (_moveInterface.IsInProgress())
-            _view.MoveBackground(_input.Ui.Point.ReadValue<Vector2>());
+            _view.MoveBackground(MousePos);
     }
 
     // --- LOGIC ---
@@ -79,8 +96,8 @@ public class NewRoomState : AbsAppState
         {
             bool overwrite = _lastTriedRoomName == _rbm.RoomName;
 
-            RoomsUtility.SaveRoom(_rbm.RoomName, _rbm, overwrite);
-            RoomsUtility.CreateRoom(_rbm.RoomName);
+            SavingTools.SaveRoom(_rbm.RoomName, _rbm, overwrite);
+            SavingTools.CreateDTRoom(_rbm.RoomName);
 
 
             // Change State to the next step
@@ -114,4 +131,10 @@ public class NewRoomState : AbsAppState
         if (_actionStarted)
             _manager.ChangeState(_manager.MainMenu);
     }
+
+    private void ChangeZoomFromInput(InputAction.CallbackContext ctx) => _view.IncreaseZoomVisual(ctx.ReadValue<float>());
+
+    private void MoveInterfaceStarted(InputAction.CallbackContext _) => _view.MoveStart(MousePos); 
+
+    private void MoveInterfaceOver(InputAction.CallbackContext _) => _view.MoveStop();
 }

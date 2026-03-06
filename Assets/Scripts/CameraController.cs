@@ -14,6 +14,10 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Texture2D dot;
     private GameObject roof;
 
+    [Header("Lights")]
+    [SerializeField] Light OrthoLight;
+    [SerializeField] Light PlayerLight;
+
     // Components
     public Camera Camera { get { return _cam; } }
     private Camera _cam;
@@ -30,9 +34,10 @@ public class CameraController : MonoBehaviour
     private float _yaw, _pitch;
     private Quaternion _targetRotation;
     private bool _showDot = false;
-    private bool _lockMove;
     private const float MIN_ORTHO = 4f;
     private const float MAX_ORTHO = 55f;
+
+
 
     public bool IsOrtho => _ortho;
 
@@ -61,6 +66,12 @@ public class CameraController : MonoBehaviour
         _cam.orthographicSize = orthoSize;
         _rb.MovePosition(startPos);
         _orthoPos = startPos;
+
+        OrthoLight.gameObject.SetActive(true);
+        PlayerLight.gameObject.SetActive(true);
+
+        OrthoLight.enabled = true;
+        PlayerLight.enabled = false;
     }
 
     // --- LOGIC ---
@@ -96,6 +107,10 @@ public class CameraController : MonoBehaviour
             _yaw = 0; _pitch = 0;
         }
 
+        OrthoLight.enabled = _ortho;
+        PlayerLight.enabled = !_ortho;
+
+
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
     }
@@ -112,7 +127,6 @@ public class CameraController : MonoBehaviour
             Debug.LogError("Missing Camera Initialization!!");
             return;
         }
-        if (_lockMove) return;
 
         if (_ortho)
         {
@@ -135,7 +149,7 @@ public class CameraController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_isInitialized || _lockMove) return;
+        if (!_isInitialized) return;
 
         Vector3 moveDir = Vector3.zero;
         float currentSpeed = _ortho ? orthoMoveSpeed : moveSpeed;

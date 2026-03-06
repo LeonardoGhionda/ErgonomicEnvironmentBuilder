@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
@@ -18,32 +19,33 @@ public class SnapFollow : MonoBehaviour
     private Vector3 _lastScale;
     private Vector3 _targetLastScale;
 
-    private BoxCollider _bcInternal;
-    private BoxCollider boxCollider => _bcInternal ??= GetComponent<BoxCollider>();
+    private BoxCollider _bcInternal = null;
+    private BoxCollider BoxCollider {
+        get 
+        { 
+            if (_bcInternal == null) _bcInternal = GetComponent<BoxCollider>(); 
+
+            return _bcInternal; 
+        } 
+    }
 
     // Getters
     public string TargetID
     {
         get
         {
-            if (_target.TryGetComponent<Interactable>(out var i))
+            if (_target.TryGetComponent<Interactable>(out var i)) 
                 return i.ID;
-            else return "WGC/" + _target.name; //WGC = Wall Ground or Ceiling, to differentiate from Interactables that have an ID
-        }
-    }
+            else 
+                return "BUILDING/" + _target.name;
 
-    private void Awake()
-    {
-        _grabInteractable = GetComponent<XRGrabInteractable>();
+        }
     }
 
     public void Init(Transform t)
     {
-        // Check for valid target and avoid self-assignment
-        if (t == null || t == transform) return;
-
         // Prevent recursive loops by removing existing SnapFollow on target
-        if (t.TryGetComponent<SnapFollow>(out var snapComp) && snapComp.targetCmp(transform))
+        if (t.TryGetComponent<SnapFollow>(out var snapComp) && snapComp.TargetCmp(transform))
         {
             Destroy(snapComp);
         }
@@ -73,11 +75,8 @@ public class SnapFollow : MonoBehaviour
 
     public void Init(Transform t, Vector3 contactPoint)
     {
-        // Check for valid target and avoid self-assignment
-        if (t == null || t == transform) return;
-
         // Prevent recursive loops by removing existing SnapFollow on target
-        if (t.TryGetComponent<SnapFollow>(out var snapComp) && snapComp.targetCmp(transform))
+        if (t.TryGetComponent<SnapFollow>(out var snapComp) && snapComp.TargetCmp(transform))
         {
             Destroy(snapComp);
         }
@@ -129,7 +128,7 @@ public class SnapFollow : MonoBehaviour
 
         // Project contact point onto the exact plane of the target face
         Vector3 planePoint = GetTargetPlanePoint(t, targetBox, _targetLocalNormal);
-        Plane facePlane = new Plane(targetNormal, planePoint);
+        Plane facePlane = new (targetNormal, planePoint);
         Vector3 fixedContactPoint = facePlane.ClosestPointOnPlane(contactPoint);
 
         // Align the object rotation to the surface normal
@@ -147,8 +146,14 @@ public class SnapFollow : MonoBehaviour
 
     private void LateUpdate()
     {
+#if !USE_XR
+        Debug.LogWarning($"Missing implementation for Desktop Mod");
+        return;
+#endif
         // Safety check 
         if (!_initialized || _target == null) return;
+
+        if (_grabInteractable == null && TryGetComponent(out _grabInteractable) == false) return;
 
         // If scale change reset Snap t match box colliders
         if (!_grabInteractable.isSelected &&                                                        // Snapped is not currently grabbed 
@@ -173,13 +178,15 @@ public class SnapFollow : MonoBehaviour
         }
     }
 
+
+
     private void ConstrainMovement()
     {
         // Reconstruct plane in current world space
         Vector3 currentTargetNormal = _target.TransformDirection(_targetLocalNormal);
         BoxCollider targetBox = _target.GetComponent<BoxCollider>();
         Vector3 planePoint = GetTargetPlanePoint(_target, targetBox, _targetLocalNormal);
-        Plane facePlane = new Plane(currentTargetNormal, planePoint);
+        Plane facePlane = new (currentTargetNormal, planePoint);
 
         // Project current position onto the plane
         Vector3 rawPos = transform.position;
@@ -215,8 +222,8 @@ public class SnapFollow : MonoBehaviour
     private float GetPivotToFaceDistance(Vector3 localAxis)
     {
         Vector3 scale = transform.lossyScale;
-        Vector3 size = boxCollider.size;
-        Vector3 center = boxCollider.center;
+        Vector3 size = BoxCollider.size;
+        Vector3 center = BoxCollider.center;
 
         float dist = 0f;
 
@@ -242,7 +249,7 @@ public class SnapFollow : MonoBehaviour
         return new Vector3(0, 0, Mathf.Sign(v.z));
     }
 
-    public bool targetCmp(Transform t)
+    public bool TargetCmp(Transform t)
     {
         return _target == t;
     }

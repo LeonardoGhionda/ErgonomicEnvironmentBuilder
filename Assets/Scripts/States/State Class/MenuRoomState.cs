@@ -7,9 +7,7 @@ public class MenuRoomState : AbsAppState
     readonly private GameObject _container;
     private MenuRoomView _view;
     private RoomBuilderManager _rbm;
-    private VRSelectionManager _selectionManager;
-
-    private LocomotionManager _locomotionManager;
+    private GameObject _vrPlayer;
 
     public MenuRoomState(
         StateManager manager,
@@ -17,21 +15,18 @@ public class MenuRoomState : AbsAppState
         GameObject container,
         MenuRoomView view,
         RoomBuilderManager roomBuilderManager,
-        VRSelectionManager selectionManager) : base(manager, input)
+        GameObject vrPlayer) : base(manager, input)
     {
         _container = container;
         _view = view;
         _rbm = roomBuilderManager;
-        _selectionManager = selectionManager;
-        _locomotionManager = GameObject.FindAnyObjectByType<LocomotionManager>();
+        _vrPlayer = vrPlayer;
     }
 
     public override void Enter()
     {
 
-        // Input
-        //_locomotionManager.LockMove(true);
-
+        _vrPlayer.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);  
 
         //View
         _view.RoomCardClicked += StartEdit;
@@ -42,8 +37,6 @@ public class MenuRoomState : AbsAppState
 
     public override void Exit()
     {
-        // Input
-        //_locomotionManager.LockMove(false);
 
         // View
         _view.RoomCardClicked -= StartEdit;
@@ -60,7 +53,4 @@ public class MenuRoomState : AbsAppState
         _rbm.RoomName = roomName;
         _manager.ChangeState(_manager.ImmersiveEditor);
     }
-
-
-
 }

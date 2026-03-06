@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
+
 
 [Serializable]
 public struct RoomDotData
@@ -22,6 +22,7 @@ public struct RoomDotData
 [Serializable]
 public struct RoomEdgeData
 {
+    public int id;
     public float apx;
     public float apy;
     public float rotz;
@@ -83,7 +84,7 @@ public class ChildrenData
 }
 
 [Serializable]
-public class ObjectData
+public class ParentData
 {
     public string id;
     public string objFilePath;
@@ -100,7 +101,7 @@ public class RoomData
     public List<RoomDotData> dots = new();
     public List<RoomEdgeData> edges = new();
     //rooms objects 
-    public List<ObjectData> objects = new();
+    public List<ParentData> objects = new();
 }
 
 public static class ValidationErrors
@@ -111,13 +112,15 @@ public static class ValidationErrors
     internal static string inUse = "A room with this name already exists. Click Confirm again to overwrite";
 }
 
-static public class RoomsUtility
+static public class SavingTools
 {
+
+    public static string floorName = "Floor";
 
     public static readonly string roomsFolderPath;
 
     //Runs automatically the first time the class is accessed
-    static RoomsUtility()
+    static SavingTools()
     {
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
@@ -127,6 +130,7 @@ static public class RoomsUtility
     /// <summary>
     /// Generates a RoomData that contains the minimum required information to save
     /// a room layout 
+    /// Used to save the room the first time, when no object are present.
     /// </summary>
     /// <param roomName="rbm"> RoomBuilderManager used to generate the room layot</param>
     /// <returns>Json that contains all the data</returns>
@@ -151,11 +155,13 @@ static public class RoomsUtility
             roomDots.Add(roomDotData);
         }
 
+        int cnt = 0;
         //walls
         foreach (var roomEdge in rbm.RoomEdges)
         {
             RoomEdgeData edgeData = new()
             {
+                id = cnt++,
                 apx = roomEdge.Rect.anchoredPosition.x,
                 apy = roomEdge.Rect.anchoredPosition.y,
                 rotz = roomEdge.Rect.localEulerAngles.z,
@@ -204,7 +210,7 @@ static public class RoomsUtility
         {
             if (parent.childCount == 0) continue; //additional check to empty parent
             //save parent
-            ObjectData objData = new()
+            ParentData objData = new()
             {
                 id = parent.GetComponent<Interactable>().ID,
                 objFilePath = parent.GetComponent<InteractableParent>().Path,
@@ -289,20 +295,102 @@ static public class RoomsUtility
     }
 
     /// <summary>
-    /// Translate Roomedges and RoomDot in a 3d Room
-    /// Edges -> walls
-    /// Dot -> Columns
-    /// Size is determinated by the scale value
+    /// ONLY FOR DESKTOP
+    /// Crerate room layout and objects
     /// <param roomName="name">file roomName without extension</param>
     /// </summary>
-    /// 
-    static public void CreateRoom(string name)
+    static public void CreateDTRoom(string name)
     {
-        // Load and read save 
-        string filepath = Path.Combine(roomsFolderPath, name + ".room");
-        string json = LoadJson(filepath);
-        RoomData data = JsonUtility.FromJson<RoomData>(json);
+        CreateRoom(LoadRoomDataFromName(name));
+    }
 
+    /// <summary>
+    /// Create room with additional functionality for VR compability
+    /// </summary>
+    /// <param name="roomName"></param>
+    public static void CreateVRRoom(string roomName)
+    {
+
+        // Create the generic room
+        RoomData data = LoadRoomDataFromName(roomName);
+        CreateRoom(data);
+
+
+#if !USE_XR // Flag Check 
+        Debug.LogError("VR function called in Desktop Mode");
+#endif
+
+        // --- Get Resources ---
+
+        // All object added at runtime are stored here
+        GameObject objectsContainer = GameObject.Find("Objects Container");
+
+        // Get the Selection Manager for VR Only to add Callback to selected object
+        VRSelectionManager sm = GameObject.FindFirstObjectByType<VRSelectionManager>();
+        if (sm == null)
+        {
+            Debug.LogError("RoomsUtility.CreateRoom: VRSelectionManager not found in scene!");
+            return;
+        }
+
+        // --- Floor Teleportation ---
+
+        // Get floor
+        string groundName = floorName;
+        GameObject ground = GameObject.Find(groundName);
+
+        if (ground == null)
+        {
+            Debug.LogError($"Ground gameObject not found. Don't chance his name, it should be {groundName}");
+            return;
+        }
+
+
+        // Setup ground for teleportation
+        var tpArea = ground.AddComponent<TeleportationArea>();
+        tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
+        tpArea.colliders.Add(ground.GetComponent<Collider>());
+        tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
+
+
+        // --- Vr Object initialization ---
+        InteractableParent[] parents = objectsContainer.GetComponentsInChildren<InteractableParent>();
+        ParentData[] parentsData = data.objects.ToArray();
+
+        
+
+        // We need to iterate again on data to initialize gravity 
+        foreach (ParentData parentData in parentsData)
+        {
+            try
+            {
+                InteractableParent parent = parents.First(p => p.ID == parentData.id);
+
+                InteractableObject[] children = parent.GetComponentsInChildren<InteractableObject>();
+
+
+                foreach (ChildrenData childrenData in parentData.children)
+                {
+                    InteractableObject intObject = children.First(c => c.ID == childrenData.id);
+                    SetUpVrObject(intObject.transform, sm, childrenData.gravityEnabled);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Error]: {e}");
+            }
+        }
+            
+
+    }
+
+
+    /// <summary>
+    /// Common room creation operations for both VR and DT
+    /// </summary>
+    /// <param name="data"></param>
+    static private void CreateRoom(RoomData data)
+    {
         //walls data 
         var edges = data.edges;
 
@@ -316,15 +404,16 @@ static public class RoomsUtility
         GameObject roof = Resources.Load<GameObject>("Room Builder/Roof");
         GameObject ground = Resources.Load<GameObject>("Room Builder/Ground");
 
-        int wallCnt = 0;
         //create walls
         foreach (var e in edges)
         {
             var wallPivot = UnityEngine.Object.Instantiate(baseWallPivot);
+            var wall = wallPivot.transform.GetChild(0);
 
             // wall name with index to easily find them, if needed.
             // Wall are always in the same order of the edges list, so index like this is correct
-            wallPivot.name += wallCnt++; 
+            wallPivot.name += $"_{e.id}";
+            wall.name = e.id.ToString();
 
             //All room element are stored in this container
             wallPivot.transform.SetParent(roomContainer.transform, true);
@@ -377,16 +466,8 @@ static public class RoomsUtility
 
         //setup ground 
         var groundInstance = UnityEngine.Object.Instantiate(ground);
+        groundInstance.name = floorName;
         groundInstance.transform.SetParent(roomContainer.transform, true);
-
-
-        //setup ground for teleportation (ONLY IN VR MODE)
-#if USE_XR
-        var tpArea = groundInstance.AddComponent<TeleportationArea>();
-        tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
-        tpArea.colliders.Add(groundInstance.GetComponent<Collider>());
-        tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
-#endif
 
         //setup roof
         var roofInstance = UnityEngine.Object.Instantiate(roof);
@@ -401,8 +482,8 @@ static public class RoomsUtility
         List<(string, SnapFollow)> snapFollowTargets = new();
 
         //create objects
-        ObjectData[] objsData = data.objects.ToArray();
-        foreach (ObjectData parentData in objsData)
+        ParentData[] objsData = data.objects.ToArray();
+        foreach (ParentData parentData in objsData)
         {
             //load obj file
             OBJLoader loader = new();
@@ -410,20 +491,20 @@ static public class RoomsUtility
             // Position setup will be overwritten, camera to null
             RoomEditorState.SetUpModel(parent, parentData.objFilePath, objectsContainer, null);
 
-            parent.GetComponent<Interactable>().ID = parentData.id;
+            // ID 
+
+            ///////
+            // Temporary, transition from empty guid allowed 
+            string id = parentData.id;
+            Guid guid = new (id);
+            if (guid == Guid.Empty) guid = Guid.NewGuid();
+            //////
+
+            parent.GetComponent<Interactable>().ID = guid.ToString();
 
             //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
 
-#if USE_XR
-            // Get the Selection Manager for VR Only to add Callback to selected object
-            VRSelectionManager sm = GameObject.FindFirstObjectByType<VRSelectionManager>();
-            if (sm == null)
-            {
-                Debug.LogError("RoomsUtility.CreateRoom: VRSelectionManager not found in scene!");
-                continue;
-            }
-#endif
             // Setup children
             ChildrenData[] children = parentData.children.ToArray();
 
@@ -451,25 +532,30 @@ static public class RoomsUtility
                 //find correct child by name
                 var child = parent.transform.Find(childData.name);
 
-                child.GetComponent<Interactable>().ID = childData.id;
+                // ID 
+
+                ///////
+                // Temporary, transition from empty guid allowed 
+                id = childData.id;
+                guid = new(id);
+                if (guid == Guid.Empty) guid = Guid.NewGuid();
+                ///////
+
+                child.GetComponent<Interactable>().ID = guid.ToString();
 
                 //copy saved data
                 childData.transform.ApplyTo(child.transform);
                 childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
 
-
-#if USE_XR // Add XRGrabInteractable if XR is enabled
-                SetUpVrObject(child, sm, childData.gravityEnabled);
-#endif
-                string id = childData.SnapFollowTargetId;
-                if (id != string.Empty && id != Guid.Empty.ToString())
+                string childID = childData.SnapFollowTargetId;
+                if (childID != string.Empty && childID != Guid.Empty.ToString())
                 {
-
-                    snapFollowTargets.Add((id, child.AddComponent<SnapFollow>()));
+                    snapFollowTargets.Add((childID, child.AddComponent<SnapFollow>()));
                 }
             }
         }
 
+        // SNAP FOLLOW LOGIC 
         foreach (var item in snapFollowTargets)
         {
             try
@@ -477,13 +563,14 @@ static public class RoomsUtility
                 string id = item.Item1;
                 if (!string.IsNullOrEmpty(id))
                 {
+                    Debug.Log($"ID = {id}");
                     Transform target = null;
-                    if (id.StartsWith("WGC")) // Find closest wall face
+                    if (id.StartsWith("BUILDING")) // Building shell ( floor, cealing or walls )
                     {
-                        string targetName = Path.GetFileNameWithoutExtension(id); // remove "WGC/" prefix
-                        target = roomContainer.transform.Find(targetName);
+                        string name = Path.GetFileName(id);
+                        target = GameObject.Find(name).transform;
                     }
-                    else // Find by name
+                    else // Interactable object
                     {
                         target = objectsContainer.GetComponentsInChildren<Interactable>().First(i => i.ID == id).transform;
                     }
@@ -493,7 +580,7 @@ static public class RoomsUtility
             }
             catch (Exception ex)
             {
-                Debug.Log($"Failed to set up SnapFollow for {item.Item2.gameObject.name}: {ex.Message}");
+                Debug.LogError($"Failed to set up SnapFollow for {item.Item2.gameObject.name}: {ex.Message}");
             }
         }
     }
@@ -636,6 +723,14 @@ static public class RoomsUtility
 
         Debug.LogWarning("Failed to find internal point after max attempts.");
         return walls[0].transform.position; // Fallback
+    }
+
+    private static RoomData LoadRoomDataFromName(string roomName)
+    {
+        // Load and read save 
+        string filepath = Path.Combine(roomsFolderPath, roomName + ".room");
+        string json = LoadJson(filepath);
+        return JsonUtility.FromJson<RoomData>(json);
     }
 
     // Jordan check method to determine if a point is inside a closed shape

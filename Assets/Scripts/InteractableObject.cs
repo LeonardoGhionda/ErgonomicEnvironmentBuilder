@@ -6,8 +6,9 @@ public class InteractableObject : Interactable
     private Material[] _baseMaterials;
     private EditorHUDView hud;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
         _baseMaterials = gameObject.GetComponent<MeshRenderer>().materials;
     }

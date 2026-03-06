@@ -3,19 +3,14 @@ using UnityEngine;
 
 abstract public class Interactable : MonoBehaviour
 {
-    private Guid _idInternal;
-    public string ID
+
+    protected virtual void Awake()
     {
-        get
-        {
-            if (_idInternal == null || _idInternal == Guid.Empty) _idInternal = Guid.NewGuid();
-            return _idInternal.ToString();
-        }
-        set
-        {
-            if (!string.IsNullOrEmpty(value)) _idInternal = new Guid(value);
-        }
+        _idInternal = Guid.NewGuid();
     }
+
+    private Guid _idInternal;
+    public string ID { get { return _idInternal.ToString(); } set { _idInternal = new(value); } }
 
     abstract public void OnSelect();
     abstract public void OnDeselect();

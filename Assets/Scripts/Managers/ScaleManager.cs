@@ -42,7 +42,7 @@ public class ScaleManager : MonoBehaviour
 
             //Save room because if we delete the file and keep the room the same by quitting without saving, room will be corrupted 
             var roomManager = FindAnyObjectByType<RoomBuilderManager>();
-            if (roomManager != null) RoomsUtility.Save(roomManager.RoomName);
+            if (roomManager != null) SavingTools.Save(roomManager.RoomName);
         }
     }
 
@@ -299,6 +299,6 @@ public class ScaleManager : MonoBehaviour
         // Save mesh
         OBJExporter.Export(iParent);
 
-        RoomsUtility.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+        SavingTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
     }
 }

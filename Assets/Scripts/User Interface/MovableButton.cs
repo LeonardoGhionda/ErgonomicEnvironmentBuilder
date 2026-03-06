@@ -19,16 +19,6 @@ public class MovableButton : MonoBehaviour
 
     public void Move(Vector2 mousePos)
     {
-        if (IsMouseInside(mousePos))
-        {
-            if (!moving)
-                lastMousePosition = mousePos;
-            moving = true;
-        }
-        else
-        {
-            moving = false;
-        }
         if (moving)
         {
             Vector2 pos = mousePos;
@@ -37,14 +27,13 @@ public class MovableButton : MonoBehaviour
             lastMousePosition = pos;
         }
     }
-    bool IsMouseInside(Vector2 mousePos)
+
+    public void MoveStart(Vector2 mousePos)
     {
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            rect,
-            mousePos,
-            null
-        );
+        lastMousePosition = mousePos;
+        moving = true;
     }
+    public void MoveStop() => moving = false;
 
 
 }

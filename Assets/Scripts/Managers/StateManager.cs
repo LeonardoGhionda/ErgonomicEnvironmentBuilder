@@ -63,7 +63,7 @@ public class StateManager : MonoBehaviour
 
 #if USE_XR
         VRPlayer.SetActive(true);
-        MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRSelectionManager);
+        MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
         ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager, scaleManager);
 
         currentState = MenuRoom;

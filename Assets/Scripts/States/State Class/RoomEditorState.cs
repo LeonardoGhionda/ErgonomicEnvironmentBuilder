@@ -89,7 +89,7 @@ public class RoomEditorState : AbsAppState
         _selectionManager.Init(_camController.Camera);
         _measureManager.Init(_camController.Camera);
 
-        _insideWallPosition = RoomsUtility.FindInternalPoint();
+        _insideWallPosition = SavingTools.FindInternalPoint();
     }
 
     public override void Exit()
@@ -130,7 +130,7 @@ public class RoomEditorState : AbsAppState
         // Move camera in position and generate a room preview
         // Preview is used in Vr menus
         _camController.SetOrtho(true);
-        RoomsUtility.GenerateRoomPreview(_camController.Camera, _rbm.RoomName);
+        SavingTools.GenerateRoomPreview(_camController.Camera, _rbm.RoomName);
     }
 
     public override void UpdateState()
@@ -290,13 +290,13 @@ public class RoomEditorState : AbsAppState
         _gizmoManager.RemoveGizmo();
         _selectionManager.ChangeSelectedObject(null);
 
-        RoomsUtility.Save(_rbm.RoomName);
+        SavingTools.Save(_rbm.RoomName);
     }
 
     private void QuitRoom()
     {
         SaveRoom();
-        RoomsUtility.CleanupRoom();
+        SavingTools.CleanupRoom();
         _manager.ChangeState(_manager.MainMenu);
     }
 

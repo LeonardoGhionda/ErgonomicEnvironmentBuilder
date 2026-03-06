@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class NewRoomUI : MonoBehaviour
@@ -13,6 +14,9 @@ public class NewRoomUI : MonoBehaviour
     [SerializeField] private TMP_Text roomNameError;
     [SerializeField] private LoadingCircle loadingCircle;
     [SerializeField] private MovableButton _background;
+
+    [Header("Input")]
+    [SerializeField] private InputActionReference zoomAction;
 
     // Events for the State to listen to
     public event Action OnConfirmClicked;
@@ -43,6 +47,16 @@ public class NewRoomUI : MonoBehaviour
         roomLayoutRect.localScale = Vector3.one * (1 + value);
     }
 
+    public void IncreaseZoomVisual(float increment)
+    {
+        float oldZoom = roomLayoutRect.localScale.x - 1;
+        float newZoom = Mathf.Clamp01(oldZoom + increment / 100f);
+        zoomSlider.value = newZoom;
+        int zoom = Mathf.RoundToInt(newZoom * 100.0f);
+        zoomText.text = $"Zoom: {zoom:00}%";
+        roomLayoutRect.localScale = Vector3.one * (1 + newZoom);
+    }
+
 
 
     public void ShowError(string message)
@@ -61,4 +75,6 @@ public class NewRoomUI : MonoBehaviour
     }
 
     public void MoveBackground(Vector2 mousePos) => _background.Move(mousePos);
+    public void MoveStart(Vector2 mpos) => _background.MoveStart(mpos);
+    public void MoveStop() => _background.MoveStop();
 }

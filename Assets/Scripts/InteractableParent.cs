@@ -14,8 +14,9 @@ public class InteractableParent : Interactable
     private Material _selectedMaterial;
     private Dictionary<int, Material[]> _materialsMap;
 
-    void Awake()
+    override protected void Awake()
     {
+        base.Awake();
         _selectedMaterial = Resources.Load<Material>("Materials/TransparentGreen");
         _materialsMap = new();
         // Set layer to Ignore Raycast to avoid children "hiding"

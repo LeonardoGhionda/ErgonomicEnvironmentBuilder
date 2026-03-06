@@ -465,6 +465,15 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""b737dae7-2916-485b-a11e-1d9cbd15a5c7"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -909,37 +918,15 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""One Modifier"",
-                    ""id"": ""10463c33-c8d3-400e-be3e-71e037889a09"",
-                    ""path"": ""OneModifier"",
+                    ""name"": """",
+                    ""id"": ""290f6a64-93f4-411a-9575-8f512800599b"",
+                    ""path"": ""<Mouse>/middleButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Move Interface"",
-                    ""isComposite"": true,
+                    ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""modifier"",
-                    ""id"": ""41ee7bc6-3230-447b-af89-d6392eb0a9bc"",
-                    ""path"": ""<Keyboard>/leftCtrl"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move Interface"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""binding"",
-                    ""id"": ""07eaaf56-7d20-4f70-9532-040b797011b2"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move Interface"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -1006,6 +993,39 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""action"": ""Delete"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""73833461-db03-4f8e-ad72-7d30f33ade70"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""74c03907-10ba-4488-8855-cc8bc1fa3ec6"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""0a2d1e87-028e-4093-b31f-5a33ed8183b6"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -1387,6 +1407,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_Ui_OpenModelsMenu = m_Ui.FindAction("Open Models Menu", throwIfNotFound: true);
         m_Ui_EnablePointer = m_Ui.FindAction("Enable Pointer", throwIfNotFound: true);
         m_Ui_Delete = m_Ui.FindAction("Delete", throwIfNotFound: true);
+        m_Ui_Zoom = m_Ui.FindAction("Zoom", throwIfNotFound: true);
         // HandMenu
         m_HandMenu = asset.FindActionMap("HandMenu", throwIfNotFound: true);
         m_HandMenu_MoveEntries = m_HandMenu.FindAction("Move Entries", throwIfNotFound: true);
@@ -1678,6 +1699,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Ui_OpenModelsMenu;
     private readonly InputAction m_Ui_EnablePointer;
     private readonly InputAction m_Ui_Delete;
+    private readonly InputAction m_Ui_Zoom;
     /// <summary>
     /// Provides access to input actions defined in input action map "Ui".
     /// </summary>
@@ -1762,6 +1784,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Delete => m_Wrapper.m_Ui_Delete;
         /// <summary>
+        /// Provides access to the underlying input action "Ui/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_Ui_Zoom;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Ui; }
@@ -1841,6 +1867,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Delete.started += instance.OnDelete;
             @Delete.performed += instance.OnDelete;
             @Delete.canceled += instance.OnDelete;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
         }
 
         /// <summary>
@@ -1906,6 +1935,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Delete.started -= instance.OnDelete;
             @Delete.performed -= instance.OnDelete;
             @Delete.canceled -= instance.OnDelete;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
         }
 
         /// <summary>
@@ -2501,6 +2533,13 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDelete(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "HandMenu" which allows adding and removing callbacks.
