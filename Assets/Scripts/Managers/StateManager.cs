@@ -1,7 +1,15 @@
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StateManager : MonoBehaviour
 {
+    public enum SceneName
+    {
+        Main,
+        Simulation,
+    }
+
     IAppState currentState;
 
     public AppActions AppInput => _appInput;
@@ -49,11 +57,15 @@ public class StateManager : MonoBehaviour
     // --- VR STATES ---
     public MenuRoomState MenuRoom { get; private set; }
     public ImmersiveEditor ImmersiveEditor { get; private set; }
+    public RoomTestState TestRoom { get; private set; }
 
     private void Awake()
     {
         // Initialize Input
         _appInput = new AppActions();
+
+        DontDestroyOnLoad(transform.parent.gameObject); // Make all managers persistent through different scenes
+        DontDestroyOnLoad(VRPlayer);
     }
 
     private void Start()
@@ -63,8 +75,11 @@ public class StateManager : MonoBehaviour
 
 #if USE_XR
         VRPlayer.SetActive(true);
+
+        //---STATE SETUP---
         MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
         ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager, scaleManager);
+        TestRoom = new(this, AppInput, roomBuilderManager, VRPlayer);
 
         currentState = MenuRoom;
 #else
@@ -98,7 +113,33 @@ public class StateManager : MonoBehaviour
     {
         currentState?.Exit();
         currentState = newState;
-        if (newState == null) Destroy(this); //close the app
+        if (currentState == null)
+        {
+            Destroy(this); //close the app
+            return;
+        }
+        currentState?.Enter();
+    }
+
+    internal void ChangeStateInNewScene(IAppState newState, SceneName newScene)
+    {
+        currentState?.Exit();
+        currentState = newState;
+
+        if (currentState == null)
+        {
+            Destroy(this); //close the app
+            return;
+        }
+
+        // Subscribe to the scene loaded event
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.LoadScene(newScene.ToString());
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode LSM)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         currentState?.Enter();
     }
 

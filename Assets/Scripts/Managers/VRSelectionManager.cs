@@ -133,7 +133,7 @@ public class VRSelectionManager : MonoBehaviour
             }
         }
 
-        SavingTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+        RoomManagementTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
         ClearSelection();
     }
 
@@ -162,11 +162,16 @@ public class VRSelectionManager : MonoBehaviour
         RaycastHit hit;
         // Sphere collision takes priority (Direct)
         Physics.SphereCast(controller.position, 0.5f, controller.forward, out RaycastHit sphereHit);
-        if (sphereHit.collider is BoxCollider) hit = sphereHit;
-
-        // Raycast
-        bool hitWithRay = Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);
-        hit = rayHit;
+        if (sphereHit.collider is BoxCollider)
+        {
+            hit = sphereHit;
+        }
+        else
+        {
+            // Raycast
+            Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);
+            hit = rayHit;
+        }
 
         OnRaycastPerformed?.Invoke(hit);
     }

@@ -14,6 +14,7 @@ public class NewRoomUI : MonoBehaviour
     [SerializeField] private TMP_Text roomNameError;
     [SerializeField] private LoadingCircle loadingCircle;
     [SerializeField] private MovableButton _background;
+    [SerializeField] private DeleteRoomDot deleteDot;
 
     [Header("Input")]
     [SerializeField] private InputActionReference zoomAction;
@@ -75,6 +76,11 @@ public class NewRoomUI : MonoBehaviour
     }
 
     public void MoveBackground(Vector2 mousePos) => _background.Move(mousePos);
-    public void MoveStart(Vector2 mpos) => _background.MoveStart(mpos);
+    public void MoveStart(Vector2 mpos)
+    {
+        // Hide it otherwise it will remain stck outside the dot
+        deleteDot.Hide();
+        _background.MoveStart(mpos);
+    }
     public void MoveStop() => _background.MoveStop();
 }

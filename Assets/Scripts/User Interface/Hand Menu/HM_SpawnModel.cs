@@ -25,7 +25,7 @@ public class HM_SpawnModel : HM_Base
 
         foreach (Transform child in obj.transform)
         {
-            SavingTools.SetUpVrObject(child, _deps.selection, false);
+            RoomManagementTools.SetUpVrObject(child, _deps.selection, false, true);
             child.AddComponent<InteractableObject>();
         }
 

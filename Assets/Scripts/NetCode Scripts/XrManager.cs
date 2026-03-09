@@ -45,16 +45,3 @@ public class XrManager : MonoBehaviour
         }
     }
 }
-
-/*
-#if USE_XR
-m_NetworkManager.StartServer();
-Debug.Log("<color=green>Host started successfully</color>");
-var xrRigInstance = Instantiate(xrRig, Vector3.zero, Quaternion.identity);
-xrRigInstance.GetComponent<NetworkObject>().Spawn();
-#else
-Instantiate(desktopCamera);
-m_NetworkManager.StartClient();
-Debug.Log("<color=green>Client started successfully</color>");
-#endif
-*/

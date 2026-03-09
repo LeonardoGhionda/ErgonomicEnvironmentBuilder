@@ -64,6 +64,9 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        // We only want LMB to be the input
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
         isHeld = true;
 
         //timer that checks if its a click ore a longer press
@@ -75,6 +78,9 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        // We only want LMB to be the input
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
         isHeld = false;
         //if the timer, started in OnPointerDown is not over
         //the button press is considered as a click, the 

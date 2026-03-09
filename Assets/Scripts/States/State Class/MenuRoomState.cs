@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MenuRoomState : AbsAppState
 {
@@ -29,7 +30,8 @@ public class MenuRoomState : AbsAppState
         _vrPlayer.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);  
 
         //View
-        _view.RoomCardClicked += StartEdit;
+        _view.EditRoomCardClicked += StartEdit;
+        _view.TestRoomCardClicked += StartTest;
 
         _container.SetActive(true);
     }
@@ -39,7 +41,8 @@ public class MenuRoomState : AbsAppState
     {
 
         // View
-        _view.RoomCardClicked -= StartEdit;
+        _view.EditRoomCardClicked -= StartEdit;
+        _view.TestRoomCardClicked -= StartTest;
 
         _container.SetActive(false);
     }
@@ -52,5 +55,11 @@ public class MenuRoomState : AbsAppState
     {
         _rbm.RoomName = roomName;
         _manager.ChangeState(_manager.ImmersiveEditor);
+    }
+
+    void StartTest(string roomName)
+    {
+        _rbm.RoomName = roomName;
+        _manager.ChangeStateInNewScene(_manager.TestRoom, StateManager.SceneName.Simulation);
     }
 }

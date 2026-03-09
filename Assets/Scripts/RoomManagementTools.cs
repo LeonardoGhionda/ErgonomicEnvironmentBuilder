@@ -80,7 +80,8 @@ public class ChildrenData
     public TransformData transform;
     public BoxColliderData colliderData;
     public bool gravityEnabled; // Whether gravity is enabled for this child
-    public string SnapFollowTargetId; // Optional: name of the target for SnapFollow, if applicable
+    public string snapFollowTargetId; // Optional: name of the target for SnapFollow, if applicable
+    public bool interactable;
 }
 
 [Serializable]
@@ -112,7 +113,10 @@ public static class ValidationErrors
     internal static string inUse = "A room with this name already exists. Click Confirm again to overwrite";
 }
 
-static public class SavingTools
+/// <summary>
+/// Handle saving and creations of rooms
+/// </summary>
+static public class RoomManagementTools
 {
 
     public static string floorName = "Floor";
@@ -120,7 +124,7 @@ static public class SavingTools
     public static readonly string roomsFolderPath;
 
     //Runs automatically the first time the class is accessed
-    static SavingTools()
+    static RoomManagementTools()
     {
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
@@ -234,15 +238,23 @@ static public class SavingTools
                 data.colliderData.LoadFrom(go.GetComponent<BoxCollider>());
 
                 // Sanp Follow
-                data.SnapFollowTargetId = string.Empty;
+                data.snapFollowTargetId = string.Empty;
                 if (go.TryGetComponent<SnapFollow>(out var sf))
                 {
-                    data.SnapFollowTargetId = sf.TargetID;
+                    data.snapFollowTargetId = sf.TargetID;
                 }
 
                 // Gravity
                 if (go.TryGetComponent<Rigidbody>(out var rb)) data.gravityEnabled = rb.useGravity;
                 else data.gravityEnabled = false;
+
+                // Interactable / Tranformation Locked
+                data.interactable = true; //default 
+
+                if (go.TryGetComponent<XRGrabInteractable>(out var grab) &&
+                    !grab.trackPosition &&
+                    !grab.trackRotation &&
+                    !grab.trackScale) data.interactable = false;
 
                 //add to list
                 objData.children.Add(data);
@@ -308,7 +320,7 @@ static public class SavingTools
     /// Create room with additional functionality for VR compability
     /// </summary>
     /// <param name="roomName"></param>
-    public static void CreateVRRoom(string roomName)
+    public static void CreateVrEditRoom(string roomName)
     {
 
         // Create the generic room
@@ -357,7 +369,64 @@ static public class SavingTools
         InteractableParent[] parents = objectsContainer.GetComponentsInChildren<InteractableParent>();
         ParentData[] parentsData = data.objects.ToArray();
 
-        
+        // We need to iterate again on data to initialize gravity 
+        foreach (ParentData parentData in parentsData)
+        {
+            try
+            {
+                InteractableParent parent = parents.First(p => p.ID == parentData.id);
+
+                InteractableObject[] children = parent.GetComponentsInChildren<InteractableObject>();
+
+
+                foreach (ChildrenData childrenData in parentData.children)
+                {
+                    InteractableObject intObject = children.First(c => c.ID == childrenData.id);
+                    SetUpVrObject(intObject.transform, sm, childrenData.gravityEnabled, childrenData.interactable);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Error]: {e}");
+            }
+        }
+            
+    }
+
+    public static void CreateTestRoom(string roomName)
+    {
+        // --- Get Resources ---
+
+        // All object added at runtime are stored here
+        GameObject objectsContainer = GameObject.Find("Objects Container");
+
+        // Create the generic room
+        RoomData data = LoadRoomDataFromName(roomName);
+        CreateRoom(data);
+
+        // --- Floor Teleportation ---
+
+        // Get floor
+        string groundName = floorName;
+        GameObject ground = GameObject.Find(groundName);
+
+        if (ground == null)
+        {
+            Debug.LogError($"Ground gameObject not found. Don't chance his name, it should be {groundName}");
+            return;
+        }
+
+
+        // Setup ground for teleportation
+        var tpArea = ground.AddComponent<TeleportationArea>();
+        tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
+        tpArea.colliders.Add(ground.GetComponent<Collider>());
+        tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
+
+
+        // --- Vr Object initialization ---
+        InteractableParent[] parents = objectsContainer.GetComponentsInChildren<InteractableParent>();
+        ParentData[] parentsData = data.objects.ToArray();
 
         // We need to iterate again on data to initialize gravity 
         foreach (ParentData parentData in parentsData)
@@ -372,7 +441,7 @@ static public class SavingTools
                 foreach (ChildrenData childrenData in parentData.children)
                 {
                     InteractableObject intObject = children.First(c => c.ID == childrenData.id);
-                    SetUpVrObject(intObject.transform, sm, childrenData.gravityEnabled);
+                    SetUpTestObject(intObject.transform, childrenData.gravityEnabled, childrenData.interactable);
                 }
             }
             catch (Exception e)
@@ -380,10 +449,7 @@ static public class SavingTools
                 Debug.LogError($"[Error]: {e}");
             }
         }
-            
-
     }
-
 
     /// <summary>
     /// Common room creation operations for both VR and DT
@@ -547,7 +613,7 @@ static public class SavingTools
                 childData.transform.ApplyTo(child.transform);
                 childData.colliderData.ApplyTo(child.GetComponent<BoxCollider>());
 
-                string childID = childData.SnapFollowTargetId;
+                string childID = childData.snapFollowTargetId;
                 if (childID != string.Empty && childID != Guid.Empty.ToString())
                 {
                     snapFollowTargets.Add((childID, child.AddComponent<SnapFollow>()));
@@ -563,7 +629,6 @@ static public class SavingTools
                 string id = item.Item1;
                 if (!string.IsNullOrEmpty(id))
                 {
-                    Debug.Log($"ID = {id}");
                     Transform target = null;
                     if (id.StartsWith("BUILDING")) // Building shell ( floor, cealing or walls )
                     {
@@ -585,7 +650,7 @@ static public class SavingTools
         }
     }
 
-    public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled)
+    public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled, bool interactable)
     {
         if (obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
 
@@ -600,6 +665,13 @@ static public class SavingTools
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
+        if (!interactable)
+        {
+            xrg.trackPosition = false;
+            xrg.trackRotation = false;
+            xrg.trackScale = false;
+        }
+
         //Scaling
         var gt = obj.AddComponent<XRGeneralGrabTransformer>();
         gt.allowOneHandedScaling = false;
@@ -607,6 +679,22 @@ static public class SavingTools
         gt.minimumScaleRatio = 0.01f;
         gt.maximumScaleRatio = 20f;
         gt.scaleMultiplier = 0.15f;
+    }
+    public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable)
+    {
+        if (!interactable) return;
+
+        if (obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
+
+        var rb = obj.AddComponent<Rigidbody>();
+        rb.useGravity = gravityEnabled;
+        rb.isKinematic = false;
+
+        var xrg = obj.AddComponent<XRGrabInteractable>();
+        xrg.throwOnDetach = true;
+        xrg.useDynamicAttach = true;
+        xrg.retainTransformParent = true;
+        xrg.selectMode = InteractableSelectMode.Multiple;
     }
 
     /// <summary>

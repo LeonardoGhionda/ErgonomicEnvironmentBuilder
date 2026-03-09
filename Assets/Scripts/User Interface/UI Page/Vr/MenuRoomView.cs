@@ -4,12 +4,12 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
-
 
 public class MenuRoomView : MonoBehaviour
 {
     [SerializeField] RectTransform CardTemplate;
+    [SerializeField] GridLayoutGroup editRoomCardContainer;
+    [SerializeField] GridLayoutGroup testRoomCardContainer;
 
     [Header("Menu Entry")]
     [SerializeField] List<HM_Base> LockPosition;
@@ -17,12 +17,20 @@ public class MenuRoomView : MonoBehaviour
     string _roomsPath;
 
     //-------------
-    public event Action<string> RoomCardClicked;
+    public event Action<string> EditRoomCardClicked;
+    public event Action<string> TestRoomCardClicked;
 
+    // These next few function are called directly in the Unity Inspector
+    // check in the roomMenu Teleport anchors
+    // --- --- ---
+    public void ShowEditableRooms() => RefreshRoomList(editRoomCardContainer, EditRoomCardClicked);
 
-    public void RefreshRoomList(GridLayoutGroup container)
+    public void ShowTestableRooms() => RefreshRoomList(testRoomCardContainer, TestRoomCardClicked);
+    // --- --- --- 
+
+    private void RefreshRoomList(GridLayoutGroup container, Action<string> action)
     {
-        _roomsPath = SavingTools.roomsFolderPath;
+        _roomsPath = RoomManagementTools.roomsFolderPath;
         // Clear existing cards
         foreach (Transform child in container.transform)
         {
@@ -36,13 +44,13 @@ public class MenuRoomView : MonoBehaviour
         // Generate cards for each room
         foreach (var room in rooms)
         {
-            GenerateRoomCard(room, container);
+            GenerateRoomCard(room, container, action);
         }
     }
 
     // Helper functions 
     //-----------------
-    private void GenerateRoomCard(string room, GridLayoutGroup container)
+    private void GenerateRoomCard(string room, GridLayoutGroup container, Action<string> action)
     {
         string roomNameNoExt = Path.GetFileNameWithoutExtension(room);
 
@@ -59,7 +67,7 @@ public class MenuRoomView : MonoBehaviour
             newCard.GetComponentInChildren<RawImage>().texture = image;
 
         // Add click listener 
-        newCard.GetComponent<Button>().onClick.AddListener(() => RoomCardClicked?.Invoke(roomNameNoExt));
+        newCard.GetComponent<Button>().onClick.AddListener(() => action?.Invoke(roomNameNoExt));
     }
 
     private List<string> GetFilesInFolder(string folderPath, string searchPattern = "*.*")
