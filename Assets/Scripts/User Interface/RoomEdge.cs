@@ -77,8 +77,7 @@ public class RoomEdge : MonoBehaviour, IPointerDownHandler
     {
         // We only want LMB to be the input
         if (eventData.button != PointerEventData.InputButton.Left) return;
-
-        RoomDot dot = roomBuilderManager.AddDotOnEdge(this);
+        _ = roomBuilderManager.AddDotOnEdge(this);
     }
 
     /// <summary>

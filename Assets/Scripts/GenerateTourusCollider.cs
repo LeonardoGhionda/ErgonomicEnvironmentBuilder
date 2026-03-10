@@ -32,7 +32,7 @@ public class GenerateTourusCollider : MonoBehaviour
         for (int i = 0; i < segments; i++)
         {
             //add collider
-            var cc = target.AddComponent<CapsuleCollider>();
+            CapsuleCollider cc = target.AddComponent<CapsuleCollider>();
             cc.radius = capsuleRadius;
             cc.height = dAngle * torousRadius;
             cc.isTrigger = true;

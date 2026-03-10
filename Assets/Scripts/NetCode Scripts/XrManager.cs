@@ -28,8 +28,8 @@ public class XrManager : MonoBehaviour
         if (m_NetworkManager.IsServer)
         {
             //Instanziate xr player for host locally for the host
-            var player = Instantiate(xrOrigin);
-            var networkBody = Instantiate(playerBody);
+            GameObject player = Instantiate(xrOrigin);
+            GameObject networkBody = Instantiate(playerBody);
 
             //spawn the networked body and assign ownership to the local client
             networkBody.GetComponentInChildren<NetworkObject>().SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
@@ -41,7 +41,7 @@ public class XrManager : MonoBehaviour
         //Instanziate desktop camera for client locally for the client
         if (m_NetworkManager.IsClient && !m_NetworkManager.IsServer)
         {
-            var player = Instantiate(desktopCamera);
+            Camera player = Instantiate(desktopCamera);
         }
     }
 }

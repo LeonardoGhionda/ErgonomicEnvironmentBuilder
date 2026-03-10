@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 
 namespace Dummiesman
@@ -12,13 +9,13 @@ namespace Dummiesman
         public static Texture2D Load(Stream ddsStream)
         {
             byte[] buffer = new byte[ddsStream.Length];
-            ddsStream.Read(buffer, 0, (int)ddsStream.Length);
+            _ = ddsStream.Read(buffer, 0, (int)ddsStream.Length);
             return Load(buffer);
         }
 
         public static Texture2D Load(string ddsPath)
         {
-           return Load(File.ReadAllBytes(ddsPath));
+            return Load(File.ReadAllBytes(ddsPath));
         }
 
         public static Texture2D Load(byte[] ddsBytes)
@@ -45,7 +42,7 @@ namespace Dummiesman
                 byte[] dxtBytes = new byte[ddsBytes.Length - DDS_HEADER_SIZE];
                 Buffer.BlockCopy(ddsBytes, DDS_HEADER_SIZE, dxtBytes, 0, ddsBytes.Length - DDS_HEADER_SIZE);
 
-                Texture2D texture = new Texture2D(width, height, textureFormat, mipmaps);
+                Texture2D texture = new(width, height, textureFormat, mipmaps);
                 texture.LoadRawTextureData(dxtBytes);
                 texture.Apply();
 

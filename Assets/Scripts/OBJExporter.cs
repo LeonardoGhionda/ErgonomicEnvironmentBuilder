@@ -19,15 +19,15 @@ public static class OBJExporter
 
         string mtlFileName = baseName + ".mtl";
 
-        StringBuilder objSb = new StringBuilder();
-        CultureInfo culture = CultureInfo.InvariantCulture;
+        StringBuilder objSb = new();
+        _ = CultureInfo.InvariantCulture;
 
-        objSb.AppendLine("# CREATED BY ERGONOMIC ENVIRONMENT BUILDER OBJ EXPORTER");
-        objSb.AppendLine($"# PARENT NAME: {parent.name}");
+        _ = objSb.AppendLine("# CREATED BY ERGONOMIC ENVIRONMENT BUILDER OBJ EXPORTER");
+        _ = objSb.AppendLine($"# PARENT NAME: {parent.name}");
 
         // Link to the existing original material library
-        objSb.AppendLine($"mtllib {mtlFileName}");
-        objSb.AppendLine();
+        _ = objSb.AppendLine($"mtllib {mtlFileName}");
+        _ = objSb.AppendLine();
 
         int globalVertexOffset = 0;
 
@@ -40,7 +40,7 @@ public static class OBJExporter
 
                 if (mf && mr)
                 {
-                    objSb.AppendLine($"o {child.name}");
+                    _ = objSb.AppendLine($"o {child.name}");
 
                     Material[] currentMaterials = mr.sharedMaterials;
                     Mesh mesh = mf.mesh;
@@ -53,7 +53,7 @@ public static class OBJExporter
             }
         }
 
-        objSb.AppendLine("# END OF FILE");
+        _ = objSb.AppendLine("# END OF FILE");
 
         File.WriteAllText(objPath, objSb.ToString());
     }
@@ -69,28 +69,28 @@ public static class OBJExporter
         foreach (Vector3 v in mesh.vertices)
         {
             Vector3 relativePos = matrix.MultiplyPoint3x4(v);
-            sb.AppendLine(string.Format(culture, "v {0:F10} {1:F10} {2:F10}", relativePos.x, relativePos.y, relativePos.z));
+            _ = sb.AppendLine(string.Format(culture, "v {0:F10} {1:F10} {2:F10}", relativePos.x, relativePos.y, relativePos.z));
         }
 
         // UVs
         foreach (Vector2 uv in mesh.uv)
         {
-            sb.AppendLine(string.Format(culture, "vt {0:F10} {1:F10}", uv.x, uv.y));
+            _ = sb.AppendLine(string.Format(culture, "vt {0:F10} {1:F10}", uv.x, uv.y));
         }
 
         // Normals
         foreach (Vector3 n in mesh.normals)
         {
             Vector3 relativeDir = normalMatrix.MultiplyVector(n).normalized;
-            sb.AppendLine(string.Format(culture, "vn {0:F10} {1:F10} {2:F10}", relativeDir.x, relativeDir.y, relativeDir.z));
+            _ = sb.AppendLine(string.Format(culture, "vn {0:F10} {1:F10} {2:F10}", relativeDir.x, relativeDir.y, relativeDir.z));
         }
 
         // Faces
         for (int s = 0; s < mesh.subMeshCount; s++)
         {
-            sb.AppendLine($"g {meshName}");
+            _ = sb.AppendLine($"g {meshName}");
             string rawMatName = (mats != null && s < mats.Length && mats[s] != null) ? mats[s].name : "Default_Material";
-            sb.AppendLine($"usemtl {rawMatName.ClearUnityString()}");
+            _ = sb.AppendLine($"usemtl {rawMatName.ClearUnityString()}");
 
             int[] tris = mesh.GetTriangles(s);
             for (int i = 0; i < tris.Length; i += 3)
@@ -99,7 +99,7 @@ public static class OBJExporter
                 int t2 = tris[i + 1] + 1 + globalOffset;
                 int t3 = tris[i + 2] + 1 + globalOffset;
 
-                sb.AppendLine(string.Format(culture, "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}", t1, t2, t3));
+                _ = sb.AppendLine(string.Format(culture, "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}", t1, t2, t3));
             }
         }
 

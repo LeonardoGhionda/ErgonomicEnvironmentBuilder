@@ -8,7 +8,7 @@ public static class TransformExtension
     /// </summary>
     public static T GetComponentOnlyInChildren<T>(this Transform parent) where T : Component
     {
-        var component = parent.GetComponentsInChildren<T>(true)
+        T component = parent.GetComponentsInChildren<T>(true)
             .FirstOrDefault(c => c.transform != parent);
 
         return component;
@@ -20,7 +20,7 @@ public static class TransformExtension
     /// </summary>
     public static T[] GetComponentsOnlyInChildren<T>(this Transform parent) where T : Component
     {
-        var components = parent.GetComponentsInChildren<T>(true)
+        T[] components = parent.GetComponentsInChildren<T>(true)
             .Where(c => c.transform != parent)
             .ToArray();
 

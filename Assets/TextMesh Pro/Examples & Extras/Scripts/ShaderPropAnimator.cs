@@ -26,7 +26,7 @@ namespace TMPro.Examples
 
         void Start()
         {
-            StartCoroutine(AnimateProperties());
+            _ = StartCoroutine(AnimateProperties());
         }
 
         IEnumerator AnimateProperties()

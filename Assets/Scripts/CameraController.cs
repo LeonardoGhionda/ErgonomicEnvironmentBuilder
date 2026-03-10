@@ -150,10 +150,9 @@ public class CameraController : MonoBehaviour
     private void FixedUpdate()
     {
         if (!_isInitialized) return;
-
-        Vector3 moveDir = Vector3.zero;
+        _ = Vector3.zero;
         float currentSpeed = _ortho ? orthoMoveSpeed : moveSpeed;
-
+        Vector3 moveDir;
         if (_ortho)
         {
             Vector2 input = _input.CameraMovement.Move.ReadValue<Vector2>();
@@ -190,7 +189,7 @@ public class CameraController : MonoBehaviour
                 if (_rb.SweepTest(moveDir, out RaycastHit hitInfo, distance + 0.01f, QueryTriggerInteraction.Ignore))
                 {
                     //set position just before the collision point
-                    distance = Mathf.Max(0f, hitInfo.distance - 0.01f);
+                    _ = Mathf.Max(0f, hitInfo.distance - 0.01f);
                 }
             }
         }

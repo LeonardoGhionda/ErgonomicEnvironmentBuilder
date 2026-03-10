@@ -28,7 +28,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         [SerializeField]
         [Tooltip("The list of prefabs available to spawn.")]
-        List<GameObject> m_ObjectPrefabs = new List<GameObject>();
+        List<GameObject> m_ObjectPrefabs = new();
 
         /// <summary>
         /// The list of prefabs available to spawn.
@@ -194,9 +194,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         {
             if (m_OnlySpawnInView)
             {
-                var inViewMin = m_ViewportPeriphery;
-                var inViewMax = 1f - m_ViewportPeriphery;
-                var pointInViewportSpace = cameraToFace.WorldToViewportPoint(spawnPoint);
+                float inViewMin = m_ViewportPeriphery;
+                float inViewMax = 1f - m_ViewportPeriphery;
+                Vector3 pointInViewportSpace = cameraToFace.WorldToViewportPoint(spawnPoint);
                 if (pointInViewportSpace.z < 0f || pointInViewportSpace.x > inViewMax || pointInViewportSpace.x < inViewMin ||
                     pointInViewportSpace.y > inViewMax || pointInViewportSpace.y < inViewMin)
                 {
@@ -204,28 +204,28 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 }
             }
 
-            var objectIndex = isSpawnOptionRandomized ? Random.Range(0, m_ObjectPrefabs.Count) : m_SpawnOptionIndex;
-            var newObject = Instantiate(m_ObjectPrefabs[objectIndex]);
+            int objectIndex = isSpawnOptionRandomized ? Random.Range(0, m_ObjectPrefabs.Count) : m_SpawnOptionIndex;
+            GameObject newObject = Instantiate(m_ObjectPrefabs[objectIndex]);
             if (m_SpawnAsChildren)
                 newObject.transform.parent = transform;
 
             newObject.transform.position = spawnPoint;
             EnsureFacingCamera();
 
-            var facePosition = m_CameraToFace.transform.position;
-            var forward = facePosition - spawnPoint;
-            BurstMathUtility.ProjectOnPlane(forward, spawnNormal, out var projectedForward);
+            Vector3 facePosition = m_CameraToFace.transform.position;
+            Vector3 forward = facePosition - spawnPoint;
+            BurstMathUtility.ProjectOnPlane(forward, spawnNormal, out Vector3 projectedForward);
             newObject.transform.rotation = Quaternion.LookRotation(projectedForward, spawnNormal);
 
             if (m_ApplyRandomAngleAtSpawn)
             {
-                var randomRotation = Random.Range(-m_SpawnAngleRange, m_SpawnAngleRange);
+                float randomRotation = Random.Range(-m_SpawnAngleRange, m_SpawnAngleRange);
                 newObject.transform.Rotate(Vector3.up, randomRotation);
             }
 
             if (m_SpawnVisualizationPrefab != null)
             {
-                var visualizationTrans = Instantiate(m_SpawnVisualizationPrefab).transform;
+                Transform visualizationTrans = Instantiate(m_SpawnVisualizationPrefab).transform;
                 visualizationTrans.position = spawnPoint;
                 visualizationTrans.rotation = newObject.transform.rotation;
             }

@@ -1,7 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 #if UNITY_EDITOR
 public class VRLogger : MonoBehaviour
@@ -37,7 +36,7 @@ public class VRLogger : MonoBehaviour
         Application.logMessageReceived += OnLogMessage;
     }
 
-    private void Show(){ if (_show == false) Toggle(new InputAction.CallbackContext()); }
+    private void Show() { if (_show == false) Toggle(new InputAction.CallbackContext()); }
 
     private void Toggle(InputAction.CallbackContext context)
     {

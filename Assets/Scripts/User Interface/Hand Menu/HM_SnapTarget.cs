@@ -43,7 +43,7 @@ public class HM_SnapTarget : HM_Base
         // Save and Change Materials
         _originalMaterials = s1Renderer.materials;
         Material[] newMats = new Material[_originalMaterials.Length];
-        for (int i = 0; i < newMats.Length; i++)    newMats[i] = _snapSelectedMaterial;
+        for (int i = 0; i < newMats.Length; i++) newMats[i] = _snapSelectedMaterial;
         s1Renderer.materials = newMats;
 
         // Tutorial Text Setup
@@ -67,7 +67,7 @@ public class HM_SnapTarget : HM_Base
     /// <param name="hit"></param>
     private void ExecuteSnap(RaycastHit hit)
     {
-        if(_snap1 == null)
+        if (_snap1 == null)
         {
             ResetState();
             return;
@@ -103,7 +103,7 @@ public class HM_SnapTarget : HM_Base
         _deps.handMenu.Show(false);
 
         // snap + gravity cause weird physics interactions.
-        if (_snap1.TryGetComponent<Rigidbody>(out var rb))
+        if (_snap1.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
             rb.useGravity = false;
             rb.isKinematic = true;
@@ -128,7 +128,7 @@ public class HM_SnapTarget : HM_Base
             return;
         }
 
-        var interactable = args.selection;
+        XRGrabInteractable interactable = args.selection;
 
         if (interactable == null)
         {
@@ -158,7 +158,7 @@ public class HM_SnapTarget : HM_Base
 
 
         // snap + gravity cause weird physics interactions.
-        if (interactable.TryGetComponent<Rigidbody>(out var rb))
+        if (interactable.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
             rb.useGravity = false;
             rb.isKinematic = true;
@@ -197,9 +197,9 @@ public class HM_SnapTarget : HM_Base
     {
         _tutorialText.gameObject.SetActive(true);
         _tutorialText.transform.SetParent(_snap1.transform);
-        var snap1BC = _snap1.GetComponent<BoxCollider>();
+        BoxCollider snap1BC = _snap1.GetComponent<BoxCollider>();
         _tutorialText.transform.localPosition = snap1BC.center;
-        var textComp = _tutorialText.GetComponent<TextMeshPro>();
+        TextMeshPro textComp = _tutorialText.GetComponent<TextMeshPro>();
         textComp.fontSize = snap1BC.size.MinComponent() * textScaleFactor;
         textComp.fontSize = Mathf.Clamp(textComp.fontSize, minFont, maxFont);
     }

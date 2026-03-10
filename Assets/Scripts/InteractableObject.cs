@@ -31,7 +31,7 @@ public class InteractableObject : Interactable
 
     public override void OnDeselect()
     {
-        if (gameObject.TryGetComponent<MeshRenderer>(out var mesh))
+        if (gameObject.TryGetComponent<MeshRenderer>(out MeshRenderer mesh))
         {
             mesh.materials = _baseMaterials;
         }

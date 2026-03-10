@@ -9,14 +9,14 @@ using static EditorHUDView;
 
 public class RoomEditorState : AbsAppState
 {
-    private EditorHUDView _view;
+    private readonly EditorHUDView _view;
 
     //managers (get from State manager)
-    private CameraController _camController;
-    private RoomBuilderManager _rbm;
-    private GizmoManager _gizmoManager;
-    private DTSelectionManager _selectionManager;
-    private MeasureManager _measureManager;
+    private readonly CameraController _camController;
+    private readonly RoomBuilderManager _rbm;
+    private readonly GizmoManager _gizmoManager;
+    private readonly DTSelectionManager _selectionManager;
+    private readonly MeasureManager _measureManager;
 
     private Vector2 mousePos => _input.Ui.Point.ReadValue<Vector2>();
 
@@ -199,7 +199,7 @@ public class RoomEditorState : AbsAppState
         // 4. OBJECT SELECTION
         // No UI, No Gizmo -> Try to select an object
         // (Assuming you updated this part based on previous refactoring)
-        _selectionManager.Select();
+        _ = _selectionManager.Select();
 
         // Open/close panel
         if (_selectionManager.SelectionExist)
@@ -356,12 +356,12 @@ public class RoomEditorState : AbsAppState
 
         float minY = 0.0f;
 
-        foreach (var mr in childrenMRs)
+        foreach (MeshRenderer mr in childrenMRs)
         {
-            var bc = mr.gameObject.AddComponent<BoxCollider>();
-            var bottom = (bc.center.y - bc.size.y / 2f);
+            BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
+            float bottom = (bc.center.y - bc.size.y / 2f);
             if (bottom < minY) minY = bottom;
-            mr.gameObject.AddComponent<InteractableObject>();
+            _ = mr.gameObject.AddComponent<InteractableObject>();
         }
 
         if (camera != null)
@@ -398,7 +398,7 @@ public class RoomEditorState : AbsAppState
         Physics.SyncTransforms();
 
         // Get relevant colliders (excluding Ground/Roof)
-        var colliders = roomContainer
+        BoxCollider[] colliders = roomContainer
             .GetComponentsInChildren<BoxCollider>()
             .Where(c => !c.name.Contains("Ground") && !c.name.Contains("Roof"))
             .ToArray();
@@ -407,7 +407,7 @@ public class RoomEditorState : AbsAppState
 
         // Calculate total bounds 
         Bounds totalBounds = colliders[0].bounds;
-        foreach (var c in colliders)
+        foreach (BoxCollider c in colliders)
         {
             totalBounds.Encapsulate(c.bounds);
         }
@@ -451,13 +451,13 @@ public class RoomEditorState : AbsAppState
         if (EventSystem.current == null) return false;
 
         // Create a pointer event for the current mouse position
-        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        PointerEventData eventData = new(EventSystem.current)
         {
             position = Mouse.current.position.ReadValue()
         };
 
         // Create a list to hold the results
-        List<RaycastResult> results = new List<RaycastResult>();
+        List<RaycastResult> results = new();
 
         // Manual Raycast against the UI
         EventSystem.current.RaycastAll(eventData, results);

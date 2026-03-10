@@ -111,7 +111,7 @@ public class RoomDot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         //----------------------------
         Vector2 mouse = Mouse.current.position.ReadValue();
         //convert screen point to local point in Ui rect
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        _ = RectTransformUtility.ScreenPointToLocalPointInRectangle(
             bgRect,
             mouse,
             canvas.worldCamera,

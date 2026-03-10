@@ -9,7 +9,7 @@ public static class ScreenshotUtility
     public static void CaptureCamera(Camera targetCamera, int width, int height, string filePath)
     {
         // 1. Create a temporary RenderTexture
-        RenderTexture rt = new RenderTexture(width, height, 24);
+        RenderTexture rt = new(width, height, 24);
 
         // 2. Assign the RT to the camera and render
         targetCamera.targetTexture = rt;
@@ -19,7 +19,7 @@ public static class ScreenshotUtility
         targetCamera.Render();
 
         // 3. Create a Texture2D to read the pixels
-        Texture2D image = new Texture2D(width, height, TextureFormat.RGB24, false);
+        Texture2D image = new(width, height, TextureFormat.RGB24, false);
         image.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         image.Apply();
 

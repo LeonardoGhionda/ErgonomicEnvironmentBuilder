@@ -11,7 +11,7 @@ public static class BuildVariants
         SetOpenXRFlag(false);
 
         // Build desktop version
-        BuildPipeline.BuildPlayer(GetScenes(), "Builds/Desktop/ErgonomicEnvironmentBuilder.exe",
+        _ = BuildPipeline.BuildPlayer(GetScenes(), "Builds/Desktop/ErgonomicEnvironmentBuilder.exe",
             BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
 
@@ -21,7 +21,7 @@ public static class BuildVariants
         SetOpenXRFlag(true);
 
         // Build VR version
-        BuildPipeline.BuildPlayer(GetScenes(), "Builds/VR/ErgonomicEnvironmentBuilder.exe",
+        _ = BuildPipeline.BuildPlayer(GetScenes(), "Builds/VR/ErgonomicEnvironmentBuilder.exe",
             BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
 
@@ -47,7 +47,7 @@ public static class BuildVariants
         }
         else
         {
-            var defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
+            string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
             defines = string.Join(";", defines.Split(';').Where(d => d != "USE_XR"));
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, defines);
         }
@@ -55,7 +55,7 @@ public static class BuildVariants
 
     static string[] GetScenes()
     {
-        var scenes = EditorBuildSettings.scenes
+        string[] scenes = EditorBuildSettings.scenes
             .Where(s => s.enabled)
             .Select(s => s.path)
             .ToArray();

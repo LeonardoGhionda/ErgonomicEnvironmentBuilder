@@ -22,7 +22,7 @@ public static class ModelButtonGenerator
         string modelsPath = ImportUtils.ModelsPath;
         if (!Directory.Exists(modelsPath))
         {
-            Directory.CreateDirectory(modelsPath);
+            _ = Directory.CreateDirectory(modelsPath);
             Debug.Log($"Model folder created at: {modelsPath}");
         }
 
@@ -50,7 +50,7 @@ public static class ModelButtonGenerator
         string modelsPath = ImportUtils.ModelsPath;
         if (!Directory.Exists(modelsPath))
         {
-            Directory.CreateDirectory(modelsPath);
+            _ = Directory.CreateDirectory(modelsPath);
             Debug.Log($"Model folder created at: {modelsPath}");
         }
 
@@ -83,12 +83,12 @@ public static class ModelButtonGenerator
         Texture2D tex = null;
 
         //get texture from path
-        var previewPath = Path.Combine(folderPath, previewImageName);
+        string previewPath = Path.Combine(folderPath, previewImageName);
         if (File.Exists(previewPath))
         {
             byte[] bytes = File.ReadAllBytes(previewPath);
             tex = new Texture2D(2, 2);
-            tex.LoadImage(bytes);
+            _ = tex.LoadImage(bytes);
         }
         //generate texture
         else
@@ -152,7 +152,7 @@ public static class ModelButtonGenerator
             typeof(TextMeshProUGUI)
         );
 
-        var r = text.GetComponent<RectTransform>();
+        RectTransform r = text.GetComponent<RectTransform>();
         float tWidth = contentMenu.cellSize.x;
         float tHeight = contentMenu.spacing.y * 0.8f;
         r.sizeDelta = new(tWidth, tHeight);
@@ -161,7 +161,7 @@ public static class ModelButtonGenerator
         r.anchoredPosition = new Vector2(0, -contentMenu.cellSize.y / 2 - tHeight / 2);
 
         r.SetParent(go.transform, false);
-        var t = text.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI t = text.GetComponent<TextMeshProUGUI>();
         t.text = name;
         t.enableAutoSizing = true;
         t.fontSizeMin = 10f;
@@ -179,16 +179,16 @@ public static class ModelButtonGenerator
         GameObject card = GameObject.Instantiate(template.gameObject);
         card.name = name;
 
-        if (card.transform.TryGetComponentOnlyInChildren<TextMeshProUGUI>(out var text))
+        if (card.transform.TryGetComponentOnlyInChildren<TextMeshProUGUI>(out TextMeshProUGUI text))
             text.text = name;
 
-        if (card.transform.TryGetComponentOnlyInChildren<Image>(out var image))
+        if (card.transform.TryGetComponentOnlyInChildren<Image>(out Image image))
             image.sprite = previewImg;
 
-        var _path = Path.Combine(ImportUtils.ModelsPath, name);
+        string _path = Path.Combine(ImportUtils.ModelsPath, name);
         _path = Directory.GetFiles(_path, $"{name}.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
 
-        var hmEntry = card.GetComponent<HM_SpawnModel>();
+        HM_SpawnModel hmEntry = card.GetComponent<HM_SpawnModel>();
         hmEntry.modelFullPath = _path;
 
         return hmEntry;

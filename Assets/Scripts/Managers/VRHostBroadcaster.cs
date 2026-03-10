@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -7,45 +9,79 @@ using UnityEngine;
 
 public class VRHostBroadcaster : MonoBehaviour
 {
-    [SerializeField] private int broadcastPort = 4444;
-    [SerializeField] private string sessionName = "VR Room";
+    [SerializeField] private int outPort = 6987;
+    [SerializeField] private int inPort = 6988;
 
-    private UdpClient udpClient;
-    private bool isBroadcasting = false;
-    private readonly float broadcastInterval = 1f;
-    private float timer = 0f;
-    private string broadcastMessage;
+    private UdpClient _inChannel;
+    private UdpClient _outChannel;
 
-    public void StartHostingAndBroadcasting()
+    private bool _isBroadcasting = false;
+    private readonly float _broadcastInterval = 10f;
+    private float _timer = 0f;
+    private string _broadcastMessage;
+    private string _roomName;
+
+    private bool _spectatorFound = false;
+    private IPEndPoint _spectatorEndPoint;
+
+    public void StartHostingAndBroadcasting(string sessionName)
     {
         NetworkManager.Singleton.StartHost();
-
-        var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+        UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         string localIp = GetLocalIPAddress();
         ushort hostPort = transport.ConnectionData.Port;
 
-        // Create the payload for the desktop app to parse
-        broadcastMessage = "VR_INVITE|" + sessionName + "|" + localIp + "|" + hostPort;
+        _roomName = sessionName;
 
-        udpClient = new()
-        {
-            EnableBroadcast = true
-        };
-        isBroadcasting = true;
+        _broadcastMessage = "VR_INVITE|" + _roomName + "|" + localIp + "|" + hostPort;
+        _outChannel = new UdpClient { EnableBroadcast = true };
+        _isBroadcasting = true;
+        _timer = _broadcastInterval;
+
+        _inChannel = new UdpClient(inPort);
+        _inChannel.BeginReceive(OnSpectatorFound, null);
     }
 
     private void Update()
     {
-        if (!isBroadcasting) return;
-
-        timer += Time.deltaTime;
-        if (timer >= broadcastInterval)
+        if (_isBroadcasting)
         {
-            timer = 0f;
-            byte[] data = Encoding.UTF8.GetBytes(broadcastMessage);
-            IPEndPoint endPoint = new (IPAddress.Broadcast, broadcastPort);
-            udpClient.Send(data, data.Length, endPoint);
+            _timer += Time.deltaTime;
+            if (_timer >= _broadcastInterval)
+            {
+                _timer = 0f;
+                byte[] data = Encoding.UTF8.GetBytes(_broadcastMessage);
+                IPEndPoint endPoint = new (IPAddress.Broadcast, outPort);
+                _outChannel.Send(data, data.Length, endPoint);
+            }
         }
+
+        if (_spectatorFound)
+        {
+            _spectatorFound = false;
+            SendRoomDataToSpectator();
+        }
+    }
+
+    private void OnSpectatorFound(IAsyncResult ar)
+    {
+        _isBroadcasting = false;
+
+        IPEndPoint senderEndPoint = new (IPAddress.Any, inPort);
+        _ = _inChannel.EndReceive(ar, ref senderEndPoint);
+
+        _spectatorEndPoint = new IPEndPoint(senderEndPoint.Address, outPort);
+        _spectatorFound = true;
+    }
+
+    private void SendRoomDataToSpectator()
+    {
+        string roomJson = RoomManagementTools.LoadJson(RoomManagementTools.RoomFullPath(_roomName));
+
+        byte[] data = Encoding.UTF8.GetBytes(roomJson);
+        _outChannel.Send(data, data.Length, _spectatorEndPoint);
+
+        this.enabled = false;
     }
 
     private string GetLocalIPAddress()
@@ -63,6 +99,7 @@ public class VRHostBroadcaster : MonoBehaviour
 
     private void OnDisable()
     {
-        udpClient?.Close();
+        _inChannel?.Close();
+        _outChannel?.Close();
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -53,6 +52,7 @@ public class StateManager : MonoBehaviour
     public OptionState Option { get; private set; }
     public PauseMenuState Pause { get; private set; }
     public RoomEditorState RoomEditor { get; private set; }
+    public SpectatorState Spectator { get; private set; }
 
     // --- VR STATES ---
     public MenuRoomState MenuRoom { get; private set; }
@@ -77,9 +77,9 @@ public class StateManager : MonoBehaviour
         VRPlayer.SetActive(true);
 
         //---STATE SETUP---
-        MenuRoom = new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
+        MenuRoom =        new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
         ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager, scaleManager);
-        TestRoom = new(this, AppInput, roomBuilderManager, VRPlayer);
+        TestRoom =        new(this, AppInput, roomBuilderManager, VRPlayer);
 
         currentState = MenuRoom;
 #else
@@ -95,7 +95,7 @@ public class StateManager : MonoBehaviour
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
         RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, DTSelectionManager, measureManager);
-        
+        Spectator =  new(this, AppInput);
 
         //first state iniziaization
         currentState = MainMenu;

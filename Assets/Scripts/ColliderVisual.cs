@@ -124,21 +124,21 @@ public class ColliderVisual : MonoBehaviour
         float thickY = colliderThickness / pY;
         float thickZ = colliderThickness / pZ;
 
-        Vector3 scaleZ = new Vector3(thickX, _boxCollider.size.z / 2f, thickY);
+        Vector3 scaleZ = new(thickX, _boxCollider.size.z / 2f, thickY);
 
         _edges[0].transform.localScale = scaleZ;
         _edges[1].transform.localScale = scaleZ;
         _edges[2].transform.localScale = scaleZ;
         _edges[3].transform.localScale = scaleZ;
 
-        Vector3 scaleY = new Vector3(thickX, _boxCollider.size.y / 2f, thickZ);
+        Vector3 scaleY = new(thickX, _boxCollider.size.y / 2f, thickZ);
 
         _edges[4].transform.localScale = scaleY;
         _edges[5].transform.localScale = scaleY;
         _edges[6].transform.localScale = scaleY;
         _edges[7].transform.localScale = scaleY;
 
-        Vector3 scaleX = new Vector3(thickY, _boxCollider.size.x / 2f, thickZ);
+        Vector3 scaleX = new(thickY, _boxCollider.size.x / 2f, thickZ);
 
         _edges[8].transform.localScale = scaleX;
         _edges[9].transform.localScale = scaleX;

@@ -128,8 +128,10 @@ static public class RoomManagementTools
     {
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
-            Directory.CreateDirectory(roomsFolderPath);
+            _ = Directory.CreateDirectory(roomsFolderPath);
     }
+
+    static public string RoomFullPath(string roomName) => Path.ChangeExtension(Path.Combine(roomsFolderPath, roomName), "room");
 
     /// <summary>
     /// Generates a RoomData that contains the minimum required information to save
@@ -147,7 +149,7 @@ static public class RoomManagementTools
         List<RoomEdgeData> roomEdges = new();
 
         //column
-        foreach (var roomDot in rbm.RoomDots)
+        foreach (RoomDot roomDot in rbm.RoomDots)
         {
             RoomDotData roomDotData = new()
             {
@@ -161,7 +163,7 @@ static public class RoomManagementTools
 
         int cnt = 0;
         //walls
-        foreach (var roomEdge in rbm.RoomEdges)
+        foreach (RoomEdge roomEdge in rbm.RoomEdges)
         {
             RoomEdgeData edgeData = new()
             {
@@ -209,7 +211,7 @@ static public class RoomManagementTools
         roomData.objects.Clear();
 
         //Add new objects
-        var container = GameObject.Find("Objects Container");
+        GameObject container = GameObject.Find("Objects Container");
         foreach (Transform parent in container.transform)
         {
             if (parent.childCount == 0) continue; //additional check to empty parent
@@ -239,19 +241,19 @@ static public class RoomManagementTools
 
                 // Sanp Follow
                 data.snapFollowTargetId = string.Empty;
-                if (go.TryGetComponent<SnapFollow>(out var sf))
+                if (go.TryGetComponent<SnapFollow>(out SnapFollow sf))
                 {
                     data.snapFollowTargetId = sf.TargetID;
                 }
 
                 // Gravity
-                if (go.TryGetComponent<Rigidbody>(out var rb)) data.gravityEnabled = rb.useGravity;
+                if (go.TryGetComponent<Rigidbody>(out Rigidbody rb)) data.gravityEnabled = rb.useGravity;
                 else data.gravityEnabled = false;
 
                 // Interactable / Tranformation Locked
                 data.interactable = true; //default 
 
-                if (go.TryGetComponent<XRGrabInteractable>(out var grab) &&
+                if (go.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable grab) &&
                     !grab.trackPosition &&
                     !grab.trackRotation &&
                     !grab.trackScale) data.interactable = false;
@@ -283,7 +285,7 @@ static public class RoomManagementTools
     }
 
     /// <summary>
-    /// Create a json from a .room files 
+    /// Read a json from a .room files 
     /// </summary>
     /// <returns>Json</returns>
     static public string LoadJson(string filepath)
@@ -359,7 +361,7 @@ static public class RoomManagementTools
 
 
         // Setup ground for teleportation
-        var tpArea = ground.AddComponent<TeleportationArea>();
+        TeleportationArea tpArea = ground.AddComponent<TeleportationArea>();
         tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
         tpArea.colliders.Add(ground.GetComponent<Collider>());
         tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
@@ -390,7 +392,7 @@ static public class RoomManagementTools
                 Debug.LogError($"[Error]: {e}");
             }
         }
-            
+
     }
 
     public static void CreateTestRoom(string roomName)
@@ -418,7 +420,7 @@ static public class RoomManagementTools
 
 
         // Setup ground for teleportation
-        var tpArea = ground.AddComponent<TeleportationArea>();
+        TeleportationArea tpArea = ground.AddComponent<TeleportationArea>();
         tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
         tpArea.colliders.Add(ground.GetComponent<Collider>());
         tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
@@ -452,16 +454,55 @@ static public class RoomManagementTools
     }
 
     /// <summary>
-    /// Common room creation operations for both VR and DT
+    /// Only create static elements, the rest is handled by netcode
     /// </summary>
-    /// <param name="data"></param>
-    static private void CreateRoom(RoomData data)
+    /// <param name="roomName"></param>
+    public static void BuildSpectatorRoom(string json)
+    {
+        RoomData data = JsonUtility.FromJson<RoomData>(json);
+        CreateRoomStructure(data);
+
+        //all object added at runtime are stored here
+        GameObject objectsContainer = GameObject.Find("Objects Container");
+
+        //create objects snd filter non static
+        ParentData[] objsData = data.objects.ToArray();
+        foreach (ParentData parentData in objsData)
+        {
+            //load obj file
+            OBJLoader loader = new();
+            GameObject parent = loader.FindMTLAndLoad(parentData.objFilePath);
+
+            //copy saved transform
+            parentData.transform.ApplyTo(parent.transform);
+
+            // Setup children
+            ChildrenData[] children = parentData.children.ToArray();
+
+            // Cache valid names into a HashSet for O(1) lookup
+            HashSet<string> validNames = new(children.Select(c => c.name));
+
+            foreach (ChildrenData childData in children)
+            {
+                // Find correct child by name
+                Transform child = parent.transform.Find(childData.name);
+
+                childData.transform.ApplyTo(child.transform);
+
+                // Filter non static elements or previusly deleted 
+                if (childData.interactable || !validNames.Contains(child.name)) 
+                    GameObject.Destroy(child.gameObject);
+            }
+        }
+    }
+
+    private static void CreateRoomStructure(RoomData data)
     {
         //walls data 
-        var edges = data.edges;
+        List<RoomEdgeData> edges = data.edges;
 
         //column data
-        var dots = data.dots;
+        List<RoomDotData> dots = data.dots;
 
         //get basic room element
         GameObject roomContainer = GameObject.Find("Room Container");
@@ -471,10 +512,10 @@ static public class RoomManagementTools
         GameObject ground = Resources.Load<GameObject>("Room Builder/Ground");
 
         //create walls
-        foreach (var e in edges)
+        foreach (RoomEdgeData e in edges)
         {
-            var wallPivot = UnityEngine.Object.Instantiate(baseWallPivot);
-            var wall = wallPivot.transform.GetChild(0);
+            GameObject wallPivot = UnityEngine.Object.Instantiate(baseWallPivot);
+            Transform wall = wallPivot.transform.GetChild(0);
 
             // wall name with index to easily find them, if needed.
             // Wall are always in the same order of the edges list, so index like this is correct
@@ -510,9 +551,9 @@ static public class RoomManagementTools
         }
 
         //create columns
-        foreach (var d in dots)
+        foreach (RoomDotData d in dots)
         {
-            var column = UnityEngine.Object.Instantiate(baseColumnPivot);
+            GameObject column = UnityEngine.Object.Instantiate(baseColumnPivot);
 
             //All room element are stored in this container
             column.transform.SetParent(roomContainer.transform, true);
@@ -531,16 +572,25 @@ static public class RoomManagementTools
         }
 
         //setup ground 
-        var groundInstance = UnityEngine.Object.Instantiate(ground);
+        GameObject groundInstance = UnityEngine.Object.Instantiate(ground);
         groundInstance.name = floorName;
         groundInstance.transform.SetParent(roomContainer.transform, true);
 
         //setup roof
-        var roofInstance = UnityEngine.Object.Instantiate(roof);
+        GameObject roofInstance = UnityEngine.Object.Instantiate(roof);
         roofInstance.transform.SetParent(roomContainer.transform, true);
 
         //saved wall height
         roofInstance.transform.position = new Vector3(0f, data.wallHeigth, 0f);
+    }
+
+    /// <summary>
+    /// Common room creation operations for both VR and DT
+    /// </summary>
+    /// <param name="data"></param>
+    static private void CreateRoom(RoomData data)
+    {
+        CreateRoomStructure(data);
 
         //all object added at runtime are stored here
         GameObject objectsContainer = GameObject.Find("Objects Container");
@@ -562,7 +612,7 @@ static public class RoomManagementTools
             ///////
             // Temporary, transition from empty guid allowed 
             string id = parentData.id;
-            Guid guid = new (id);
+            Guid guid = new(id);
             if (guid == Guid.Empty) guid = Guid.NewGuid();
             //////
 
@@ -577,7 +627,7 @@ static public class RoomManagementTools
             // Delete Objects previusly deleted but still spwaned becase part of a not deleted parent
 
             // Cache valid names into a HashSet for O(1) lookup
-            var validNames = new HashSet<string>(children.Select(c => c.name));
+            HashSet<string> validNames = new(children.Select(c => c.name));
 
             // Filter and Destroy
             foreach (Transform t in parent.GetComponentsInChildren<Transform>())
@@ -596,7 +646,7 @@ static public class RoomManagementTools
             {
 
                 //find correct child by name
-                var child = parent.transform.Find(childData.name);
+                Transform child = parent.transform.Find(childData.name);
 
                 // ID 
 
@@ -622,7 +672,7 @@ static public class RoomManagementTools
         }
 
         // SNAP FOLLOW LOGIC 
-        foreach (var item in snapFollowTargets)
+        foreach ((string, SnapFollow) item in snapFollowTargets)
         {
             try
             {
@@ -652,13 +702,13 @@ static public class RoomManagementTools
 
     public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled, bool interactable)
     {
-        if (obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
+        if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
 
-        var rb = obj.AddComponent<Rigidbody>();
+        Rigidbody rb = obj.AddComponent<Rigidbody>();
         rb.useGravity = gravityEnabled;
         rb.isKinematic = !gravityEnabled;
 
-        var xrg = obj.AddComponent<XRGrabInteractable>();
+        XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = false;
         xrg.useDynamicAttach = true;
         xrg.selectEntered.AddListener(args => sm.ChangeSelected(args));
@@ -673,7 +723,7 @@ static public class RoomManagementTools
         }
 
         //Scaling
-        var gt = obj.AddComponent<XRGeneralGrabTransformer>();
+        XRGeneralGrabTransformer gt = obj.AddComponent<XRGeneralGrabTransformer>();
         gt.allowOneHandedScaling = false;
         gt.allowTwoHandedScaling = true;
         gt.minimumScaleRatio = 0.01f;
@@ -684,13 +734,13 @@ static public class RoomManagementTools
     {
         if (!interactable) return;
 
-        if (obj.GetComponent<BoxCollider>() == null) obj.AddComponent<BoxCollider>();
+        if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
 
-        var rb = obj.AddComponent<Rigidbody>();
+        Rigidbody rb = obj.AddComponent<Rigidbody>();
         rb.useGravity = gravityEnabled;
         rb.isKinematic = false;
 
-        var xrg = obj.AddComponent<XRGrabInteractable>();
+        XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = true;
         xrg.useDynamicAttach = true;
         xrg.retainTransformParent = true;
@@ -714,6 +764,7 @@ static public class RoomManagementTools
         string filePath = Path.Combine(roomsFolderPath, name + ".room");
         File.WriteAllText(filePath, json);
     }
+
 
     /// <summary>
     /// Validate room roomName 
@@ -762,7 +813,7 @@ static public class RoomManagementTools
     /// <returns>A random position inside the wall or v3 zero if position not found</returns>
     public static Vector3 FindInternalPoint()
     {
-        var walls = GameObject.FindGameObjectsWithTag("Wall").ToList();
+        List<GameObject> walls = GameObject.FindGameObjectsWithTag("Wall").ToList();
         int wallMask = LayerMask.GetMask("Wall Layer");
 
         if (walls == null || walls.Count < 3) return Vector3.zero;
@@ -833,7 +884,7 @@ static public class RoomManagementTools
 
         HashSet<Collider> unique = new();
         for (int i = 0; i < hitCount; i++)
-            unique.Add(hits[i].collider);
+            _ = unique.Add(hits[i].collider);
 
         return unique.Count % 2 != 0;
     }

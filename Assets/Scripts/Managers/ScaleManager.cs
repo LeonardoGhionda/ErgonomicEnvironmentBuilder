@@ -13,7 +13,7 @@ public class ScaleManager : MonoBehaviour
 
     private GameObject _targetObject;
     private BoxCollider _targetCollider;
-    private List<GameObject> _handles = new List<GameObject>();
+    private readonly List<GameObject> _handles = new();
 
     // Cache original state for Reset
     private Vector3 _originalScale;
@@ -41,7 +41,7 @@ public class ScaleManager : MonoBehaviour
             if (File.Exists(parent.Path)) File.Delete(parent.Path);
 
             //Save room because if we delete the file and keep the room the same by quitting without saving, room will be corrupted 
-            var roomManager = FindAnyObjectByType<RoomBuilderManager>();
+            RoomBuilderManager roomManager = FindAnyObjectByType<RoomBuilderManager>();
             if (roomManager != null) RoomManagementTools.Save(roomManager.RoomName);
         }
     }
@@ -66,7 +66,7 @@ public class ScaleManager : MonoBehaviour
         _cachedColCenter = _targetCollider.center;
 
         // Disable Target Interaction and Collider to prevent raycast blocking
-        if (_targetObject.TryGetComponent<XRGrabInteractable>(out var grab)) grab.enabled = false;
+        if (_targetObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable grab)) grab.enabled = false;
         _targetCollider.enabled = false;
 
         GenerateHandles();
@@ -86,7 +86,7 @@ public class ScaleManager : MonoBehaviour
         handle.transform.SetParent(_targetObject.transform, false);
 
         // Visuals - URP Compatible
-        var rend = handle.GetComponent<Renderer>();
+        Renderer rend = handle.GetComponent<Renderer>();
 
         // Using the URP Lit shader
         Shader urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
@@ -104,23 +104,23 @@ public class ScaleManager : MonoBehaviour
         }
 
         // Collider
-        var col = handle.GetComponent<BoxCollider>();
+        BoxCollider col = handle.GetComponent<BoxCollider>();
         col.isTrigger = false;
 
         // Rigidbody (Kinematic)
-        var rb = handle.AddComponent<Rigidbody>();
+        Rigidbody rb = handle.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
 
         // XR Interaction
-        var interactable = handle.AddComponent<XRSimpleInteractable>();
+        XRSimpleInteractable interactable = handle.AddComponent<XRSimpleInteractable>();
 
         // Manually assign collider
         interactable.colliders.Clear();
         interactable.colliders.Add(col);
 
         // Copy interaction layers from target
-        if (_targetObject.TryGetComponent<XRBaseInteractable>(out var targetInteractable))
+        if (_targetObject.TryGetComponent<XRBaseInteractable>(out XRBaseInteractable targetInteractable))
         {
             interactable.interactionLayers = targetInteractable.interactionLayers;
         }
@@ -129,7 +129,7 @@ public class ScaleManager : MonoBehaviour
         handle.layer = _targetObject.layer;
 
         // Attach logic script
-        var axisScript = handle.AddComponent<AxisHandle>();
+        AxisHandle axisScript = handle.AddComponent<AxisHandle>();
         axisScript.Setup(this, _targetObject.transform, axis, minScale, maxScale);
 
         _handles.Add(handle);
@@ -137,14 +137,14 @@ public class ScaleManager : MonoBehaviour
 
     public void OnHandleDragStart(AxisHandle activeHandle)
     {
-        foreach (var handleObj in _handles)
+        foreach (GameObject handleObj in _handles)
         {
             if (handleObj == null) continue;
 
             // Check if this handle object is the one we are currently dragging
             bool isCurrent = (handleObj == activeHandle.gameObject);
 
-            var script = handleObj.GetComponent<AxisHandle>();
+            AxisHandle script = handleObj.GetComponent<AxisHandle>();
             if (script != null)
             {
                 // Show the dragged one, hide the others
@@ -155,11 +155,11 @@ public class ScaleManager : MonoBehaviour
 
     public void OnHandleDragEnd()
     {
-        foreach (var handleObj in _handles)
+        foreach (GameObject handleObj in _handles)
         {
             if (handleObj == null) continue;
 
-            var script = handleObj.GetComponent<AxisHandle>();
+            AxisHandle script = handleObj.GetComponent<AxisHandle>();
             if (script != null)
             {
                 // Restore visibility for all handles
@@ -178,10 +178,10 @@ public class ScaleManager : MonoBehaviour
         float currentSize = handleSize;
         float currentPadding = handlePadding;
 
-        foreach (var handle in _handles)
+        foreach (GameObject handle in _handles)
         {
             if (handle == null) continue;
-            var script = handle.GetComponent<AxisHandle>();
+            AxisHandle script = handle.GetComponent<AxisHandle>();
 
             // Calculate inverse scale to keep handles cubic while growing with the object
             // The handle grows uniformly based on the parent max axis
@@ -193,8 +193,7 @@ public class ScaleManager : MonoBehaviour
 
             // Calculate position using cached collider data
             Vector3 newPos = _cachedColCenter;
-            float offset = 10f;
-
+            float offset;
             if (script.TargetAxis == AxisHandle.Axis.X)
             {
                 offset = (_cachedColSize.x * 0.5f) + (currentPadding / parentScale.x);
@@ -221,7 +220,7 @@ public class ScaleManager : MonoBehaviour
         if (_targetObject == null) return;
 
         // Bake vertices
-        var mf = _targetObject.GetComponent<MeshFilter>();
+        MeshFilter mf = _targetObject.GetComponent<MeshFilter>();
         mf.BakeCurrentScale();
 
         // Reset the transform scale to 1 because the scale is now baked into the mesh vertices
@@ -248,12 +247,12 @@ public class ScaleManager : MonoBehaviour
 
     private void Cleanup()
     {
-        foreach (var h in _handles) Destroy(h);
+        foreach (GameObject h in _handles) Destroy(h);
         _handles.Clear();
 
         if (_targetObject != null)
         {
-            if (_targetObject.TryGetComponent<XRGrabInteractable>(out var grab)) grab.enabled = true;
+            if (_targetObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable grab)) grab.enabled = true;
             if (_targetCollider != null) _targetCollider.enabled = true;
         }
 
@@ -277,14 +276,12 @@ public class ScaleManager : MonoBehaviour
         string ogDirPath = Path.GetDirectoryName(iParent.Path);
 
         int i = 0;
-        string newFileName = "";
-        string newFilePath = "";
-        string modID = "";
-
+        string newFilePath;
+        string modID;
         do
         {
             modID = $"#m{++i}.obj";
-            newFileName = string.Concat(ogFileName, modID);
+            string newFileName = string.Concat(ogFileName, modID);
             newFilePath = Path.Combine(ogDirPath, newFileName); // Same folder but different OBJ file 
         } while (File.Exists(newFilePath));
 

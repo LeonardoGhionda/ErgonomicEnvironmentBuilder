@@ -8,7 +8,7 @@ public class SnapTools
     readonly private float minAngleToSnap = 20.0f;
 
     // Runtime state
-    private List<Collider> _snapIgnore = new List<Collider>();
+    private readonly List<Collider> _snapIgnore = new();
 
     private readonly Vector3[] _localDirections = new Vector3[]
     {
@@ -34,8 +34,8 @@ public class SnapTools
         if (!selected || !target) return false;
 
         // 1. Get Colliders
-        if (!selected.TryGetComponent<BoxCollider>(out var selBC) ||
-            !target.TryGetComponent<BoxCollider>(out var tgtBC))
+        if (!selected.TryGetComponent<BoxCollider>(out BoxCollider selBC) ||
+            !target.TryGetComponent<BoxCollider>(out BoxCollider tgtBC))
             return false;
 
         // 2. Quick Distance Check
@@ -116,7 +116,7 @@ public class SnapTools
     private BoxCollider Snap(Transform selected)
     {
         // Snap implemented only for BoxColliders
-        if (!selected.TryGetComponent<BoxCollider>(out var selectedBC))
+        if (!selected.TryGetComponent<BoxCollider>(out BoxCollider selectedBC))
         {
             Debug.LogWarning("SnapTool: L'oggetto selezionato non ha un BoxCollider.");
             return null;
@@ -130,7 +130,7 @@ public class SnapTools
             selectedBoundsExpanded.Expand(minDistanceToSnap * 1.1f);
 
             // Remove colliders no longer intersecting
-            _snapIgnore.RemoveAll(ignoredCollider =>
+            _ = _snapIgnore.RemoveAll(ignoredCollider =>
             {
                 if (ignoredCollider == null) return true;
                 return !selectedBoundsExpanded.Intersects(ignoredCollider.bounds);
@@ -140,7 +140,7 @@ public class SnapTools
         //Raycasting from each face of the BoxCollider
         //--------------------------------------------
 
-        RaycastHit bestHit = new RaycastHit();
+        RaycastHit bestHit = new();
         float closestDistance = Mathf.Infinity;
         bool hitFound = false;
         Vector3 bestLocalDirection = Vector3.zero;
@@ -153,7 +153,7 @@ public class SnapTools
             Vector3 worldDir = selected.TransformDirection(localDir);
 
             // Ray setup
-            Ray ray = new Ray(worldCenter, worldDir);
+            Ray ray = new(worldCenter, worldDir);
 
             // Raycast
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ~LayerMask.GetMask("Gizmo")))
@@ -209,9 +209,9 @@ public class SnapTools
         float distCenterToEdge = GetDistanceToEdge(bc, localSnapDirection);
         Vector3 targetWorldCenter = hit.point + (hit.normal * distCenterToEdge);
         Vector3 pivotOffsetLocal = Vector3.Scale(bc.center, selected.lossyScale);
-        Vector3 pivotOffsetRotated = finalRotation * pivotOffsetLocal;
-        Vector3 finalPosition = targetWorldCenter - (finalRotation * pivotOffsetLocal);
-        finalPosition = targetWorldCenter - (finalRotation * Vector3.Scale(bc.center, selected.lossyScale));
+        _ = finalRotation * pivotOffsetLocal;
+        _ = targetWorldCenter - (finalRotation * pivotOffsetLocal);
+        Vector3 finalPosition = targetWorldCenter - finalRotation * Vector3.Scale(bc.center, selected.lossyScale);
 
         // Apply
         selected.SetPositionAndRotation(finalPosition, finalRotation);

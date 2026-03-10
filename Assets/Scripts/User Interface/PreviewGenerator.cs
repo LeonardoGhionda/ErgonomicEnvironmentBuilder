@@ -23,7 +23,7 @@ public static class PreviewGenerator
         GameObject gameObject = new("PreviewCamera");
         GameObject camGO = gameObject;
         Camera cam = camGO.AddComponent<Camera>();
-        var bgColor = Color.blue;
+        Color bgColor = Color.blue;
         bgColor.a = 0.2f;
         cam.backgroundColor = bgColor;
         cam.clearFlags = CameraClearFlags.Color;
@@ -39,7 +39,9 @@ public static class PreviewGenerator
         tempObj.layer = LayerMask.NameToLayer(layerName);
 
         //instantiate childrens
-        List<GameObject> childrens = new();
+        _ = new
+        //instantiate childrens
+        List<GameObject>();
         foreach (Transform t in prefab.transform)
         {
             GameObject go = t.gameObject;

@@ -1,8 +1,5 @@
-using System.Reflection;
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using static UnityEngine.GraphicsBuffer;
 
 public class HM_BBMeasures : HM_Toggle
 {
@@ -10,7 +7,7 @@ public class HM_BBMeasures : HM_Toggle
     private VRSelectionManager _sm;
     private MeasureManager _mm;
 
-    private bool _showBB = false;   
+    private bool _showBB = false;
 
     protected override void OnInitialized()
     {
@@ -24,10 +21,11 @@ public class HM_BBMeasures : HM_Toggle
     // Override single choices made previously 
     override public void OnClick()
     {
-        if (_target != null) { 
+        if (_target != null)
+        {
             base.OnClick();
 
-            if(_target == null) return;
+            if (_target == null) return;
             _showBB = !_showBB;
             ChangeTarget(new(_target));
         }
@@ -39,14 +37,14 @@ public class HM_BBMeasures : HM_Toggle
         _state = _target != null && _showBB;
         UpdateVisual();
 
-        if(_state) _mm.ShowBBMeasures(_target.GetComponent<BoxCollider>());
+        if (_state) _mm.ShowBBMeasures(_target.GetComponent<BoxCollider>());
         else _mm.HideBBMeasures();
     }
 
     private void OnDestroy()
     {
-        if ( _sm != null ) _sm.OnSelectionChanged -= ChangeTarget;
-        if ( _mm != null ) _mm.HideBBMeasures();
+        if (_sm != null) _sm.OnSelectionChanged -= ChangeTarget;
+        if (_mm != null) _mm.HideBBMeasures();
     }
 }
 

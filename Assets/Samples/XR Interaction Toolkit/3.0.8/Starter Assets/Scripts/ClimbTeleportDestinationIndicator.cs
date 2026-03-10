@@ -119,17 +119,17 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         {
             HideIndicator();
 
-            var destinationAnchor = teleportVolume.destinationAnchor;
+            Transform destinationAnchor = teleportVolume.destinationAnchor;
             if (destinationAnchor == null)
                 return;
 
             m_PointerInstance = Instantiate(m_PointerPrefab).transform;
-            var cameraTrans = teleportVolume.teleportationProvider.mediator.xrOrigin.Camera.transform;
-            var cameraPosition = cameraTrans.position;
-            var destinationPosition = destinationAnchor.position;
-            var destinationDirectionInScreenSpace = cameraTrans.InverseTransformDirection(destinationPosition - cameraPosition);
+            Transform cameraTrans = teleportVolume.teleportationProvider.mediator.xrOrigin.Camera.transform;
+            Vector3 cameraPosition = cameraTrans.position;
+            Vector3 destinationPosition = destinationAnchor.position;
+            Vector3 destinationDirectionInScreenSpace = cameraTrans.InverseTransformDirection(destinationPosition - cameraPosition);
             destinationDirectionInScreenSpace.z = 0f;
-            var pointerDirection = cameraTrans.TransformDirection(destinationDirectionInScreenSpace).normalized;
+            Vector3 pointerDirection = cameraTrans.TransformDirection(destinationDirectionInScreenSpace).normalized;
             m_PointerInstance.position = destinationPosition - pointerDirection * m_PointerDistance;
             m_PointerInstance.rotation = Quaternion.LookRotation(pointerDirection, -cameraTrans.forward);
         }

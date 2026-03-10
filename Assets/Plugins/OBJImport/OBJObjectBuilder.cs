@@ -12,7 +12,6 @@
  * all copies or substantial portions of the Software.
 */
 
-using Dummiesman;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,18 +23,18 @@ namespace Dummiesman
         public int PushedFaceCount { get; private set; } = 0;
 
         //stuff passed in by ctor
-        private OBJLoader _loader;
-        private string _name;
+        private readonly OBJLoader _loader;
+        private readonly string _name;
 
-        private Dictionary<ObjLoopHash, int> _globalIndexRemap = new Dictionary<ObjLoopHash, int>();
-        private Dictionary<string, List<int>> _materialIndices = new Dictionary<string, List<int>>();
+        private readonly Dictionary<ObjLoopHash, int> _globalIndexRemap = new();
+        private readonly Dictionary<string, List<int>> _materialIndices = new();
         private List<int> _currentIndexList;
         private string _lastMaterial = null;
 
         //our local vert/normal/uv
-        private List<Vector3> _vertices = new List<Vector3>();
-        private List<Vector3> _normals = new List<Vector3>();
-        private List<Vector2> _uvs = new List<Vector2>();
+        private readonly List<Vector3> _vertices = new();
+        private readonly List<Vector3> _normals = new();
+        private readonly List<Vector2> _uvs = new();
 
         //this will be set if the model has no normals or missing normal info
         private bool recalculateNormals = false;
@@ -54,7 +53,7 @@ namespace Dummiesman
                 if (!(obj is ObjLoopHash))
                     return false;
 
-                var hash = obj as ObjLoopHash;
+                ObjLoopHash hash = obj as ObjLoopHash;
                 return (hash.vertexIndex == vertexIndex) && (hash.uvIndex == uvIndex) && (hash.normalIndex == normalIndex);
             }
 
@@ -70,17 +69,17 @@ namespace Dummiesman
 
         public GameObject Build()
         {
-            var go = new GameObject(_name);
+            GameObject go = new(_name);
 
             //add meshrenderer
-            var mr = go.AddComponent<MeshRenderer>();
+            MeshRenderer mr = go.AddComponent<MeshRenderer>();
             int submesh = 0;
 
 
             //locate the material for each submesh
             Material[] materialArray = new Material[_materialIndices.Count];
 
-            foreach (var kvp in _materialIndices)
+            foreach (KeyValuePair<string, List<int>> kvp in _materialIndices)
             {
                 Material material = null;
                 if (_loader.Materials == null)
@@ -103,10 +102,10 @@ namespace Dummiesman
             mr.sharedMaterials = materialArray;
 
             //add meshfilter
-            var mf = go.AddComponent<MeshFilter>();
+            MeshFilter mf = go.AddComponent<MeshFilter>();
             submesh = 0;
 
-            var msh = new Mesh()
+            Mesh msh = new()
             {
                 name = _name,
                 indexFormat = (_vertices.Count > 65535) ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16,
@@ -119,7 +118,7 @@ namespace Dummiesman
             msh.SetUVs(0, _uvs);
 
             //set faces
-            foreach (var kvp in _materialIndices)
+            foreach (KeyValuePair<string, List<int>> kvp in _materialIndices)
             {
                 msh.SetTriangles(kvp.Value, submesh);
                 submesh++;
@@ -170,14 +169,13 @@ namespace Dummiesman
                 int normalIndex = normalIndices[i];
                 int uvIndex = uvIndices[i];
 
-                var hashObj = new ObjLoopHash()
+                ObjLoopHash hashObj = new()
                 {
                     vertexIndex = vertexIndex,
                     normalIndex = normalIndex,
                     uvIndex = uvIndex
                 };
-                int remap = -1;
-
+                int remap;
                 if (!_globalIndexRemap.TryGetValue(hashObj, out remap))
                 {
                     //add to dict

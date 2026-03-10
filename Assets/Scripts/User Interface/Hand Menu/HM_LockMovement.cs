@@ -1,8 +1,5 @@
-using System.Reflection;
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using static UnityEngine.GraphicsBuffer;
 
 public class HM_LockMovement : HM_Toggle
 {
@@ -20,8 +17,19 @@ public class HM_LockMovement : HM_Toggle
     // Override single choices made previously 
     override public void OnClick()
     {
-        if (_target != null) { 
+        if (_target != null)
+        {
             base.OnClick();
+
+            // Disable gravity 
+            if (_target.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            {
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            }
+
+            //Remove snap follow
+            Destroy(_target.GetComponent<SnapFollow>());
 
             if (_state)
             {
@@ -35,7 +43,7 @@ public class HM_LockMovement : HM_Toggle
                 _target.trackRotation = true;
                 _target.trackScale = true;
             }
-                
+
         }
     }
 
@@ -43,13 +51,13 @@ public class HM_LockMovement : HM_Toggle
     {
         _target = args.selection;
         _state = _target != null && !_target.trackPosition && !_target.trackRotation && !_target.trackScale;
-        
+
         UpdateVisual();
     }
 
     private void OnDestroy()
     {
-        if ( _sm != null ) _sm.OnSelectionChanged -= ChangeTarget;
+        if (_sm != null) _sm.OnSelectionChanged -= ChangeTarget;
     }
 }
 

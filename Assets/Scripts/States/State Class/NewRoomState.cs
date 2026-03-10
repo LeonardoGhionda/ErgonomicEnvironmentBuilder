@@ -1,18 +1,17 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 
 public class NewRoomState : AbsAppState
 {
-    private NewRoomUI _view;
-    private RoomBuilderManager _rbm; // Logic for the room creation geometry
+    private readonly NewRoomUI _view;
+    private readonly RoomBuilderManager _rbm; // Logic for the room creation geometry
 
     private string _lastTriedRoomName = "";
 
     private bool _actionStarted = false;
-    private InputAction _backAction;
-    private InputAction _moveInterface;
+    private readonly InputAction _backAction;
+    private readonly InputAction _moveInterface;
 
     private Vector2 MousePos => _input.Ui.Point.ReadValue<Vector2>();
 
@@ -134,7 +133,7 @@ public class NewRoomState : AbsAppState
 
     private void ChangeZoomFromInput(InputAction.CallbackContext ctx) => _view.IncreaseZoomVisual(ctx.ReadValue<float>());
 
-    private void MoveInterfaceStarted(InputAction.CallbackContext _) => _view.MoveStart(MousePos); 
+    private void MoveInterfaceStarted(InputAction.CallbackContext _) => _view.MoveStart(MousePos);
 
     private void MoveInterfaceOver(InputAction.CallbackContext _) => _view.MoveStop();
 }

@@ -7,7 +7,7 @@ public class XROriginMoCapSync : MonoBehaviour
     [SerializeField] private Transform moCapHead;
     [SerializeField] private Transform vrCamera;
 
-    [SerializeField] private Vector3 eyeOffset = new Vector3(0f, 0.15f, 0.1f);
+    [SerializeField] private Vector3 eyeOffset = new(0f, 0.15f, 0.1f);
     [SerializeField] private float rootRotationOffset = 0f;
 
     private Vector3 expectedPosition;

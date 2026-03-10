@@ -42,7 +42,7 @@ public class HM_RotationMode : HM_Toggle
         OnStateChange(false);
     }
 
-    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args) 
+    void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
     {
         // Reset previous tracking 
         if (_target != null)

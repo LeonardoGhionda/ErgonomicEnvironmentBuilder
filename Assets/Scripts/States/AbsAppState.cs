@@ -16,4 +16,5 @@ public abstract class AbsAppState : IAppState
     abstract public void Enter();
     abstract public void UpdateState();
     abstract public void Exit();
+
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 public class BoneDataReceiver : MonoBehaviour
 {
     // -- Bones --
-    [SerializeField] private Transform RootBone; 
+    [SerializeField] private Transform RootBone;
     [SerializeField] private Transform Avatar;
     [SerializeField] private Transform HeadBone;
     [SerializeField] private Transform Hip;
@@ -32,14 +32,14 @@ public class BoneDataReceiver : MonoBehaviour
 
         //Vector3 localHeadPos = Avatar.InverseTransformPoint(HeadBone.position);
         //HeadOffset = new Vector2(localHeadPos.x, localHeadPos.z);
-        
+
 
         bones = new List<Transform>();
         GetBoneStructRecursive(RootBone);
 
         udpClient = new UdpClient(port);
         endPoint = new IPEndPoint(IPAddress.Any, port);
-        udpClient.BeginReceive(ReceiveCallback, null);
+        _ = udpClient.BeginReceive(ReceiveCallback, null);
     }
 
     private void GetBoneStructRecursive(Transform current)
@@ -57,7 +57,7 @@ public class BoneDataReceiver : MonoBehaviour
         {
             receiveBuffer = udpClient.EndReceive(ar, ref endPoint);
             hasNewData = true;
-            udpClient?.BeginReceive(ReceiveCallback, null);
+            _ = (udpClient?.BeginReceive(ReceiveCallback, null));
         }
         catch (ObjectDisposedException)
         { }
@@ -81,7 +81,7 @@ public class BoneDataReceiver : MonoBehaviour
                 ReadOnlySpan<float> floats = MemoryMarshal.Cast<byte, float>(receiveBuffer);
 
                 // Set Avatar position using the first 3 floats
-                Avatar.localPosition = new (floats[0], Avatar.localPosition.y, floats[2]);
+                Avatar.localPosition = new(floats[0], Avatar.localPosition.y, floats[2]);
                 Hip.localPosition = new(Hip.localPosition.x, floats[1], Hip.localPosition.z);
 
                 for (int i = 0; i < bones.Count; i++)

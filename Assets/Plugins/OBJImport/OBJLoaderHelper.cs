@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using UnityEngine;
 
-namespace Dummiesman 
+namespace Dummiesman
 {
-    public static class OBJLoaderHelper  
+    public static class OBJLoaderHelper
     {
         /// <summary>
         /// Enables transparency mode on standard materials
@@ -69,7 +69,7 @@ namespace Dummiesman
         {
             int result = 0;
             bool isNegative = (input[0] == '-');
-            
+
             for (int i = (isNegative) ? 1 : 0; i < input.Length; i++)
                 result = result * 10 + (input[i] - '0');
             return (isNegative) ? -result : result;

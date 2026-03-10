@@ -26,7 +26,7 @@ public class HM_SpawnModel : HM_Base
         foreach (Transform child in obj.transform)
         {
             RoomManagementTools.SetUpVrObject(child, _deps.selection, false, true);
-            child.AddComponent<InteractableObject>();
+            _ = child.AddComponent<InteractableObject>();
         }
 
         // Interactable parent and object are necessary to make them savable (see Rooms Utility)

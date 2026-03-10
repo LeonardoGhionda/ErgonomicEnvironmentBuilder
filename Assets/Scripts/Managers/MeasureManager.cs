@@ -17,9 +17,9 @@ public class MeasureManager : MonoBehaviour
     // Internal State
     private MeasureStep _currentStep = MeasureStep.SelectFirst;
     private Vector3 _startPoint;
-    private List<DimensionObject> _activeDimensions = new List<DimensionObject>();
+    private readonly List<DimensionObject> _activeDimensions = new();
 
-    private DimensionObject[] _bbMeasuresDimesion = new DimensionObject[3];   
+    private readonly DimensionObject[] _bbMeasuresDimesion = new DimensionObject[3];
 
     private Transform _t1, _t2;
     private Transform _startPosEmpty;
@@ -125,7 +125,7 @@ public class MeasureManager : MonoBehaviour
         if (_currentStep != MeasureStep.None)
         {
 #if USE_XR
-            var res = GetSnapPoint(controller);
+            (Vector3 point, Transform hitObject) res = GetSnapPoint(controller);
 
 #else
             var res = GetSnapPoint(_cam, mousePos);
@@ -167,7 +167,7 @@ public class MeasureManager : MonoBehaviour
 
         // Create the ray based on the active platform
 #if USE_XR
-        Ray ray = new Ray(controller.position, controller.forward);
+        Ray ray = new(controller.position, controller.forward);
 #else
         Ray ray = cam.ScreenPointToRay(mousePos);
 #endif
@@ -303,7 +303,7 @@ public class MeasureManager : MonoBehaviour
 
     public void ClearAllMeasures()
     {
-        foreach (var dim in _activeDimensions)
+        foreach (DimensionObject dim in _activeDimensions)
         {
             if (dim != null)
             {
@@ -322,8 +322,7 @@ public class MeasureManager : MonoBehaviour
     public void ShowBBMeasures(BoxCollider targetBox)
     {
         if (targetBox == null) return;
-
-        Vector3 boxCenter = targetBox.transform.position + targetBox.center;
+        _ = targetBox.transform.position + targetBox.center;
 
         // Create or reuse dimension objects for each edge of the bounding box
         for (int i = 0; i < 3; i++)

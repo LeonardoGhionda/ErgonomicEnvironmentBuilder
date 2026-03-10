@@ -69,6 +69,8 @@ public class RoomBuilderManager : MonoBehaviour
         set { roomName.text = value; }
     }
 
+    public string RoomJson { get; set; }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Init(NewRoomUI view, InputAction snapAction)
     {
@@ -122,10 +124,10 @@ public class RoomBuilderManager : MonoBehaviour
         GameObject edgeGO = Instantiate(roomEdgeTemplate, roomEdgeTemplate.transform.parent);
         edgeGO.SetActive(true);
         //name the edge based on the connected dots' numbers
-        var m1 = Regex.Match(d1.name, @"\d+");
-        var m2 = Regex.Match(d2.name, @"\d+");
-        var num1 = m1.Success ? m1.Value : "0";
-        var num2 = m2.Success ? m2.Value : "0";
+        Match m1 = Regex.Match(d1.name, @"\d+");
+        Match m2 = Regex.Match(d2.name, @"\d+");
+        string num1 = m1.Success ? m1.Value : "0";
+        string num2 = m2.Success ? m2.Value : "0";
         edgeGO.name = $"Edge_{num1}_{num2}";
         //move the edge to the bottom of the hierarchy so that dots are always on top
         edgeGO.transform.SetSiblingIndex(0);
@@ -192,7 +194,7 @@ public class RoomBuilderManager : MonoBehaviour
     {
         if (roomDots.Contains(dot))
         {
-            roomDots.Remove(dot);
+            _ = roomDots.Remove(dot);
             DeleteAllEdges();
             GenerateEdges();
         }

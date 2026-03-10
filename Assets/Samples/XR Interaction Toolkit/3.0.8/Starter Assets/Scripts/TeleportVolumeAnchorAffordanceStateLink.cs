@@ -51,7 +51,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 return;
             }
 
-            var interactableSource = m_AffordanceStateProvider.interactableSource;
+            Object interactableSource = m_AffordanceStateProvider.interactableSource;
             m_Interactable = interactableSource != null && interactableSource is IXRInteractable interactable
                     ? interactable
                     : m_AffordanceStateProvider.GetComponentInParent<IXRInteractable>();
@@ -75,20 +75,20 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 m_ContainingTeleportVolume.destinationAnchorChanged -= OnDestinationAnchorChanged;
 
             if (m_AffordanceStateProvider != null)
-                m_AffordanceStateProvider.SetBoundInteractionReceiver(m_Interactable);
+                _ = m_AffordanceStateProvider.SetBoundInteractionReceiver(m_Interactable);
         }
 
         void OnDestinationAnchorChanged(TeleportationMultiAnchorVolume anchorVolume)
         {
-            var anchor = anchorVolume.destinationAnchor;
+            Transform anchor = anchorVolume.destinationAnchor;
             if (anchor == null)
             {
-                m_AffordanceStateProvider.SetBoundInteractionReceiver(m_Interactable);
+                _ = m_AffordanceStateProvider.SetBoundInteractionReceiver(m_Interactable);
                 return;
             }
 
             // Use teleport volume to drive affordance states if its current anchor belongs to this interactable
-            m_AffordanceStateProvider.SetBoundInteractionReceiver(
+            _ = m_AffordanceStateProvider.SetBoundInteractionReceiver(
                 anchor.IsChildOf(m_Interactable.transform)
                     ? m_ContainingTeleportVolume
                     : m_Interactable);

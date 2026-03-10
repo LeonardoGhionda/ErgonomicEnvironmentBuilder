@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Dummiesman
 {
@@ -18,13 +14,13 @@ namespace Dummiesman
                 return tex;
 
             //get pixels
-            var pixels = tex.GetPixels32();
+            Color32[] pixels = tex.GetPixels32();
             bool validFormat = false;
 
             //check each pixel alpha
-            foreach(var px in pixels)
+            foreach (Color32 px in pixels)
             {
-                if(px.a < 255)
+                if (px.a < 255)
                 {
                     validFormat = true;
                     break;
@@ -34,7 +30,7 @@ namespace Dummiesman
             //if it's not a valid format return a new 24bpp image
             if (!validFormat)
             {
-                var tex24 = new Texture2D(tex.width, tex.height, UnityEngine.TextureFormat.RGB24, tex.mipmapCount > 0);
+                Texture2D tex24 = new(tex.width, tex.height, UnityEngine.TextureFormat.RGB24, tex.mipmapCount > 0);
                 tex24.SetPixels32(pixels);
                 tex24.Apply(true);
                 return tex24;

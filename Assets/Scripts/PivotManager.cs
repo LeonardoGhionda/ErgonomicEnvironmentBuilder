@@ -38,7 +38,7 @@ public class PivotManager : MonoBehaviour
         if (PivotAtCenter)
         {
             // Check if collider exists to avoid errors
-            var col = _target.GetComponent<BoxCollider>();
+            BoxCollider col = _target.GetComponent<BoxCollider>();
             if (col != null)
                 transform.position = _target.transform.TransformPoint(col.center);
             else
@@ -110,7 +110,7 @@ public class PivotManager : MonoBehaviour
         _target.trackRotation = false;
 
         // 5. Start rotating
-        StartCoroutine(RotateWrapperRoutine(_currentWrapper.transform, args.interactorObject.transform));
+        _ = StartCoroutine(RotateWrapperRoutine(_currentWrapper.transform, args.interactorObject.transform));
     }
 
     private void OnRelease(SelectExitEventArgs args)

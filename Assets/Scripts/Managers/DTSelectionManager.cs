@@ -33,7 +33,7 @@ public class DTSelectionManager : MonoBehaviour
 
         Ray ray = _cam.ScreenPointToRay(rayStart);
 
-        if (Physics.Raycast(ray, out var hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
             // Get interactable hit or return
             if (!hit.collider.TryGetComponent(out Interactable interactable))
@@ -93,9 +93,9 @@ public class DTSelectionManager : MonoBehaviour
         if (_selected is InteractableParent)
         {
             // get children
-            var children = _selected.transform.GetComponentsInChildren<InteractableObject>();
+            InteractableObject[] children = _selected.transform.GetComponentsInChildren<InteractableObject>();
             // destroy children
-            foreach (var child in children) Destroy(child.gameObject);
+            foreach (InteractableObject child in children) Destroy(child.gameObject);
             // destroy selected
             Destroy(_selected.gameObject);
         }

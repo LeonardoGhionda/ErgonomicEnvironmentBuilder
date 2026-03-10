@@ -17,8 +17,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class MTLLoader {
-    public List<string> SearchPaths = new List<string>() { "%FileName%_Textures", string.Empty};
+public class MTLLoader
+{
+    public List<string> SearchPaths = new() { "%FileName%_Textures", string.Empty };
 
     private FileInfo _objFileInfo = null;
 
@@ -31,19 +32,19 @@ public class MTLLoader {
     public virtual Texture2D TextureLoadFunction(string path, bool isNormalMap)
     {
         //find it
-        foreach (var searchPath in SearchPaths)
+        foreach (string searchPath in SearchPaths)
         {
             //replace varaibles and combine path
-            string processedPath = (_objFileInfo != null) ? searchPath.Replace("%FileName%", Path.GetFileNameWithoutExtension(_objFileInfo.Name)) 
+            string processedPath = (_objFileInfo != null) ? searchPath.Replace("%FileName%", Path.GetFileNameWithoutExtension(_objFileInfo.Name))
                                                           : searchPath;
             string filePath = Path.Combine(processedPath, path);
 
             //return if eists
             if (File.Exists(filePath))
             {
-                var tex = ImageLoader.LoadTexture(filePath);
+                Texture2D tex = ImageLoader.LoadTexture(filePath);
 
-                if(isNormalMap)
+                if (isNormalMap)
                     tex = ImageUtils.ConvertToNormalMap(tex);
 
                 return tex;
@@ -62,7 +63,7 @@ public class MTLLoader {
 
         return TextureLoadFunction(texturePath, normalMap);
     }
-    
+
     private int GetArgValueCount(string arg)
     {
         switch (arg)
@@ -86,10 +87,10 @@ public class MTLLoader {
 
     private int GetTexNameIndex(string[] components)
     {
-        for(int i=1; i < components.Length; i++)
+        for (int i = 1; i < components.Length; i++)
         {
-            var cmpSkip = GetArgValueCount(components[i]);
-            if(cmpSkip < 0)
+            int cmpSkip = GetArgValueCount(components[i]);
+            if (cmpSkip < 0)
             {
                 return i;
             }
@@ -101,12 +102,12 @@ public class MTLLoader {
     private float GetArgValue(string[] components, string arg, float fallback = 1f)
     {
         string argLower = arg.ToLower();
-        for(int i=1; i < components.Length - 1; i++)
+        for (int i = 1; i < components.Length - 1; i++)
         {
-            var cmp = components[i].ToLower();
-            if(argLower == cmp)
+            string cmp = components[i].ToLower();
+            if (argLower == cmp)
             {
-                return OBJLoaderHelper.FastFloatParse(components[i+1]);
+                return OBJLoaderHelper.FastFloatParse(components[i + 1]);
             }
         }
         return fallback;
@@ -115,7 +116,7 @@ public class MTLLoader {
     private string GetTexPathFromMapStatement(string processedLine, string[] splitLine)
     {
         int texNameCmpIdx = GetTexNameIndex(splitLine);
-        if(texNameCmpIdx < 0)
+        if (texNameCmpIdx < 0)
         {
             Debug.LogError($"texNameCmpIdx < 0 on line {processedLine}. Texture not loaded.");
             return null;
@@ -130,10 +131,10 @@ public class MTLLoader {
     //I made some changes to make this compatible with urp
     public Dictionary<string, Material> Load(Stream input)
     {
-        var inputReader = new StreamReader(input);
-        var reader = new StringReader(inputReader.ReadToEnd());
+        StreamReader inputReader = new(input);
+        StringReader reader = new(inputReader.ReadToEnd());
 
-        Dictionary<string, Material> mtlDict = new Dictionary<string, Material>();
+        Dictionary<string, Material> mtlDict = new();
         Material currentMaterial = null;
 
         for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
@@ -149,7 +150,7 @@ public class MTLLoader {
             {
                 string materialName = processedLine.Substring(7);
                 // URP Lit Shader
-                var newMtl = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = materialName };
+                Material newMtl = new(Shader.Find("Universal Render Pipeline/Lit")) { name = materialName };
 
                 // Render face 0 = Both (Cull Off), 1 = Back, 2 = Front (Default)
                 newMtl.SetFloat("_Cull", 0);
@@ -165,8 +166,8 @@ public class MTLLoader {
             if (splitLine[0] == "Kd" || splitLine[0] == "kd")
             {
                 // FIX 1: GetColor must use "_BaseColor" (was "_Color")
-                var currentColor = currentMaterial.GetColor("_BaseColor");
-                var kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
+                Color currentColor = currentMaterial.GetColor("_BaseColor");
+                Color kdColor = OBJLoaderHelper.ColorFromStrArray(splitLine);
 
                 currentMaterial.SetColor("_BaseColor", new Color(kdColor.r, kdColor.g, kdColor.b, currentColor.a));
                 continue;
@@ -178,7 +179,7 @@ public class MTLLoader {
                 string texturePath = GetTexPathFromMapStatement(processedLine, splitLine);
                 if (texturePath == null) continue;
 
-                var KdTexture = TryLoadTexture(texturePath);
+                Texture2D KdTexture = TryLoadTexture(texturePath);
 
                 // Correct for URP
                 currentMaterial.SetTexture("_BaseMap", KdTexture);
@@ -201,7 +202,7 @@ public class MTLLoader {
                 string texturePath = GetTexPathFromMapStatement(processedLine, splitLine);
                 if (texturePath == null) continue;
 
-                var bumpTexture = TryLoadTexture(texturePath, true);
+                Texture2D bumpTexture = TryLoadTexture(texturePath, true);
                 float bumpScale = GetArgValue(splitLine, "-bm", 1.0f);
 
                 if (bumpTexture != null)
@@ -255,7 +256,7 @@ public class MTLLoader {
                 if (visibility < (1f - Mathf.Epsilon))
                 {
                     // FIX 3: Change "_Color" to "_BaseColor" for both Get and Set
-                    var currentColor = currentMaterial.GetColor("_BaseColor");
+                    Color currentColor = currentMaterial.GetColor("_BaseColor");
 
                     currentColor.a = visibility;
                     currentMaterial.SetColor("_BaseColor", currentColor);
@@ -290,10 +291,10 @@ public class MTLLoader {
         _objFileInfo = new FileInfo(path); //get file info
         SearchPaths.Add(_objFileInfo.Directory.FullName); //add root path to search dir
 
-        using (var fs = new FileStream(path, FileMode.Open))
+        using (FileStream fs = new(path, FileMode.Open))
         {
             return Load(fs); //actually load
         }
-        
+
     }
 }

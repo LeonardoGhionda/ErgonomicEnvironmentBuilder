@@ -122,10 +122,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             // Initialize the Head Transform if necessary, getting the Camera from XR Origin
             if (m_HeadTransform == null)
             {
-                var xrOrigin = mediator.xrOrigin;
+                XROrigin xrOrigin = mediator.xrOrigin;
                 if (xrOrigin != null)
                 {
-                    var xrCamera = xrOrigin.Camera;
+                    Camera xrCamera = xrOrigin.Camera;
                     if (xrCamera != null)
                         m_HeadTransform = xrCamera.transform;
                 }
@@ -172,16 +172,16 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             }
 
             // Combine the two poses into the forward source based on the magnitude of input
-            var leftHandValue = leftHandMoveInput.ReadValue();
-            var rightHandValue = rightHandMoveInput.ReadValue();
+            Vector2 leftHandValue = leftHandMoveInput.ReadValue();
+            Vector2 rightHandValue = rightHandMoveInput.ReadValue();
 
-            var totalSqrMagnitude = leftHandValue.sqrMagnitude + rightHandValue.sqrMagnitude;
-            var leftHandBlend = 0.5f;
+            float totalSqrMagnitude = leftHandValue.sqrMagnitude + rightHandValue.sqrMagnitude;
+            float leftHandBlend = 0.5f;
             if (totalSqrMagnitude > Mathf.Epsilon)
                 leftHandBlend = leftHandValue.sqrMagnitude / totalSqrMagnitude;
 
-            var combinedPosition = Vector3.Lerp(m_RightMovementPose.position, m_LeftMovementPose.position, leftHandBlend);
-            var combinedRotation = Quaternion.Slerp(m_RightMovementPose.rotation, m_LeftMovementPose.rotation, leftHandBlend);
+            Vector3 combinedPosition = Vector3.Lerp(m_RightMovementPose.position, m_LeftMovementPose.position, leftHandBlend);
+            Quaternion combinedRotation = Quaternion.Slerp(m_RightMovementPose.rotation, m_LeftMovementPose.rotation, leftHandBlend);
             m_CombinedTransform.SetPositionAndRotation(combinedPosition, combinedRotation);
 
             return base.ComputeDesiredMove(input);

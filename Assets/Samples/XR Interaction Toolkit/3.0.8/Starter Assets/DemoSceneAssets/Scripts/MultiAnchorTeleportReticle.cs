@@ -99,7 +99,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             if (m_AnchorVolume == null)
                 return;
 
-            var destinationAnchor = m_AnchorVolume.destinationAnchor;
+            Transform destinationAnchor = m_AnchorVolume.destinationAnchor;
             if (destinationAnchor != null)
             {
                 PointAtTarget(m_DestinationIndicator.transform, destinationAnchor.position);
@@ -120,15 +120,15 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 return;
             }
 
-            var potentialDestinationIndex = m_AnchorVolume.destinationEvaluationFilter.GetDestinationAnchorIndex(m_AnchorVolume);
-            var anchors = m_AnchorVolume.anchorTransforms;
+            int potentialDestinationIndex = m_AnchorVolume.destinationEvaluationFilter.GetDestinationAnchorIndex(m_AnchorVolume);
+            System.Collections.Generic.List<Transform> anchors = m_AnchorVolume.anchorTransforms;
             if (potentialDestinationIndex < 0 || potentialDestinationIndex >= anchors.Count)
             {
                 m_PotentialDestinationIndicator.SetActive(false);
                 return;
             }
 
-            var potentialDestination = anchors[potentialDestinationIndex];
+            Transform potentialDestination = anchors[potentialDestinationIndex];
             if (potentialDestination == null)
             {
                 m_PotentialDestinationIndicator.SetActive(false);
@@ -141,7 +141,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         void OnDestinationAnchorChanged(TeleportationMultiAnchorVolume anchorVolume)
         {
-            var destinationAnchor = anchorVolume.destinationAnchor;
+            Transform destinationAnchor = anchorVolume.destinationAnchor;
             if (destinationAnchor != null)
             {
                 m_TimerProgressFilledImage.fillAmount = 1f;

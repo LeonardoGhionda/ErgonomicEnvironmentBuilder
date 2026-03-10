@@ -26,7 +26,7 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
         const string k_ShaderGraphPackageName = "com.unity.shadergraph";
 #if UNITY_INPUT_SYSTEM_PROJECT_WIDE_ACTIONS
         const string k_InputSystemPackageName = "com.unity.inputsystem";
-        static readonly PackageVersion s_RecommendedPackageVersion = new PackageVersion("1.11.0");
+        static readonly PackageVersion s_RecommendedPackageVersion = new("1.11.0");
         const string k_InputActionAssetName = "XRI Default Input Actions";
         const string k_InputActionAssetGuid = "c348712bda248c246b8c49b3db54643f";
 #endif
@@ -34,7 +34,7 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
         static readonly BuildTargetGroup[] s_BuildTargetGroups =
             ((BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup))).Distinct().ToArray();
 
-        static readonly List<BuildValidationRule> s_BuildValidationRules = new List<BuildValidationRule>();
+        static readonly List<BuildValidationRule> s_BuildValidationRules = new();
 
         static AddRequest s_ShaderGraphPackageAddRequest;
 #if UNITY_INPUT_SYSTEM_PROJECT_WIDE_ACTIONS
@@ -111,7 +111,7 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
 #endif
             }
 
-            foreach (var buildTargetGroup in s_BuildTargetGroups)
+            foreach (BuildTargetGroup buildTargetGroup in s_BuildTargetGroups)
             {
                 BuildValidator.AddRules(buildTargetGroup, s_BuildValidationRules);
             }
@@ -121,7 +121,7 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
 
         static void ShowWindowIfIssuesExist()
         {
-            foreach (var validation in s_BuildValidationRules)
+            foreach (BuildValidationRule validation in s_BuildValidationRules)
             {
                 if (validation.CheckPredicate == null || !validation.CheckPredicate.Invoke())
                 {
@@ -137,7 +137,7 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
             // project validation window causing serialized objects to be nullified.
             EditorApplication.delayCall += () =>
             {
-                SettingsService.OpenProjectSettings(k_ProjectValidationSettingsPath);
+                _ = SettingsService.OpenProjectSettings(k_ProjectValidationSettingsPath);
             };
         }
 
@@ -159,10 +159,10 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
         static void InstallOrUpdateInputSystem()
         {
             // Set a 3-second timeout for request to avoid editor lockup
-            var currentTime = DateTime.Now;
-            var endTime = currentTime + TimeSpan.FromSeconds(3);
+            DateTime currentTime = DateTime.Now;
+            DateTime endTime = currentTime + TimeSpan.FromSeconds(3);
 
-            var request = Client.Search(k_InputSystemPackageName);
+            SearchRequest request = Client.Search(k_InputSystemPackageName);
             if (request.Status == StatusCode.InProgress)
             {
                 Debug.Log($"Searching for ({k_InputSystemPackageName}) in Unity Package Registry.");
@@ -170,16 +170,16 @@ namespace UnityEditor.XR.Interaction.Toolkit.Samples
                     currentTime = DateTime.Now;
             }
 
-            var addRequest = k_InputSystemPackageName;
+            string addRequest = k_InputSystemPackageName;
             if (request.Status == StatusCode.Success && request.Result.Length > 0)
             {
-                var versions = request.Result[0].versions;
+                VersionsInfo versions = request.Result[0].versions;
 #if UNITY_2022_2_OR_NEWER
-                var recommendedVersion = new PackageVersion(versions.recommended);
+                PackageVersion recommendedVersion = new(versions.recommended);
 #else
                 var recommendedVersion = new PackageVersion(versions.verified);
 #endif
-                var latestCompatible = new PackageVersion(versions.latestCompatible);
+                PackageVersion latestCompatible = new(versions.latestCompatible);
                 if (recommendedVersion < s_RecommendedPackageVersion && s_RecommendedPackageVersion <= latestCompatible)
                     addRequest = $"{k_InputSystemPackageName}@{s_RecommendedPackageVersion}";
             }

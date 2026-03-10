@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
+﻿using Dummiesman.Extensions;
 using System;
-using Dummiesman.Extensions;
-using System.Runtime.InteropServices;
+using System.IO;
+using UnityEngine;
 
 namespace Dummiesman
 {
@@ -42,7 +39,7 @@ namespace Dummiesman
                     //raw packet
                     for (int i = 0; i < RLEPixelCount; i++)
                     {
-                        var color = (bitDepth == 32) ? r.ReadColor32RGBA().FlipRB() : r.ReadColor32RGB().FlipRB();
+                        Color32 color = (bitDepth == 32) ? r.ReadColor32RGBA().FlipRB() : r.ReadColor32RGB().FlipRB();
                         pulledColors[i + pulledColorCount] = color;
                     }
 
@@ -50,7 +47,7 @@ namespace Dummiesman
                 else
                 {
                     //rle packet
-                    var color = (bitDepth == 32) ? r.ReadColor32RGBA().FlipRB() : r.ReadColor32RGB().FlipRB();
+                    Color32 color = (bitDepth == 32) ? r.ReadColor32RGBA().FlipRB() : r.ReadColor32RGB().FlipRB();
 
                     for (int i = 0; i < RLEPixelCount; i++)
                     {
@@ -66,7 +63,7 @@ namespace Dummiesman
 
         public static Texture2D Load(string fileName)
         {
-            using (var imageFile = File.OpenRead(fileName))
+            using (FileStream imageFile = File.OpenRead(fileName))
             {
                 return Load(imageFile);
             }
@@ -74,7 +71,7 @@ namespace Dummiesman
 
         public static Texture2D Load(byte[] bytes)
         {
-            using (var ms = new MemoryStream(bytes))
+            using (MemoryStream ms = new(bytes))
             {
                 return Load(ms);
             }
@@ -83,10 +80,10 @@ namespace Dummiesman
         public static Texture2D Load(Stream TGAStream)
         {
 
-            using (BinaryReader r = new BinaryReader(TGAStream))
+            using (BinaryReader r = new(TGAStream))
             {
                 // Skip some header info we don't care about.
-                r.BaseStream.Seek(2, SeekOrigin.Begin);
+                _ = r.BaseStream.Seek(2, SeekOrigin.Begin);
 
                 byte imageType = r.ReadByte();
                 if (imageType != 10 && imageType != 2)
@@ -96,7 +93,7 @@ namespace Dummiesman
                 }
 
                 //Skip right to some more data we need
-                r.BaseStream.Seek(12, SeekOrigin.Begin);
+                _ = r.BaseStream.Seek(12, SeekOrigin.Begin);
 
                 short width = r.ReadInt16();
                 short height = r.ReadInt16();
@@ -106,9 +103,9 @@ namespace Dummiesman
                     throw new Exception("Tried to load TGA with unsupported bit depth");
 
                 // Skip a byte of header information we don't care about.
-                r.BaseStream.Seek(1, SeekOrigin.Current);
+                _ = r.BaseStream.Seek(1, SeekOrigin.Current);
 
-                Texture2D tex = new Texture2D(width, height, (bitDepth == 24) ? TextureFormat.RGB24 :  TextureFormat.ARGB32, true);
+                Texture2D tex = new(width, height, (bitDepth == 24) ? TextureFormat.RGB24 : TextureFormat.ARGB32, true);
                 if (imageType == 2)
                 {
                     tex.SetPixels32(LoadRawTGAData(r, bitDepth, width, height));

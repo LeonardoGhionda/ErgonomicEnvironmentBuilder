@@ -19,7 +19,7 @@ public class HelloWorldManager : MonoBehaviour
 #if USE_XR
         m_NetworkManager.StartServer();
         Debug.Log("<color=green>Host started successfully</color>");
-        var xrRigInstance = Instantiate(xrRig, Vector3.zero, Quaternion.identity);
+        GameObject xrRigInstance = Instantiate(xrRig, Vector3.zero, Quaternion.identity);
         xrRigInstance.GetComponent<NetworkObject>().Spawn();
 #else
         Instantiate(desktopCamera);
@@ -38,7 +38,7 @@ public class HelloWorldManager : MonoBehaviour
 
     void StatusLabels()
     {
-        var mode = m_NetworkManager.IsHost ?
+        string mode = m_NetworkManager.IsHost ?
             "Host" : m_NetworkManager.IsServer ? "Server" : "Client";
 
         GUILayout.Label("Transport: " +
@@ -57,8 +57,8 @@ public class HelloWorldManager : MonoBehaviour
             }
             else
             {
-                var playerObject = m_NetworkManager.SpawnManager.GetLocalPlayerObject();
-                var player = playerObject.GetComponent<HelloWorldPlayer>();
+                NetworkObject playerObject = m_NetworkManager.SpawnManager.GetLocalPlayerObject();
+                HelloWorldPlayer player = playerObject.GetComponent<HelloWorldPlayer>();
                 player.Move();
             }
         }

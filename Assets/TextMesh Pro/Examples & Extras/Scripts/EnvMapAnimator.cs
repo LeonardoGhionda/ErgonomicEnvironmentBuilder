@@ -21,7 +21,7 @@ public class EnvMapAnimator : MonoBehaviour
     // Use this for initialization
     IEnumerator Start()
     {
-        Matrix4x4 matrix = new Matrix4x4();
+        Matrix4x4 matrix = new();
 
         while (true)
         {

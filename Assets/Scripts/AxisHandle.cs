@@ -35,7 +35,7 @@ public class AxisHandle : MonoBehaviour
         _min = min;
         _max = max;
 
-        var interactable = GetComponent<XRSimpleInteractable>();
+        XRSimpleInteractable interactable = GetComponent<XRSimpleInteractable>();
         interactable.selectEntered.AddListener(OnGrab);
         interactable.selectExited.AddListener(OnRelease);
     }

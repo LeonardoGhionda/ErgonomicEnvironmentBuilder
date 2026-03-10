@@ -88,7 +88,7 @@ public class DimensionObject : MonoBehaviour
         else // Start delete mode
         {
             _deleteMode = true;
-            StartCoroutine(ExitDeleteModeTimer());
+            _ = StartCoroutine(ExitDeleteModeTimer());
             textLabel.text = "Click again\nto delete";
             textLabel.color = Color.red;
         }

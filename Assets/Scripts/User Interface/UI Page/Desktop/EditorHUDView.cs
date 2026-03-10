@@ -105,7 +105,7 @@ public class EditorHUDView : MonoBehaviour
     public void GenerateModelButton()
     {
         //generate model buttons
-        var modelButtons = ModelButtonGenerator.DTInit(modelButtonContainer);
+        List<ModelButton> modelButtons = ModelButtonGenerator.DTInit(modelButtonContainer);
         modelButtonPopulate(modelButtons);
     }
 
@@ -140,7 +140,7 @@ public class EditorHUDView : MonoBehaviour
     public void modelButtonPopulate(List<ModelButton> modelButtons)
     {
         ClearModelButton();
-        foreach (var button in modelButtons)
+        foreach (ModelButton button in modelButtons)
         {
             string objPath = button.OBJFullpath;
             //add event listener

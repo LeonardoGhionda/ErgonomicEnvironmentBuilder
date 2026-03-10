@@ -40,10 +40,22 @@ public class HM_ApplyGravity : HM_Toggle
     // Override single choices made previously 
     override public void OnClick()
     {
-        if (_target != null && !_target.TryGetComponent<SnapFollow>(out var _)) // Snap follow + gravity break physics, so we disable gravity toggle if snap follow is present
+        if (_target != null)
         {
+            Destroy(_target.GetComponent<SnapFollow>()); // Remove snap if present
+
+            if (_target.TryGetComponent<XRGrabInteractable>(out var grab)) // Remove movement lock if present 
+            {
+                if (grab.trackPosition == false)
+                {
+                    grab.trackPosition = true;
+                    grab.trackRotation = true;
+                    grab.trackScale = true;
+                }
+            }
+
             base.OnClick();
-            var rb = _target.GetComponent<Rigidbody>();
+            Rigidbody rb = _target.GetComponent<Rigidbody>();
             rb.useGravity = _state;
             rb.isKinematic = !_state;
         }

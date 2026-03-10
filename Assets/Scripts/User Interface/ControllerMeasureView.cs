@@ -31,7 +31,7 @@ public class ControllerMeasureView : MonoBehaviour
 
         _canvas = GetComponent<Canvas>();
         _canvas.enabled = _open;
-        
+
         openAction.action.Enable();
         openAction.action.performed += ShowMenu;
 
@@ -52,7 +52,7 @@ public class ControllerMeasureView : MonoBehaviour
         if (_bellyButtonPoint == null)
         {
             if (_bodyPointsManager.BellyButton == null) return;
-            
+
             _bellyButtonPoint = _bodyPointsManager.BellyButton;
 
             // Reset the font size to normal 
@@ -67,7 +67,7 @@ public class ControllerMeasureView : MonoBehaviour
         float distanceForward = Vector3.Dot(offset, _bellyButtonPoint.forward);
         float distanceRight = Vector3.Dot(offset, _bellyButtonPoint.right);
 
-        distance.text = $"{Mathf.Sqrt( distanceForward * distanceForward + distanceRight * distanceRight ):F2}";
+        distance.text = $"{Mathf.Sqrt(distanceForward * distanceForward + distanceRight * distanceRight):F2}";
     }
 
     private void OnDestroy()

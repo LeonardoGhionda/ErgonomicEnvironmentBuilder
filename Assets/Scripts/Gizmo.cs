@@ -35,7 +35,7 @@ public class Gizmo : MonoBehaviour
 
     public void SelectHandle(Transform handle)
     {
-        foreach (var item in _handles)
+        foreach (Transform item in _handles)
             item.gameObject.SetActive(false);
 
         _selected = handle;
@@ -47,7 +47,7 @@ public class Gizmo : MonoBehaviour
         _selected = null;
         if (_handles == null) return;
 
-        foreach (var item in _handles)
+        foreach (Transform item in _handles)
             item.gameObject.SetActive(true);
     }
 
@@ -65,7 +65,7 @@ public class Gizmo : MonoBehaviour
             return;
         }
 
-        foreach (var handle in _handles)
+        foreach (Transform handle in _handles)
         {
             handle.transform.position = selectedObj.position;
         }
@@ -124,7 +124,7 @@ public class Gizmo : MonoBehaviour
     {
         if (_handles == null) return;
 
-        foreach (var handle in _handles)
+        foreach (Transform handle in _handles)
         {
             handle.localScale = scale;
         }

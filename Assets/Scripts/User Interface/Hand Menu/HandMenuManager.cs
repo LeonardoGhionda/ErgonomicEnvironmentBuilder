@@ -64,7 +64,7 @@ public class HandMenuManager : MonoBehaviour
 
             e.gameObject.SetActive(false);
 
-            if (e.TryGetComponent<CircularMoveUI>(out var circularMove))
+            if (e.TryGetComponent<CircularMoveUI>(out CircularMoveUI circularMove))
                 circularMove.Radius = radius;
         });
 
@@ -148,7 +148,7 @@ public class HandMenuManager : MonoBehaviour
 
         // 1. Reset visual state of all entries (only strictly necessary if Total > MaxShown)
         // If Total <= MaxShown, we keep them active
-        foreach (var entry in _entries)
+        foreach (HM_Base entry in _entries)
         {
             // Only deactivate if we have more items than we can show
             if (_entries.Count > _maxEntriesShown)
@@ -159,14 +159,14 @@ public class HandMenuManager : MonoBehaviour
         else if (_selected >= _entries.Count) Debug.LogError("Index is too big");
 
         // 2. Setup Selected
-        var selectedEntry = _entries[_selected];
+        HM_Base selectedEntry = _entries[_selected];
         selectedEntry.gameObject.SetActive(true);
 
         // 3. Populate Right List
         for (int i = 1; i <= _rMax; i++)
         {
             int idx = InBound(_selected + i);
-            _right.AddLast(idx);
+            _ = _right.AddLast(idx);
             _entries[idx].gameObject.SetActive(true);
         }
 
@@ -174,7 +174,7 @@ public class HandMenuManager : MonoBehaviour
         for (int i = 1; i <= _lMax; i++)
         {
             int idx = InBound(_selected - i);
-            _left.AddLast(idx);
+            _ = _left.AddLast(idx);
             _entries[idx].gameObject.SetActive(true);
         }
     }
@@ -184,18 +184,18 @@ public class HandMenuManager : MonoBehaviour
         // Safe check
         if (_entries.Count == 0) return;
 
-        if (_entries[_selected].TryGetComponent<CircularMoveUI>(out var moveUI)) moveUI.SetAngle(0f);
+        if (_entries[_selected].TryGetComponent<CircularMoveUI>(out CircularMoveUI moveUI)) moveUI.SetAngle(0f);
 
         int i = -1;
-        foreach (var index in _left)
+        foreach (int index in _left)
         {
-            if (_entries[index].TryGetComponent<CircularMoveUI>(out var item)) item.SetAngle(_stepAngle * i);
+            if (_entries[index].TryGetComponent<CircularMoveUI>(out CircularMoveUI item)) item.SetAngle(_stepAngle * i);
             i--;
         }
         i = 1;
-        foreach (var index in _right)
+        foreach (int index in _right)
         {
-            if (_entries[index].TryGetComponent<CircularMoveUI>(out var item)) item.SetAngle(_stepAngle * i);
+            if (_entries[index].TryGetComponent<CircularMoveUI>(out CircularMoveUI item)) item.SetAngle(_stepAngle * i);
             i++;
         }
 
@@ -205,7 +205,7 @@ public class HandMenuManager : MonoBehaviour
     void SortChildrenRenderPosition()
     {
         // Bring active items to front/order logic
-        foreach (var item in _entries.Where(e => e.gameObject.activeInHierarchy))
+        foreach (HM_Base item in _entries.Where(e => e.gameObject.activeInHierarchy))
         {
             item.transform.SetAsFirstSibling();
         }
@@ -244,7 +244,7 @@ public class HandMenuManager : MonoBehaviour
 
     public void RemoveAllEntries()
     {
-        foreach (var e in _entries.ToList())
+        foreach (HM_Base e in _entries.ToList())
         {
             RemoveEntry(e);
         }
@@ -260,7 +260,7 @@ public class HandMenuManager : MonoBehaviour
         _entries.Where(e => entries.Contains(e)).ToList().ForEach(e =>
         {
             RemoveEntry(e);
-            _entries.Remove(e);
+            _ = _entries.Remove(e);
         });
 
         if (_entries.Count > 0)
@@ -282,7 +282,7 @@ public class HandMenuManager : MonoBehaviour
         _open = visible;
         gameObject.SetActive(_open);
         OnMenuStateChange?.Invoke(_open);
-        if(_locomotionManager == null) _locomotionManager = FindAnyObjectByType<LocomotionManager>();
+        if (_locomotionManager == null) _locomotionManager = FindAnyObjectByType<LocomotionManager>();
         _locomotionManager.LockMove(_open);
     }
 

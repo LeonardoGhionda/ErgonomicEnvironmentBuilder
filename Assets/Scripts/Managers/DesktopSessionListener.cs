@@ -8,63 +8,127 @@ using UnityEngine;
 
 public class DesktopSessionListener : MonoBehaviour
 {
-    [SerializeField] private int listenPort = 4444;
+    [SerializeField] private int inPort = 6987;
+    [SerializeField] private int outPort = 6988;
 
-    private UdpClient udpListener;
-    private string hostIp = "";
-    private ushort hostPort = 0;
-    private bool inviteReceived = false;
+    private UdpClient _udpListener;
+    private string _sessionName = "";
+    private string _hostIp = "";
+    private ushort _hostPort = 0;
+
+    private bool _inviteReceived = false;
+    private bool _waitingForRoom = false;
+    private bool _roomReceived = false;
+    private string _roomJson = "";
+
+    public Action<string> InvitationRecevied;
+    public Action<(string, string)> RoomDataReceived;
+
 
     private void Start()
     {
-        udpListener = new UdpClient(listenPort);
-        udpListener.BeginReceive(ReceiveCallback, null);
+        _udpListener = new UdpClient(inPort);
+        _ = _udpListener.BeginReceive(ReceiveCallback, null);
     }
 
     private void ReceiveCallback(IAsyncResult ar)
     {
-        IPEndPoint endPoint = new (IPAddress.Any, listenPort);
-        byte[] receivedBytes = udpListener.EndReceive(ar, ref endPoint);
-        string message = Encoding.UTF8.GetString(receivedBytes);
-
-        // Parse the payload to ensure it is a valid invite
-        string[] parts = message.Split('|');
-        if (parts.Length == 4 && parts[0] == "VR_INVITE")
+        try
         {
-            hostIp = parts[2];
-            hostPort = ushort.Parse(parts[3]);
-            inviteReceived = true;
-        }
+            IPEndPoint endPoint = new(IPAddress.Any, inPort);
+            byte[] receivedBytes = _udpListener.EndReceive(ar, ref endPoint);
+            string message = Encoding.UTF8.GetString(receivedBytes);
 
-        // Keep listening for future broadcasts
-        udpListener.BeginReceive(ReceiveCallback, null);
+            if (!_waitingForRoom)
+            {
+                string[] parts = message.Split('|');
+                if (parts.Length == 4 && parts[0] == "VR_INVITE")
+                {
+                    _sessionName = parts[1];
+                    _hostIp = parts[2];
+                    _hostPort = ushort.Parse(parts[3]);
+                    _inviteReceived = true;
+                }
+            }
+            else
+            {
+                _roomJson = message;
+                _roomReceived = true;
+            }
+
+            _ = _udpListener.BeginReceive(ReceiveCallback, null);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Socket closed during disable
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     private void Update()
     {
-        // Handle the UI or connection logic on the main Unity thread
-        if (inviteReceived)
+        if (_inviteReceived)
         {
-            inviteReceived = false;
+            _inviteReceived = false;
             HandleInvite();
+        }
+
+        if (_roomReceived)
+        {
+            _roomReceived = false;
+            HandleRoomData();
         }
     }
 
     private void HandleInvite()
     {
-        Debug.Log("VR Session found at " + hostIp);
-        // You can link this to your UI to enable a join button
+        InvitationRecevied?.Invoke(_sessionName);
+    }
+
+    private void HandleRoomData()
+    {
+        string filepath = RoomManagementTools.RoomFullPath(_sessionName);
+        RoomDataReceived?.Invoke((filepath, _roomJson));
+        ConnectToHost();
     }
 
     public void AcceptInvite()
     {
-        var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
-        transport.SetConnectionData(hostIp, hostPort);
-        NetworkManager.Singleton.StartClient();
+        _waitingForRoom = true;
+        SendAcknowledgment();
+    }
+
+    private void SendAcknowledgment()
+    {
+        try
+        {
+            UdpClient sender = new();
+            byte[] data = Encoding.UTF8.GetBytes("HELLO");
+            IPEndPoint hostEndPoint = new(IPAddress.Parse(_hostIp), outPort);
+
+            _ = sender.Send(data, data.Length, hostEndPoint);
+            sender.Close();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to send ACK: {e.Message}");
+        }
+    }
+
+    private void ConnectToHost()
+    {
+        UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+        transport.SetConnectionData(_hostIp, _hostPort);
+        _ = NetworkManager.Singleton.StartClient();
+
+        enabled = false;
     }
 
     private void OnDisable()
     {
-        udpListener?.Close();
+        _udpListener?.Close();
     }
 }

@@ -39,10 +39,10 @@ public class MenuRoomView : MonoBehaviour
         }
 
         // Get room files
-        var rooms = GetFilesInFolder(_roomsPath, "*.room");
+        List<string> rooms = GetFilesInFolder(_roomsPath, "*.room");
 
         // Generate cards for each room
-        foreach (var room in rooms)
+        foreach (string room in rooms)
         {
             GenerateRoomCard(room, container, action);
         }
@@ -62,7 +62,7 @@ public class MenuRoomView : MonoBehaviour
         newCard.GetComponentInChildren<TextMeshProUGUI>().text = roomNameNoExt;
 
         // Add preview image
-        var image = LoadTexture(Path.ChangeExtension(Path.Combine(_roomsPath, room), "png"));
+        Texture2D image = LoadTexture(Path.ChangeExtension(Path.Combine(_roomsPath, room), "png"));
         if (image != null)
             newCard.GetComponentInChildren<RawImage>().texture = image;
 
@@ -72,7 +72,7 @@ public class MenuRoomView : MonoBehaviour
 
     private List<string> GetFilesInFolder(string folderPath, string searchPattern = "*.*")
     {
-        List<string> results = new List<string>();
+        List<string> results = new();
 
         if (!Directory.Exists(folderPath))
         {
@@ -103,8 +103,8 @@ public class MenuRoomView : MonoBehaviour
         if (File.Exists(imagePath))
         {
             byte[] bytes = File.ReadAllBytes(imagePath);
-            Texture2D tex = new Texture2D(2, 2);
-            tex.LoadImage(bytes);
+            Texture2D tex = new(2, 2);
+            _ = tex.LoadImage(bytes);
             return tex;
         }
         return null;

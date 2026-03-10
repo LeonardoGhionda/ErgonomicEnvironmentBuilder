@@ -53,11 +53,11 @@ public class UiTransformation : MonoBehaviour
         CultureInfo.CurrentUICulture = new CultureInfo("en-US");
 
         // Event Listeners
-        foreach (var b in transformBoxes)
+        foreach (TransformBox b in transformBoxes)
         {
-            var currentBox = b;
+            TransformBox currentBox = b;
 
-            foreach (var field in b.fields)
+            foreach (TMP_InputField field in b.fields)
             {
                 field.contentType = TMP_InputField.ContentType.DecimalNumber;
                 field.ForceLabelUpdate();
@@ -69,10 +69,10 @@ public class UiTransformation : MonoBehaviour
     // Helper to cleanup Awake and reduce boilerplate
     private TransformBox CreateBox(RectTransform parent, TransformType type)
     {
-        var unorderedFields = parent.GetComponentsInChildren<TMP_InputField>().ToList();
-        var x = unorderedFields.Find(a => a.name.Contains("x"));
-        var y = unorderedFields.Find(a => a.name.Contains("y"));
-        var z = unorderedFields.Find(a => a.name.Contains("z"));
+        System.Collections.Generic.List<TMP_InputField> unorderedFields = parent.GetComponentsInChildren<TMP_InputField>().ToList();
+        TMP_InputField x = unorderedFields.Find(a => a.name.Contains("x"));
+        TMP_InputField y = unorderedFields.Find(a => a.name.Contains("y"));
+        TMP_InputField z = unorderedFields.Find(a => a.name.Contains("z"));
         return new TransformBox { type = type, fields = new TMP_InputField[] { x, y, z } };
     }
 
@@ -83,7 +83,7 @@ public class UiTransformation : MonoBehaviour
     {
         if (selected == null) return;
 
-        foreach (var b in transformBoxes)
+        foreach (TransformBox b in transformBoxes)
         {
             Vector3 val = Vector3.zero;
             switch (b.type)

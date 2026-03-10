@@ -10,7 +10,7 @@ public static class ImportUtils
     {
         FileBrowser.SetFilters(false, new FileBrowser.Filter("Models", ".obj", ".stp"));
 
-        FileBrowser.ShowLoadDialog((paths) =>
+        _ = FileBrowser.ShowLoadDialog((paths) =>
         {
             ProcessImport(paths[0]);
             onComplete?.Invoke();
@@ -24,7 +24,7 @@ public static class ImportUtils
         string name = Path.GetFileNameWithoutExtension(filePath);
         string destFolder = Path.Combine(ModelsPath, name);
 
-        Directory.CreateDirectory(destFolder);
+        _ = Directory.CreateDirectory(destFolder);
 
         // STP -> BJ Conversion
         if (ext == ".stp")

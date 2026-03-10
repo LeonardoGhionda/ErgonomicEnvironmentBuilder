@@ -56,7 +56,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         [SerializeField]
         [Tooltip("The reference to the action of continuous turning the XR Origin with this controller.")]
         InputActionReference m_Turn;
-        
+
         [SerializeField]
         [Tooltip("The reference to the action of snap turning the XR Origin with this controller.")]
         InputActionReference m_SnapTurn;
@@ -132,8 +132,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         bool m_PostponedDeactivateTeleport;
         bool m_HoveringScrollableUI;
 
-        readonly HashSet<InputAction> m_LocomotionUsers = new HashSet<InputAction>();
-        readonly BindingsGroup m_BindingsGroup = new BindingsGroup();
+        readonly HashSet<InputAction> m_LocomotionUsers = new();
+        readonly BindingsGroup m_BindingsGroup = new();
 
         void SetupInteractorEvents()
         {
@@ -152,7 +152,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 m_RayInteractor.uiHoverExited.AddListener(OnUIHoverExited);
             }
 
-            var teleportModeAction = GetInputAction(m_TeleportMode);
+            InputAction teleportModeAction = GetInputAction(m_TeleportMode);
             if (teleportModeAction != null)
             {
                 teleportModeAction.performed += OnStartTeleport;
@@ -161,27 +161,27 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 teleportModeAction.canceled += OnStopLocomotion;
             }
 
-            var teleportModeCancelAction = GetInputAction(m_TeleportModeCancel);
+            InputAction teleportModeCancelAction = GetInputAction(m_TeleportModeCancel);
             if (teleportModeCancelAction != null)
             {
                 teleportModeCancelAction.performed += OnCancelTeleport;
             }
 
-            var moveAction = GetInputAction(m_Move);
+            InputAction moveAction = GetInputAction(m_Move);
             if (moveAction != null)
             {
                 moveAction.started += OnStartLocomotion;
                 moveAction.canceled += OnStopLocomotion;
             }
 
-            var turnAction = GetInputAction(m_Turn);
+            InputAction turnAction = GetInputAction(m_Turn);
             if (turnAction != null)
             {
                 turnAction.started += OnStartLocomotion;
                 turnAction.canceled += OnStopLocomotion;
             }
 
-            var snapTurnAction = GetInputAction(m_SnapTurn);
+            InputAction snapTurnAction = GetInputAction(m_SnapTurn);
             if (snapTurnAction != null)
             {
                 snapTurnAction.started += OnStartLocomotion;
@@ -207,7 +207,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 m_RayInteractor.uiHoverExited.RemoveListener(OnUIHoverExited);
             }
 
-            var teleportModeAction = GetInputAction(m_TeleportMode);
+            InputAction teleportModeAction = GetInputAction(m_TeleportMode);
             if (teleportModeAction != null)
             {
                 teleportModeAction.performed -= OnStartTeleport;
@@ -216,27 +216,27 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 teleportModeAction.canceled -= OnStopLocomotion;
             }
 
-            var teleportModeCancelAction = GetInputAction(m_TeleportModeCancel);
+            InputAction teleportModeCancelAction = GetInputAction(m_TeleportModeCancel);
             if (teleportModeCancelAction != null)
             {
                 teleportModeCancelAction.performed -= OnCancelTeleport;
             }
 
-            var moveAction = GetInputAction(m_Move);
+            InputAction moveAction = GetInputAction(m_Move);
             if (moveAction != null)
             {
                 moveAction.started -= OnStartLocomotion;
                 moveAction.canceled -= OnStopLocomotion;
             }
 
-            var turnAction = GetInputAction(m_Turn);
+            InputAction turnAction = GetInputAction(m_Turn);
             if (turnAction != null)
             {
                 turnAction.started -= OnStartLocomotion;
                 turnAction.canceled -= OnStopLocomotion;
             }
 
-            var snapTurnAction = GetInputAction(m_SnapTurn);
+            InputAction snapTurnAction = GetInputAction(m_SnapTurn);
             if (snapTurnAction != null)
             {
                 snapTurnAction.started -= OnStartLocomotion;
@@ -288,12 +288,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         void OnStartLocomotion(InputAction.CallbackContext context)
         {
-            m_LocomotionUsers.Add(context.action);
+            _ = m_LocomotionUsers.Add(context.action);
         }
 
         void OnStopLocomotion(InputAction.CallbackContext context)
         {
-            m_LocomotionUsers.Remove(context.action);
+            _ = m_LocomotionUsers.Remove(context.action);
 
             if (m_LocomotionUsers.Count == 0 && m_HoveringScrollableUI)
             {
@@ -440,14 +440,14 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         static void EnableAction(InputActionReference actionReference)
         {
-            var action = GetInputAction(actionReference);
+            InputAction action = GetInputAction(actionReference);
             if (action != null && !action.enabled)
                 action.Enable();
         }
 
         static void DisableAction(InputActionReference actionReference)
         {
-            var action = GetInputAction(actionReference);
+            InputAction action = GetInputAction(actionReference);
             if (action != null && action.enabled)
                 action.Disable();
         }
@@ -471,7 +471,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             {
                 if (m_InputActionsEnabled != null)
                 {
-                    foreach (var item in m_InputActionsEnabled)
+                    foreach (InputActionReference item in m_InputActionsEnabled)
                     {
                         if (item != null && item.action != null)
                             item.action.Enable();

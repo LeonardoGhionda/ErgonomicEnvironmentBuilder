@@ -17,11 +17,11 @@ public static class StringExtension
 
         // Remove starting spaces
         while (sb.Length > 0 && sb.First() == ' ')
-            sb.Remove(0, 1);
+            _ = sb.Remove(0, 1);
 
 
         while (sb.Length > 0 && sb.Last() == ' ')
-            sb.Remove(sb.LastIndex(), 1);
+            _ = sb.Remove(sb.LastIndex(), 1);
 
         return sb.ToString();
     }
@@ -32,11 +32,11 @@ public static class StringExtension
 
         // Remove starting spaces
         while (sb.Length > 0 && sb[0] == ' ')
-            sb.Remove(0, 1);
+            _ = sb.Remove(0, 1);
 
 
         while (sb.Length > 0 && sb.Last() == ' ')
-            sb.Remove(sb.LastIndex(), 1);
+            _ = sb.Remove(sb.LastIndex(), 1);
 
         return sb.ToString();
     }

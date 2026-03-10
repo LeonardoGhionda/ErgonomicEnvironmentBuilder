@@ -12,7 +12,7 @@ public class InGameLogs : MonoBehaviour
     [SerializeField] private int maxLines = 20;
 
     private TextMeshProUGUI _textMesh;
-    private Queue<string> _logQueue = new Queue<string>();
+    private readonly Queue<string> _logQueue = new();
 
     private void Awake()
     {
@@ -70,7 +70,7 @@ public class InGameLogs : MonoBehaviour
     {
         if (_logQueue.Count >= maxLines)
         {
-            _logQueue.Dequeue(); // Remove oldest line
+            _ = _logQueue.Dequeue(); // Remove oldest line
         }
 
         _logQueue.Enqueue(newMessage);

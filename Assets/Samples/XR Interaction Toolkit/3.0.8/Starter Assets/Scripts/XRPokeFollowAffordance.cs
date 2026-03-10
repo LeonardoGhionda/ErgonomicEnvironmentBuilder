@@ -1,7 +1,6 @@
 using System;
 using Unity.Mathematics;
 using Unity.XR.CoreUtils.Bindings;
-using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
 using UnityEngine.XR.Interaction.Toolkit.Filtering;
 using UnityEngine.XR.Interaction.Toolkit.Utilities.Tweenables.Primitives;
 
@@ -116,9 +115,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         IMultiPokeStateDataProvider m_MultiPokeStateDataProvider;
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        readonly Vector3TweenableVariable m_TransformTweenableVariable = new Vector3TweenableVariable();
+        readonly Vector3TweenableVariable m_TransformTweenableVariable = new();
 #pragma warning restore CS0618 // Type or member is obsolete
-        readonly BindingsGroup m_BindingsGroup = new BindingsGroup();
+        readonly BindingsGroup m_BindingsGroup = new();
         Vector3 m_InitialPosition;
         bool m_IsFirstFrame;
 
@@ -187,7 +186,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             // UI Anchors can cause this to not work correctly, so we check if it's a RectTransform and set the localPosition Z only
             if (m_PokeFollowTransform is RectTransform)
             {
-                var targetPosition = m_PokeFollowTransform.localPosition;
+                Vector3 targetPosition = m_PokeFollowTransform.localPosition;
                 targetPosition.z = position.z;
                 m_PokeFollowTransform.localPosition = targetPosition;
             }
@@ -199,14 +198,14 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         void OnPokeStateDataUpdated(PokeStateData data)
         {
-            var pokeTarget = data.target;
-            var applyFollow = m_ApplyIfChildIsTarget
+            Transform pokeTarget = data.target;
+            bool applyFollow = m_ApplyIfChildIsTarget
                 ? pokeTarget != null && pokeTarget.IsChildOf(transform)
                 : pokeTarget == transform;
 
             if (applyFollow)
             {
-                var targetPosition = pokeTarget.InverseTransformPoint(data.axisAlignedPokeInteractionPoint);
+                Vector3 targetPosition = pokeTarget.InverseTransformPoint(data.axisAlignedPokeInteractionPoint);
                 if (m_ClampToMaxDistance && targetPosition.sqrMagnitude > m_MaxDistance * m_MaxDistance)
                     targetPosition = Vector3.ClampMagnitude(targetPosition, m_MaxDistance);
 
@@ -228,7 +227,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 
         void OnDrawGizmos()
         {
-            if (!TryGetTargetEndPoint(out var endPoint))
+            if (!TryGetTargetEndPoint(out Vector3 endPoint))
                 return;
 
             Gizmos.color = Color.yellow;
@@ -291,7 +290,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             }
 
             // Visually update the end point to match the target clamped position
-            if (m_PokeFollowTransform != null && TryGetTargetEndPoint(out var endPoint))
+            if (m_PokeFollowTransform != null && TryGetTargetEndPoint(out Vector3 endPoint))
                 m_PokeFollowTransform.position = endPoint;
         }
     }

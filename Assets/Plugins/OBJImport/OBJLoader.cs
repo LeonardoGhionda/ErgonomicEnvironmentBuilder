@@ -16,10 +16,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System;
-using Dummiesman;
-using System.Text;
-using System.Globalization;
-using UnityEngine.XR.Interaction.Toolkit.Attachment;
 
 
 
@@ -30,12 +26,13 @@ using UnityEditor;
 
 namespace Dummiesman
 {
-    public enum SplitMode {
+    public enum SplitMode
+    {
         None,
         Object,
         Material
     }
-    
+
     public class OBJLoader
     {
         //options
@@ -45,9 +42,9 @@ namespace Dummiesman
         public SplitMode SplitMode = SplitMode.Object;
 
         //global lists, accessed by objobjectbuilder
-        internal List<Vector3> Vertices = new List<Vector3>();
-        internal List<Vector3> Normals = new List<Vector3>();
-        internal List<Vector2> UVs = new List<Vector2>();
+        internal List<Vector3> Vertices = new();
+        internal List<Vector3> Normals = new();
+        internal List<Vector2> UVs = new();
 
         //materials, accessed by objobjectbuilder
         internal Dictionary<string, Material> Materials;
@@ -59,17 +56,17 @@ namespace Dummiesman
         [MenuItem("GameObject/Import From OBJ")]
         static void ObjLoadMenu()
         {
-            string pth =  EditorUtility.OpenFilePanel("Import OBJ", "", "obj");
+            string pth = EditorUtility.OpenFilePanel("Import OBJ", "", "obj");
             if (!string.IsNullOrEmpty(pth))
             {
-                System.Diagnostics.Stopwatch s = new System.Diagnostics.Stopwatch();
+                System.Diagnostics.Stopwatch s = new();
                 s.Start();
 
-                var loader = new OBJLoader
+                OBJLoader loader = new()
                 {
                     SplitMode = SplitMode.Object,
                 };
-                loader.Load(pth);
+                _ = loader.Load(pth);
 
                 Debug.Log($"OBJ import time: {s.ElapsedMilliseconds}ms");
                 s.Stop();
@@ -106,19 +103,19 @@ namespace Dummiesman
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(Stream input)
         {
-            var reader = new StreamReader(input);
+            StreamReader reader = new(input);
             //var reader = new StringReader(inputReader.ReadToEnd());
 
-            Dictionary<string, OBJObjectBuilder> builderDict = new Dictionary<string, OBJObjectBuilder>();
-            OBJObjectBuilder currentBuilder = null;
+            Dictionary<string, OBJObjectBuilder> builderDict = new();
             string currentMaterial = "default";
 
             //lists for face data
             //prevents excess GC
-            List<int> vertexIndices = new List<int>();
-            List<int> normalIndices = new List<int>();
-            List<int> uvIndices = new List<int>();
+            List<int> vertexIndices = new();
+            List<int> normalIndices = new();
+            List<int> uvIndices = new();
 
+            OBJObjectBuilder currentBuilder = null;
             //helper func
             Action<string> setCurrentObjectFunc = (string objectName) =>
             {
@@ -132,60 +129,66 @@ namespace Dummiesman
             //create default object
             setCurrentObjectFunc.Invoke("default");
 
-			//var buffer = new DoubleBuffer(reader, 256 * 1024);
-			var buffer = new CharWordReader(reader, 256 * 1024);
+            //var buffer = new DoubleBuffer(reader, 256 * 1024);
+            CharWordReader buffer = new(reader, 256 * 1024);
 
-			//do the reading
-			while (true)
+            //do the reading
+            while (true)
             {
-				buffer.SkipWhitespaces();
+                buffer.SkipWhitespaces();
 
-				if (buffer.endReached == true) {
-					break;
-				}
+                if (buffer.endReached == true)
+                {
+                    break;
+                }
 
-				buffer.ReadUntilWhiteSpace();
-				
+                buffer.ReadUntilWhiteSpace();
+
                 //comment or blank
                 if (buffer.Is("#"))
                 {
-					buffer.SkipUntilNewLine();
+                    buffer.SkipUntilNewLine();
                     continue;
                 }
-				
-				if (Materials == null && buffer.Is("mtllib")) {
-					buffer.SkipWhitespaces();
-					buffer.ReadUntilNewLine();
-					string mtlLibPath = buffer.GetString();
-					LoadMaterialLibrary(mtlLibPath);
-					continue;
-				}
-				
-				if (buffer.Is("v")) {
-					Vertices.Add(buffer.ReadVector());
-					continue;
-				}
 
-				//normal
-				if (buffer.Is("vn")) {
+                if (Materials == null && buffer.Is("mtllib"))
+                {
+                    buffer.SkipWhitespaces();
+                    buffer.ReadUntilNewLine();
+                    string mtlLibPath = buffer.GetString();
+                    LoadMaterialLibrary(mtlLibPath);
+                    continue;
+                }
+
+                if (buffer.Is("v"))
+                {
+                    Vertices.Add(buffer.ReadVector());
+                    continue;
+                }
+
+                //normal
+                if (buffer.Is("vn"))
+                {
                     Normals.Add(buffer.ReadVector());
                     continue;
                 }
 
                 //uv
-				if (buffer.Is("vt")) {
+                if (buffer.Is("vt"))
+                {
                     UVs.Add(buffer.ReadVector());
                     continue;
                 }
 
                 //new material
-				if (buffer.Is("usemtl")) {
-					buffer.SkipWhitespaces();
-					buffer.ReadUntilNewLine();
-					string materialName = buffer.GetString();
+                if (buffer.Is("usemtl"))
+                {
+                    buffer.SkipWhitespaces();
+                    buffer.ReadUntilNewLine();
+                    string materialName = buffer.GetString();
                     currentMaterial = materialName;
 
-                    if(SplitMode == SplitMode.Material)
+                    if (SplitMode == SplitMode.Material)
                     {
                         setCurrentObjectFunc.Invoke(materialName);
                     }
@@ -193,7 +196,8 @@ namespace Dummiesman
                 }
 
                 //new object
-                if ((buffer.Is("o") || buffer.Is("g")) && SplitMode == SplitMode.Object) {
+                if ((buffer.Is("o") || buffer.Is("g")) && SplitMode == SplitMode.Object)
+                {
                     buffer.ReadUntilNewLine();
                     string objectName = buffer.GetString(1);
                     setCurrentObjectFunc.Invoke(objectName);
@@ -206,27 +210,30 @@ namespace Dummiesman
                     //loop through indices
                     while (true)
                     {
-						bool newLinePassed;
-						buffer.SkipWhitespaces(out newLinePassed);
-						if (newLinePassed == true) {
-							break;
-						}
+                        bool newLinePassed;
+                        buffer.SkipWhitespaces(out newLinePassed);
+                        if (newLinePassed == true)
+                        {
+                            break;
+                        }
 
-                        int vertexIndex = int.MinValue;
                         int normalIndex = int.MinValue;
                         int uvIndex = int.MinValue;
 
-						vertexIndex = buffer.ReadInt();
-						if (buffer.currentChar == '/') {
-							buffer.MoveNext();
-							if (buffer.currentChar != '/') {
-								uvIndex = buffer.ReadInt();
-							}
-							if (buffer.currentChar == '/') {
-								buffer.MoveNext();
-								normalIndex = buffer.ReadInt();
-							}
-						}
+                        int vertexIndex = buffer.ReadInt();
+                        if (buffer.currentChar == '/')
+                        {
+                            buffer.MoveNext();
+                            if (buffer.currentChar != '/')
+                            {
+                                uvIndex = buffer.ReadInt();
+                            }
+                            if (buffer.currentChar == '/')
+                            {
+                                buffer.MoveNext();
+                                normalIndex = buffer.ReadInt();
+                            }
+                        }
 
                         //"postprocess" indices
                         if (vertexIndex > int.MinValue)
@@ -262,23 +269,23 @@ namespace Dummiesman
                     normalIndices.Clear();
                     uvIndices.Clear();
 
-					continue;
+                    continue;
                 }
 
-				buffer.SkipUntilNewLine();
+                buffer.SkipUntilNewLine();
             }
 
             //finally, put it all together
-            GameObject obj = new GameObject(_objInfo != null ? Path.GetFileNameWithoutExtension(_objInfo.Name) : "WavefrontObject");
+            GameObject obj = new(_objInfo != null ? Path.GetFileNameWithoutExtension(_objInfo.Name) : "WavefrontObject");
             //obj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
-            foreach (var builder in builderDict)
+            foreach (KeyValuePair<string, OBJObjectBuilder> builder in builderDict)
             {
                 //empty object
                 if (builder.Value.PushedFaceCount == 0)
                     continue;
 
-                var builtObj = builder.Value.Build();
+                GameObject builtObj = builder.Value.Build();
                 builtObj.transform.SetParent(obj.transform, false);
             }
 
@@ -293,7 +300,7 @@ namespace Dummiesman
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(Stream input, Stream mtlInput)
         {
-            var mtlLoader = new MTLLoader();
+            MTLLoader mtlLoader = new();
             Materials = mtlLoader.Load(mtlInput);
 
             return Load(input);
@@ -310,27 +317,27 @@ namespace Dummiesman
             _objInfo = new FileInfo(path);
             if (!string.IsNullOrEmpty(mtlPath) && File.Exists(mtlPath))
             {
-                var mtlLoader = new MTLLoader();
+                MTLLoader mtlLoader = new();
                 Materials = mtlLoader.Load(mtlPath);
 
-                using (var fs = new FileStream(path, FileMode.Open))
+                using (FileStream fs = new(path, FileMode.Open))
                 {
                     return Load(fs);
                 }
             }
             else
             {
-                using (var fs = new FileStream(path, FileMode.Open))
+                using (FileStream fs = new(path, FileMode.Open))
                 {
 
                     //MTL not found: need a default material
-                    var go = Load(fs);
+                    GameObject go = Load(fs);
 
                     //set URP default material
                     Material dMaterial = Resources.Load<Material>("Materials/Default Gray");
 
-                    var MRs = go.GetComponentsInChildren<MeshRenderer>();
-                    foreach (var mr in MRs)
+                    MeshRenderer[] MRs = go.GetComponentsInChildren<MeshRenderer>();
+                    foreach (MeshRenderer mr in MRs)
                     {
                         mr.material.SetFloat("_Cull", 0);
                         if (mr.material.name == "default (Instance)")

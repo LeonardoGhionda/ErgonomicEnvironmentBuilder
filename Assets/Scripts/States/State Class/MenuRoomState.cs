@@ -1,14 +1,11 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 
 public class MenuRoomState : AbsAppState
 {
     readonly private GameObject _container;
-    private MenuRoomView _view;
-    private RoomBuilderManager _rbm;
-    private GameObject _vrPlayer;
+    private readonly MenuRoomView _view;
+    private readonly RoomBuilderManager _rbm;
+    private readonly GameObject _vrPlayer;
 
     public MenuRoomState(
         StateManager manager,
@@ -26,8 +23,7 @@ public class MenuRoomState : AbsAppState
 
     public override void Enter()
     {
-
-        _vrPlayer.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);  
+        _vrPlayer.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
         //View
         _view.EditRoomCardClicked += StartEdit;

@@ -18,7 +18,7 @@ namespace TMPro.Examples
 
         void Start()
         {
-            StartCoroutine(AnimateVertexColors());
+            _ = StartCoroutine(AnimateVertexColors());
         }
 
 
@@ -35,7 +35,7 @@ namespace TMPro.Examples
             int currentCharacter = 0;
 
             Color32[] newVertexColors;
-            Color32 c0 = m_TextComponent.color;
+            _ = m_TextComponent.color;
 
             while (true)
             {
@@ -60,7 +60,7 @@ namespace TMPro.Examples
                 // Only change the vertex color if the selectedName element is visible.
                 if (textInfo.characterInfo[currentCharacter].isVisible)
                 {
-                    c0 = new Color32((byte)Random.Range(0, 255), (byte)Random.Range(0, 255), (byte)Random.Range(0, 255), 255);
+                    Color32 c0 = new((byte)Random.Range(0, 255), (byte)Random.Range(0, 255), (byte)Random.Range(0, 255), 255);
 
                     newVertexColors[vertexIndex + 0] = c0;
                     newVertexColors[vertexIndex + 1] = c0;

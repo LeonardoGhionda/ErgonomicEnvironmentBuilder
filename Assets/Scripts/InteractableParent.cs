@@ -25,17 +25,17 @@ public class InteractableParent : Interactable
 
     public override void OnSelect()
     {
-        var children = gameObject.GetComponentsInChildren<InteractableObject>();
+        InteractableObject[] children = gameObject.GetComponentsInChildren<InteractableObject>();
         if (children.Length == 0) return;
 
-        Bounds visualBounds = new Bounds(children[0].transform.position, Vector3.zero);
+        Bounds visualBounds = new(children[0].transform.position, Vector3.zero);
 
         // variables for tight bounds calculation
         Vector3 min = Vector3.one * float.MaxValue;
         Vector3 max = Vector3.one * float.MinValue;
 
         // Loop 1: Calculate Center & Detach
-        foreach (var child in children)
+        foreach (InteractableObject child in children)
         {
             if (child.TryGetComponent(out MeshRenderer mr))
             {
@@ -56,7 +56,7 @@ public class InteractableParent : Interactable
         transform.position = visualBounds.center;
 
         // Loop 2: Reattach & Calculate Tight Size
-        foreach (var child in children)
+        foreach (InteractableObject child in children)
         {
             child.transform.SetParent(transform);
 
@@ -74,7 +74,7 @@ public class InteractableParent : Interactable
                     c + new Vector3(-e.x, -e.y, e.z), c + new Vector3(-e.x, -e.y, -e.z)
                 };
 
-                foreach (var p in pts)
+                foreach (Vector3 p in pts)
                 {
                     // transform point to parent local space
                     Vector3 localPt = transform.InverseTransformPoint(child.transform.TransformPoint(p));
@@ -98,7 +98,7 @@ public class InteractableParent : Interactable
     {
 
         MeshRenderer[] childrenMRs = gameObject.GetComponentsInChildren<MeshRenderer>();
-        foreach (var mr in childrenMRs)
+        foreach (MeshRenderer mr in childrenMRs)
         {
             if (_materialsMap.TryGetValue(mr.GetInstanceID(), out Material[] materials))
                 mr.materials = materials;

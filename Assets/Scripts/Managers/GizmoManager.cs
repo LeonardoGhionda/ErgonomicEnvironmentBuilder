@@ -28,7 +28,7 @@ public class GizmoManager : MonoBehaviour
 
     public bool SelectedMoved()
     {
-        var returnValue = _objMoved;
+        bool returnValue = _objMoved;
         _objMoved = false;
         return returnValue;
     }
@@ -92,12 +92,12 @@ public class GizmoManager : MonoBehaviour
 
     private Gizmo _currentGizmo;
 
-    private SnapTools _snapTool = new();
+    private readonly SnapTools _snapTool = new();
 
     private bool _objMoved = false;
 
     // Cache to avoid GC allocations
-    private RaycastHit[] _raycastHitsCache = new RaycastHit[16];
+    private readonly RaycastHit[] _raycastHitsCache = new RaycastHit[16];
     #endregion
 
     #region Injected variables
@@ -132,7 +132,7 @@ public class GizmoManager : MonoBehaviour
     /// </summary>
     public void Stop()
     {
-        foreach (var item in All)
+        foreach (Gizmo item in All)
         {
             item.SetActive(false);
         }
@@ -209,16 +209,17 @@ public class GizmoManager : MonoBehaviour
         if (_currentGizmo == null || !_currentGizmo.IsHandleSelected) return;
 
         // Mouse wrapping logic (infinite drag)
-        var (warped, newPos) = WarpMouse(mousePos);
+        (bool warped, Vector2 newPos) = WarpMouse(mousePos);
         if (warped)
         {
             mousePos = newPos;
             _lastMousePos = newPos; // avoid jump
         }
 
-        float projected = 0f;
         float dot = Mathf.Abs(Vector3.Dot(_cam.transform.forward.normalized, _currentGizmo.SelectedDirection().normalized));
         float trashold = 0.02f;
+
+        float projected;
         // the other method won't work well when the axis is almost perpendicular to the camera view direction
         if (dot >= 1f - trashold && dot <= 1f + trashold)
         {

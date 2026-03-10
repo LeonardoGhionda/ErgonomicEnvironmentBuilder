@@ -15,9 +15,9 @@ public class ImmersiveEditor : AbsAppState
 
     private Vector3 _insideWallPosition = Vector3.zero;
     private bool _hmWaitRelease = false;
-    private bool _snapEnabled = false;
+    private readonly bool _snapEnabled = false;
     private SnapTools _snapTool;
-    private Transform _leftController, _rightController;
+    private readonly Transform _leftController, _rightController;
 
 
     public ImmersiveEditor(
@@ -40,7 +40,7 @@ public class ImmersiveEditor : AbsAppState
         _scaleManager = scaleManager;
 
         // Get controllers from VR player
-        if (_vrPlayer.TryGetComponent<XRInputModalityManager>(out var imManager))
+        if (_vrPlayer.TryGetComponent<XRInputModalityManager>(out XRInputModalityManager imManager))
         {
             _leftController = imManager.leftController.transform;
             _rightController = imManager.rightController.transform;
@@ -131,7 +131,7 @@ public class ImmersiveEditor : AbsAppState
         if (_measureManager.IsMeasuring)
         {
 #if USE_XR //change the vr/DT difference, don't use conditional compiling
-            var rController = _vrPlayer.GetComponent<XRInputModalityManager>().rightController.transform;
+            Transform rController = _vrPlayer.GetComponent<XRInputModalityManager>().rightController.transform;
             _measureManager.MoveCursor(rController);
 #endif
             return;

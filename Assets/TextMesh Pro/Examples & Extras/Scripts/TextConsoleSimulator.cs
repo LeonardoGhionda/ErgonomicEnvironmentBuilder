@@ -17,7 +17,7 @@ namespace TMPro.Examples
 
         void Start()
         {
-            StartCoroutine(RevealCharacters(m_TextComponent));
+            _ = StartCoroutine(RevealCharacters(m_TextComponent));
             //StartCoroutine(RevealWords(m_TextComponent));
         }
 
@@ -88,12 +88,11 @@ namespace TMPro.Examples
             int totalWordCount = textComponent.textInfo.wordCount;
             int totalVisibleCharacters = textComponent.textInfo.characterCount; // Get # of Visible Character in selectedName object
             int counter = 0;
-            int currentWord = 0;
             int visibleCount = 0;
 
             while (true)
             {
-                currentWord = counter % (totalWordCount + 1);
+                int currentWord = counter % (totalWordCount + 1);
 
                 // Get last character index for the current word.
                 if (currentWord == 0) // Display no words.

@@ -3,7 +3,7 @@ using System.IO;
 
 public class LoadRoomState : AbsAppState
 {
-    RoomBuilderManager _rbm;
+    readonly RoomBuilderManager _rbm;
     public LoadRoomState(StateManager manager, AppActions input, RoomBuilderManager rbm) : base(manager, input)
     {
         _rbm = rbm;
@@ -16,11 +16,11 @@ public class LoadRoomState : AbsAppState
 
         // Filters
         FileBrowser.SetFilters(false, new FileBrowser.Filter("Room", ".room"));
-        FileBrowser.SetDefaultFilter(".room");
+        _ = FileBrowser.SetDefaultFilter(".room");
 
         // 3. Apri il Dialogo (Usa le Callback, niente Coroutine!)
         // Parametri: OnSuccess, OnCancel, Mode, Multiple, Path, File, Title, Button
-        FileBrowser.ShowLoadDialog(
+        _ = FileBrowser.ShowLoadDialog(
             OnSuccess,
             OnCancel,
             FileBrowser.PickMode.Files,
@@ -61,8 +61,8 @@ public class LoadRoomState : AbsAppState
     {
         try
         {
-            var metaFiles = Directory.EnumerateFiles(RoomManagementTools.roomsFolderPath, "*.meta", SearchOption.AllDirectories);
-            foreach (var file in metaFiles) File.Delete(file);
+            System.Collections.Generic.IEnumerable<string> metaFiles = Directory.EnumerateFiles(RoomManagementTools.roomsFolderPath, "*.meta", SearchOption.AllDirectories);
+            foreach (string file in metaFiles) File.Delete(file);
         }
         catch { /* Ignore error */ }
     }

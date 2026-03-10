@@ -1,18 +1,24 @@
 using System;
+using System.IO;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MainMenuState : AbsAppState
 {
-    private MainMenuUI _view;
+    private readonly MainMenuUI _view;
     private bool _actionStarted;
 
-    private InputAction _backAction;
+    private readonly InputAction _backAction;
+
+    private readonly DesktopSessionListener _sessionListener;
 
     // Costruttore: riceve View e Manager
     public MainMenuState(StateManager manager, AppActions input, MainMenuUI view) : base(manager, input)
     {
         _view = view;
         _backAction = _input.Ui.GoBackLong;
+        _sessionListener = GameObject.FindAnyObjectByType<DesktopSessionListener>(FindObjectsInactive.Include);
+        GameObject.FindAnyObjectByType<RoomBuilderManager>();
     }
 
     override public void Enter()
@@ -25,10 +31,15 @@ public class MainMenuState : AbsAppState
 
         _view.Show();
 
-        //event subscription
+        // Event subscription
         _view.OnNewRoomClicked += GoNewRoom;
         _view.OnLoadRoomClicked += GoLoadRoom;
         _view.OnOptionsClicked += GoOption;
+        _view.OnJoinClicked += AcceptInvite;
+
+        // Spectator mode
+        _sessionListener.enabled = true;
+        _sessionListener.RoomDataReceived += GoSpectator;
     }
 
     override public void Exit()
@@ -37,6 +48,7 @@ public class MainMenuState : AbsAppState
         _view.OnNewRoomClicked -= GoNewRoom;
         _view.OnLoadRoomClicked -= GoLoadRoom;
         _view.OnOptionsClicked -= GoOption;
+        _view.OnJoinClicked -= AcceptInvite;
         _view.Hide();
 
         _actionStarted = false;
@@ -45,6 +57,7 @@ public class MainMenuState : AbsAppState
         _backAction.performed -= OnGoBackLongPerformed;
         _input.Ui.Disable();
 
+        _sessionListener.RoomDataReceived -= GoSpectator;
     }
 
     override public void UpdateState()
@@ -66,6 +79,24 @@ public class MainMenuState : AbsAppState
     private void GoOption()
     {
         throw new NotImplementedException();
+    }
+
+    private void GoSpectator((string, string) roomData)
+    {
+        // Save room information
+        (string path, string json) = roomData;
+
+        var rbm = GameObject.FindAnyObjectByType<RoomBuilderManager>();
+        rbm.RoomName = Path.GetFileNameWithoutExtension(path);
+        rbm.RoomJson = json;
+
+        //Change scene and state
+        _manager.ChangeStateInNewScene(_manager.Spectator, StateManager.SceneName.Simulation);
+    }
+
+    private void AcceptInvite()
+    {
+        _sessionListener.AcceptInvite();
     }
 
     private void OnGoBackLongStarted(InputAction.CallbackContext _)

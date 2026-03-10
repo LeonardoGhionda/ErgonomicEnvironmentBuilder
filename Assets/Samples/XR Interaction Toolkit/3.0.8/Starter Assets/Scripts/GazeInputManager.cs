@@ -33,7 +33,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
         protected void Awake()
         {
             // Check if we have eye tracking support
-            var inputDeviceList = new List<InputDevice>();
+            List<InputDevice> inputDeviceList = new();
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.EyeTracking, inputDeviceList);
             if (inputDeviceList.Count > 0)
             {
@@ -42,7 +42,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
                 return;
             }
 
-            foreach (var device in InputSystem.InputSystem.devices)
+            foreach (InputSystem.InputDevice device in InputSystem.InputSystem.devices)
             {
                 if (device.layout == k_EyeGazeLayoutName)
                 {

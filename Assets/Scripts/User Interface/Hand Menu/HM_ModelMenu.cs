@@ -12,14 +12,14 @@ public class HM_ModelMenu : HM_Group
         if (!_isMenuOpen)
         {
             // Generates model entris based on the currently saved 
-            var modelsCards = ModelButtonGenerator.VRInit(HMEntryTemplate);
+            System.Collections.Generic.List<HM_SpawnModel> modelsCards = ModelButtonGenerator.VRInit(HMEntryTemplate);
 
             // Add to group
             _group.AddRange(modelsCards.Select(mb => mb.GetComponent<HM_Base>()));
         }
         else
         {
-            foreach (var item in _group)
+            foreach (HM_Base item in _group)
             {
                 Destroy(item.gameObject);
             }

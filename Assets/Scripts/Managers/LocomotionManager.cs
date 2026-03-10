@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit.UI.BodyUI;
 
 public class LocomotionManager : MonoBehaviour
 {

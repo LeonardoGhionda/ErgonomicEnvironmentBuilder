@@ -12,7 +12,7 @@ public static class StepToObjWrapper
 
     public static bool Convert(string path, float scale = 1)
     {
-        var msg = new StringBuilder(512);
+        StringBuilder msg = new(512);
         int result = LoadStepAndTriangulate(path, msg, msg.Capacity);
         if (result == 0 && scale != 1)
         {
@@ -22,11 +22,11 @@ public static class StepToObjWrapper
             {
                 string tempPath = path + ".tmp";
 
-                using var reader = new StreamReader(path);
-                using var writer = new StreamWriter(tempPath);
+                using StreamReader reader = new(path);
+                using StreamWriter writer = new(tempPath);
 
                 string line;
-                var inv = System.Globalization.CultureInfo.InvariantCulture;
+                System.Globalization.CultureInfo inv = System.Globalization.CultureInfo.InvariantCulture;
 
                 while ((line = reader.ReadLine()) != null)
                 {

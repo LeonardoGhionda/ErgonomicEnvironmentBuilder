@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class RoomTestState : AbsAppState
 {
     readonly private RoomBuilderManager _rbm;
     readonly private GameObject _vrPlayer;
+    private readonly VRHostBroadcaster _inviteBroadcaster;
 
     public RoomTestState(
-        StateManager manager, 
+        StateManager manager,
         AppActions input,
         RoomBuilderManager rbm,
         GameObject vrPlayer
@@ -16,6 +16,7 @@ public class RoomTestState : AbsAppState
     {
         _rbm = rbm;
         _vrPlayer = vrPlayer;
+        _inviteBroadcaster = GameObject.FindAnyObjectByType<VRHostBroadcaster>(FindObjectsInactive.Include);
     }
 
     public override void Enter()
@@ -31,14 +32,18 @@ public class RoomTestState : AbsAppState
 
         // Lock far interaction
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
-        foreach (var item in interactors) item.enableFarCasting = false;
+        foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
+
+        // Spectator mode
+        _inviteBroadcaster.enabled = true;
+        _inviteBroadcaster.StartHostingAndBroadcasting(_rbm.RoomName);
     }
 
     public override void Exit()
     {
         // Unlock far interaction
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
-        foreach (var item in interactors) item.enableFarCasting = false;
+        foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
     }
 
     public override void UpdateState()

@@ -141,7 +141,7 @@ public class VRSelectionManager : MonoBehaviour
     {
         if (_selected != null)
         {
-            var manager = GameObject.FindFirstObjectByType<XRInteractionManager>();
+            XRInteractionManager manager = GameObject.FindFirstObjectByType<XRInteractionManager>();
             IXRSelectInteractor interactor = _selected.firstInteractorSelecting;
 
             if (manager != null && interactor != null)
@@ -161,7 +161,7 @@ public class VRSelectionManager : MonoBehaviour
     {
         RaycastHit hit;
         // Sphere collision takes priority (Direct)
-        Physics.SphereCast(controller.position, 0.5f, controller.forward, out RaycastHit sphereHit);
+        _ = Physics.SphereCast(controller.position, 0.5f, controller.forward, out RaycastHit sphereHit);
         if (sphereHit.collider is BoxCollider)
         {
             hit = sphereHit;
@@ -169,7 +169,7 @@ public class VRSelectionManager : MonoBehaviour
         else
         {
             // Raycast
-            Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);
+            _ = Physics.Raycast(controller.position, controller.forward, out RaycastHit rayHit);
             hit = rayHit;
         }
 

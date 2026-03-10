@@ -25,13 +25,13 @@ namespace TMPro.Examples
 
         //private int m_frame = 0;
 
-        static WaitForEndOfFrame k_WaitForEndOfFrame = new WaitForEndOfFrame();
-        static WaitForSeconds[] k_WaitForSecondsRandom = new WaitForSeconds[]
+        static readonly WaitForEndOfFrame k_WaitForEndOfFrame = new();
+        static readonly WaitForSeconds[] k_WaitForSecondsRandom = new WaitForSeconds[]
         {
-            new WaitForSeconds(0.05f), new WaitForSeconds(0.1f), new WaitForSeconds(0.15f), new WaitForSeconds(0.2f), new WaitForSeconds(0.25f),
-            new WaitForSeconds(0.3f), new WaitForSeconds(0.35f), new WaitForSeconds(0.4f), new WaitForSeconds(0.45f), new WaitForSeconds(0.5f),
-            new WaitForSeconds(0.55f), new WaitForSeconds(0.6f), new WaitForSeconds(0.65f), new WaitForSeconds(0.7f), new WaitForSeconds(0.75f),
-            new WaitForSeconds(0.8f), new WaitForSeconds(0.85f), new WaitForSeconds(0.9f), new WaitForSeconds(0.95f), new WaitForSeconds(1.0f),
+            new(0.05f), new(0.1f), new(0.15f), new(0.2f), new(0.25f),
+            new(0.3f), new(0.35f), new(0.4f), new(0.45f), new(0.5f),
+            new(0.55f), new(0.6f), new(0.65f), new(0.7f), new(0.75f),
+            new(0.8f), new(0.85f), new(0.9f), new(0.95f), new(1.0f),
         };
 
         void Awake()
@@ -69,7 +69,7 @@ namespace TMPro.Examples
                 m_textMeshPro.text = string.Empty;
                 m_textMeshPro.isTextObjectScaleStatic = IsTextObjectScaleStatic;
 
-                StartCoroutine(DisplayTextMeshProFloatingText());
+                _ = StartCoroutine(DisplayTextMeshProFloatingText());
             }
             else if (SpawnType == 1)
             {
@@ -85,7 +85,7 @@ namespace TMPro.Examples
                 m_textMesh.anchor = TextAnchor.LowerCenter;
                 m_textMesh.fontSize = 24;
 
-                StartCoroutine(DisplayTextMeshFloatingText());
+                _ = StartCoroutine(DisplayTextMeshFloatingText());
             }
             else if (SpawnType == 2)
             {
@@ -119,9 +119,6 @@ namespace TMPro.Examples
             Vector3 start_pos = m_floatingText_Transform.position;
             Color32 start_color = m_textMeshPro.color;
             float alpha = 255;
-            int int_counter = 0;
-
-
             float fadeDuration = 3 / starting_Count * CountDuration;
 
             while (current_Count > 0)
@@ -134,7 +131,7 @@ namespace TMPro.Examples
                     alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
                 }
 
-                int_counter = (int)current_Count;
+                int int_counter = (int)current_Count;
                 m_textMeshPro.text = int_counter.ToString();
                 //m_textMeshPro.SetText("{0}", (int)current_Count);
 
@@ -162,7 +159,7 @@ namespace TMPro.Examples
 
             m_floatingText_Transform.position = start_pos;
 
-            StartCoroutine(DisplayTextMeshProFloatingText());
+            _ = StartCoroutine(DisplayTextMeshProFloatingText());
         }
 
 
@@ -175,8 +172,6 @@ namespace TMPro.Examples
             Vector3 start_pos = m_floatingText_Transform.position;
             Color32 start_color = m_textMesh.color;
             float alpha = 255;
-            int int_counter = 0;
-
             float fadeDuration = 3 / starting_Count * CountDuration;
 
             while (current_Count > 0)
@@ -189,7 +184,7 @@ namespace TMPro.Examples
                     alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
                 }
 
-                int_counter = (int)current_Count;
+                int int_counter = (int)current_Count;
                 m_textMesh.text = int_counter.ToString();
                 //Debug.Log("Current Count:" + current_Count.ToString("f2"));
 
@@ -217,7 +212,7 @@ namespace TMPro.Examples
 
             m_floatingText_Transform.position = start_pos;
 
-            StartCoroutine(DisplayTextMeshFloatingText());
+            _ = StartCoroutine(DisplayTextMeshFloatingText());
         }
     }
 }
