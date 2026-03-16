@@ -1,66 +1,77 @@
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
-
+using UnityEditor.XR.Management;
+using UnityEditor.XR.Management.Metadata;
+using UnityEngine.XR.Management;
 
 public static class BuildVariants
 {
-    [MenuItem("Build/Build Desktop")]
-    public static void BuildDesktop()
-    {
-        SetOpenXRFlag(false);
-
-        // Build desktop version
-        _ = BuildPipeline.BuildPlayer(GetScenes(), "Builds/Desktop/ErgonomicEnvironmentBuilder.exe",
-            BuildTarget.StandaloneWindows64, BuildOptions.None);
-    }
-
-    [MenuItem("Build/Build VR")]
-    public static void BuildVR()
-    {
-        SetOpenXRFlag(true);
-
-        // Build VR version
-        _ = BuildPipeline.BuildPlayer(GetScenes(), "Builds/VR/ErgonomicEnvironmentBuilder.exe",
-            BuildTarget.StandaloneWindows64, BuildOptions.None);
-    }
-
-    [MenuItem("Flag/Desktop")]
+    [MenuItem("Config/Desktop Profile")]
     public static void FlagDesktop()
     {
-        SetOpenXRFlag(false);
+        SetXRState(false);
     }
 
-    [MenuItem("Flag/VR")]
+    [MenuItem("Config/VR Profile")]
     public static void FlagVR()
     {
-        SetOpenXRFlag(true);
+        SetXRState(true);
     }
 
-    private static void SetOpenXRFlag(bool defined)
+    private static void SetXRState(bool enable)
     {
-        UnityEngine.Debug.LogWarning("WARNING!!! OpenXR must be toggled manually, don't forget >:D");
-        if (defined)
+        // Handle Scripting Define Symbols
+        string currentDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
+        string newDefines;
+
+        if (enable)
         {
-            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone,
-                PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone) + ";USE_XR");
+            if (!currentDefines.Contains("USE_XR"))
+            {
+                newDefines = string.IsNullOrEmpty(currentDefines) ? "USE_XR" : currentDefines + ";USE_XR";
+                PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, newDefines);
+            }
         }
         else
         {
-            string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
-            defines = string.Join(";", defines.Split(';').Where(d => d != "USE_XR"));
-            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, defines);
+            newDefines = string.Join(";", currentDefines.Split(';').Where(d => d != "USE_XR"));
+            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, newDefines);
+        }
+
+        // Handle XR Plugin Management Settings
+        EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out XRGeneralSettingsPerBuildTarget buildTargetSettings);
+
+        if (buildTargetSettings != null)
+        {
+            XRGeneralSettings settings = buildTargetSettings.SettingsForBuildTarget(BuildTargetGroup.Standalone);
+
+            // Toggle Initialize XR on Startup checkbox
+            settings.InitManagerOnStart = enable;
+
+            // This string is the internal ID for the OpenXR Loader
+            string openXRLoaderType = "Unity.XR.OpenXR.OpenXRLoader";
+
+            if (enable)
+            {
+                // Assign the loader to the Standalone target
+                XRPackageMetadataStore.AssignLoader(settings.AssignedSettings, openXRLoaderType, BuildTargetGroup.Standalone);
+            }
+            else
+            {
+                // Remove the loader from the Standalone target
+                XRPackageMetadataStore.RemoveLoader(settings.AssignedSettings, openXRLoaderType, BuildTargetGroup.Standalone);
+            }
+
+            EditorUtility.SetDirty(settings);
+            EditorUtility.SetDirty(settings.AssignedSettings);
+
+            AssetDatabase.SaveAssets();
+            UnityEngine.Debug.Log($"XR State successfully set to: {enable}");
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("XRGeneralSettings not found. Is XR Plugin Management installed?");
         }
     }
-
-    static string[] GetScenes()
-    {
-        string[] scenes = EditorBuildSettings.scenes
-            .Where(s => s.enabled)
-            .Select(s => s.path)
-            .ToArray();
-
-        return scenes;
-    }
 }
-

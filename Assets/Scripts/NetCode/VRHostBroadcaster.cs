@@ -102,4 +102,9 @@ public class VRHostBroadcaster : MonoBehaviour
         _inChannel?.Close();
         _outChannel?.Close();
     }
+
+    private void OnApplicationQuit()
+    {
+        OnDisable();
+    }
 }

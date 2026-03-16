@@ -489,8 +489,11 @@ static public class RoomManagementTools
 
                 childData.transform.ApplyTo(child.transform);
 
-                // Filter non static elements or previusly deleted 
-                if (childData.interactable || !validNames.Contains(child.name)) 
+                // Interactable is only added to use the id (even if some object are not actually interactable)
+                child.AddComponent<InteractableObject>().ID = childData.id;
+
+                // Filter previusly deleted 
+                if (!validNames.Contains(child.name)) 
                     GameObject.Destroy(child.gameObject);
             }
         }

@@ -24,7 +24,6 @@ public class DesktopSessionListener : MonoBehaviour
     public Action<string> InvitationRecevied;
     public Action<(string, string)> RoomDataReceived;
 
-
     private void Start()
     {
         _udpListener = new UdpClient(inPort);
@@ -60,7 +59,6 @@ public class DesktopSessionListener : MonoBehaviour
         }
         catch (ObjectDisposedException)
         {
-            // Socket closed during disable
         }
         catch (Exception e)
         {
@@ -92,7 +90,7 @@ public class DesktopSessionListener : MonoBehaviour
     {
         string filepath = RoomManagementTools.RoomFullPath(_sessionName);
         RoomDataReceived?.Invoke((filepath, _roomJson));
-        ConnectToHost();
+        ConfigureTransport();
     }
 
     public void AcceptInvite()
@@ -118,17 +116,20 @@ public class DesktopSessionListener : MonoBehaviour
         }
     }
 
-    private void ConnectToHost()
+    private void ConfigureTransport()
     {
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         transport.SetConnectionData(_hostIp, _hostPort);
-        _ = NetworkManager.Singleton.StartClient();
-
         enabled = false;
     }
 
     private void OnDisable()
     {
         _udpListener?.Close();
+    }
+
+    private void OnApplicationQuit()
+    {
+        OnDisable();
     }
 }
