@@ -19,7 +19,6 @@ public class ImmersiveEditor : AbsAppState
     private SnapTools _snapTool;
     private readonly Transform _leftController, _rightController;
 
-
     public ImmersiveEditor(
         StateManager manager,
         AppActions input,
@@ -95,9 +94,12 @@ public class ImmersiveEditor : AbsAppState
 
     public override void Exit()
     {
-        RoomManagementTools.GenerateRoomPreview(Camera.main, _rbm.RoomName);
-        RoomManagementTools.Save(_rbm.RoomName);
 
+        _vrPlayer.SetActive(false);
+        RoomManagementTools.GenerateRoomPreview(_rbm.RoomName);
+        _vrPlayer.SetActive(true);
+      
+        RoomManagementTools.Save(_rbm.RoomName);
         RoomManagementTools.CleanupRoom();
 
         // Input

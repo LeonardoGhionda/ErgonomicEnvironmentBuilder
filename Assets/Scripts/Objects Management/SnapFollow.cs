@@ -156,7 +156,8 @@ public class SnapFollow : MonoBehaviour
         if (!_initialized || _target == null) return;
 
 #if !USE_XR
-        Debug.LogWarning($"Missing implementation for Desktop Mod");
+        Debug.LogWarning($"SnapFollowComponent: missing implementation for Desktop Mod");
+        this.enabled = false;
         return;
 #else
 

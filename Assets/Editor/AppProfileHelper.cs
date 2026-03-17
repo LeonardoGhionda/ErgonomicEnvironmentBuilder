@@ -20,7 +20,6 @@ public static class AppProfileHelper
 
     static AppProfileHelper()
     {
-        // Hook into SceneView drawing
         SceneView.duringSceneGui -= OnSceneGUI;
         SceneView.duringSceneGui += OnSceneGUI;
     }
@@ -33,23 +32,12 @@ public static class AppProfileHelper
         Color profileColor = isVR ? Color.green : Color.cyan;
 
         Handles.BeginGUI();
-
         Rect rect = new(10, 10, 130, 25);
         EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 0.7f));
-
-        GUIStyle style = new(EditorStyles.boldLabel);
-        style.normal.textColor = Color.white;
-        style.alignment = TextAnchor.MiddleLeft;
-        style.contentOffset = new Vector2(10, 0);
-
-        GUIStyle valueStyle = new(style);
-        valueStyle.normal.textColor = profileColor;
-        valueStyle.alignment = TextAnchor.MiddleRight;
-        valueStyle.contentOffset = new Vector2(-10, 0);
-
+        GUIStyle style = new(EditorStyles.boldLabel) { normal = { textColor = Color.white }, alignment = TextAnchor.MiddleLeft, contentOffset = new Vector2(10, 0) };
+        GUIStyle valueStyle = new(style) { normal = { textColor = profileColor }, alignment = TextAnchor.MiddleRight, contentOffset = new Vector2(-10, 0) };
         GUI.Label(rect, "Profile:", style);
         GUI.Label(rect, profileName, valueStyle);
-
         Handles.EndGUI();
     }
 
@@ -59,7 +47,11 @@ public static class AppProfileHelper
         string nextVersion = GetNextVersion();
         string rootPath = Path.Combine(Directory.GetCurrentDirectory(), BuildFolderName, nextVersion);
 
+        // We run these sequentially. BuildPipeline.BuildPlayer blocks the main thread.
+        Debug.Log("Starting Desktop Build...");
         BuildDT(rootPath);
+
+        Debug.Log("Starting Immersive Build...");
         BuildVR(rootPath);
 
         Debug.Log($"Batch build complete for version: {nextVersion}");
@@ -94,39 +86,21 @@ public static class AppProfileHelper
     }
 
     [MenuItem("Profile/Desktop Profile")]
-    public static void FlagDesktop()
-    {
-        SetXRState(false);
-    }
+    public static void FlagDesktop() => SetXRState(false);
 
     [MenuItem("Profile/VR Profile")]
-    public static void FlagVR()
-    {
-        SetXRState(true);
-    }
+    public static void FlagVR() => SetXRState(true);
 
     private static void SetXRState(bool enable)
     {
         string currentDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
-        string newDefines;
+        string newDefines = enable
+            ? (currentDefines.Contains(XR_DEFINE) ? currentDefines : (string.IsNullOrEmpty(currentDefines) ? XR_DEFINE : currentDefines + ";" + XR_DEFINE))
+            : string.Join(";", currentDefines.Split(';').Where(d => d != XR_DEFINE));
 
-        if (enable)
-        {
-            if (!currentDefines.Contains(XR_DEFINE))
-            {
-                newDefines = string.IsNullOrEmpty(currentDefines) ? XR_DEFINE : currentDefines + ";" + XR_DEFINE;
-                PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, newDefines);
-            }
-        }
-        else
-        {
-            newDefines = string.Join(";", currentDefines.Split(';').Where(d => d != XR_DEFINE));
-            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, newDefines);
-        }
+        PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, newDefines);
 
-        EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out XRGeneralSettingsPerBuildTarget buildTargetSettings);
-
-        if (buildTargetSettings != null)
+        if (EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out XRGeneralSettingsPerBuildTarget buildTargetSettings))
         {
             XRGeneralSettings settings = buildTargetSettings.SettingsForBuildTarget(BuildTargetGroup.Standalone);
             string openXRLoaderType = "Unity.XR.OpenXR.OpenXRLoader";
@@ -134,25 +108,18 @@ public static class AppProfileHelper
             settings.InitManagerOnStart = enable;
 
             if (enable)
-            {
                 XRPackageMetadataStore.AssignLoader(settings.AssignedSettings, openXRLoaderType, BuildTargetGroup.Standalone);
-            }
             else
-            {
                 XRPackageMetadataStore.RemoveLoader(settings.AssignedSettings, openXRLoaderType, BuildTargetGroup.Standalone);
-            }
 
             EditorUtility.SetDirty(settings);
             EditorUtility.SetDirty(settings.AssignedSettings);
             AssetDatabase.SaveAssets();
+            // Crucial: Force synchronous refresh to apply scripting defines before build starts
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 
-            // Forces overlay update
             SceneView.RepaintAll();
             Debug.Log($"XR State set to: {enable}");
-        }
-        else
-        {
-            Debug.LogError("XRGeneralSettings not found.");
         }
     }
 
@@ -168,36 +135,26 @@ public static class AppProfileHelper
 
         BuildReport report = BuildPipeline.BuildPlayer(options);
         if (report.summary.result == BuildResult.Succeeded)
-        {
             Debug.Log($"Build succeeded: {path}");
-        }
+        else
+            Debug.LogError($"Build failed for {path}: {report.summary.result}");
     }
 
     private static string GetNextVersion()
     {
         string buildRoot = Path.Combine(Directory.GetCurrentDirectory(), BuildFolderName);
-
-        if (!Directory.Exists(buildRoot))
-        {
-            Directory.CreateDirectory(buildRoot);
-            return "1.0.0";
-        }
+        if (!Directory.Exists(buildRoot)) Directory.CreateDirectory(buildRoot);
 
         string[] directories = Directory.GetDirectories(buildRoot);
-        if (directories.Length == 0) return "1.0.0";
-
         var versions = directories
-            .Select(d => Path.GetFileName(d))
+            .Select(Path.GetFileName)
             .Where(name => Version.TryParse(name, out _))
             .Select(name => new Version(name))
             .OrderByDescending(v => v)
             .ToList();
 
         if (versions.Count == 0) return "1.0.0";
-
-        Version lastVersion = versions[0];
-        Version nextVersion = new(lastVersion.Major, lastVersion.Minor, lastVersion.Build + 1);
-
-        return nextVersion.ToString();
+        Version v = versions[0];
+        return new Version(v.Major, v.Minor, v.Build + 1).ToString();
     }
 }

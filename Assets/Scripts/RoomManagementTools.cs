@@ -784,11 +784,38 @@ static public class RoomManagementTools
         }
     }
 
-    public static void GenerateRoomPreview(Camera cam, string roomName)
+    public static void GenerateRoomPreview(string roomName)
     {
+        int previewWidth = 1920, previewHeight = 1080;
         string path = Path.Combine(roomsFolderPath, roomName) + ".png";
-        ScreenshotUtility.CaptureCamera(cam, Screen.width, Screen.height, path);
 
+        // Generate temp camera 
+        GameObject tempCamGO = new("TempCaptureCam");
+        Camera tempCam = tempCamGO.AddComponent<Camera>();
+        
+        // Setup temp cam
+        Vector3 camParam = GetCameraParameters();
+        tempCam.orthographic = true;
+        tempCam.transform.SetPositionAndRotation(new(camParam.x, 10f, camParam.y), Quaternion.Euler(90f, 0f, 0f));
+        tempCam.orthographicSize = camParam.z;
+        tempCam.nearClipPlane = 0.01f;
+        tempCam.farClipPlane = 100f;
+
+        // Find and setup Light
+        GameObject light =
+            GameObject
+            .FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            .First(l => l.type == LightType.Directional)
+            .gameObject;
+
+        bool currentState = light.activeInHierarchy;
+        light.SetActive(true);
+
+        ScreenshotUtility.CaptureCamera(tempCam, previewWidth, previewHeight, path);
+
+        light.SetActive(currentState);
+        GameObject.Destroy(tempCam);
+        GameObject.Destroy(tempCamGO);
     }
 
     /// <summary>
@@ -901,6 +928,63 @@ static public class RoomManagementTools
         {
             Debug.LogError("RoomBuilderManager.CleanupRoom: 'Objects Container' not found!");
         }
+    }
+
+    /// <summary>
+    /// Gets the initialization camera parameters that are centered on the room bounds.
+    /// </summary>
+    /// <returns>A vector 3 where (x,y) are the camera position (x,z) and z = orthograficSize</returns>
+    public static Vector3 GetCameraParameters()
+    {
+        Transform roomContainer = GameObject.Find("Room Container").transform;
+
+        //Force Unity to update collider bounds immediately
+        Physics.SyncTransforms();
+
+        // Get relevant colliders (excluding Ground/Roof)
+        BoxCollider[] colliders = roomContainer
+            .GetComponentsInChildren<BoxCollider>()
+            .Where(c => c.CompareTag("Wall"))
+            .ToArray();
+
+        if (colliders.Length == 0) return new Vector3(0, 0, 5f);
+
+        // Calculate total bounds 
+        Bounds totalBounds = colliders[0].bounds;
+        foreach (BoxCollider c in colliders)
+        {
+            totalBounds.Encapsulate(c.bounds);
+        }
+
+        // Camera calculations
+        float padding = 1.2f; // 20% margin
+        float screenAspect = Camera.main != null ? Camera.main.aspect : 1.77f;
+
+        // Dimensions
+        float roomWidth = totalBounds.size.x;
+        float roomHeight = totalBounds.size.z; // Z is height in top-down view
+        float roomAspect = roomWidth / roomHeight;
+
+        float orthoSize;
+
+        // Determine limiting dimension
+        if (screenAspect >= roomAspect)
+        {
+            // Screen is wider than room: Fit to Height (Z)
+            orthoSize = (roomHeight / 2f) * padding;
+        }
+        else
+        {
+            // Screen is narrower than room: Fit to Width (X)
+            // Formula: Size = Width / (2 * AspectRatio)
+            orthoSize = (roomWidth / (2f * screenAspect)) * padding;
+        }
+
+        // Safety clamp to prevent 0 zoom
+        orthoSize = Mathf.Max(orthoSize, 2f);
+
+        // Return: X = CenterX, Y = CenterZ, Z = OrthoSize
+        return new Vector3(totalBounds.center.x, totalBounds.center.z, orthoSize);
     }
 }
 

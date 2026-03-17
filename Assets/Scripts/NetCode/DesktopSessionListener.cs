@@ -8,8 +8,9 @@ using UnityEngine;
 
 public class DesktopSessionListener : MonoBehaviour
 {
-    [SerializeField] private int inPort = 6987;
-    [SerializeField] private int outPort = 6988;
+    // These must be the OPPOSITE of the Host's ports
+    [SerializeField] private int listenPort = 6987; // Host sends broadcasts here
+    [SerializeField] private int hostListenPort = 6988; // Host waits for ACK here
 
     private UdpClient _udpListener;
     private string _sessionName = "";
@@ -26,15 +27,16 @@ public class DesktopSessionListener : MonoBehaviour
 
     private void Start()
     {
-        _udpListener = new UdpClient(inPort);
-        _ = _udpListener.BeginReceive(ReceiveCallback, null);
+        // Listen for broadcasts from the VR Host
+        _udpListener = new UdpClient(listenPort);
+        _udpListener.BeginReceive(ReceiveCallback, null);
     }
 
     private void ReceiveCallback(IAsyncResult ar)
     {
         try
         {
-            IPEndPoint endPoint = new(IPAddress.Any, inPort);
+            IPEndPoint endPoint = new(IPAddress.Any, listenPort);
             byte[] receivedBytes = _udpListener.EndReceive(ar, ref endPoint);
             string message = Encoding.UTF8.GetString(receivedBytes);
 
@@ -51,18 +53,18 @@ public class DesktopSessionListener : MonoBehaviour
             }
             else
             {
+                // This is the Room JSON being sent back from the Host
                 _roomJson = message;
                 _roomReceived = true;
             }
 
-            _ = _udpListener.BeginReceive(ReceiveCallback, null);
+            // Keep listening
+            _udpListener.BeginReceive(ReceiveCallback, null);
         }
-        catch (ObjectDisposedException)
-        {
-        }
+        catch (ObjectDisposedException) { }
         catch (Exception e)
         {
-            Debug.LogError(e.Message);
+            Debug.LogError($"Receive error: {e.Message}");
         }
     }
 
@@ -103,12 +105,13 @@ public class DesktopSessionListener : MonoBehaviour
     {
         try
         {
-            UdpClient sender = new();
+            // Temporary client to send the "HELLO"
+            using UdpClient sender = new();
             byte[] data = Encoding.UTF8.GetBytes("HELLO");
-            IPEndPoint hostEndPoint = new(IPAddress.Parse(_hostIp), outPort);
+            // Send to the Host's specific listening port (6988)
+            IPEndPoint hostEndPoint = new(IPAddress.Parse(_hostIp), hostListenPort);
 
-            _ = sender.Send(data, data.Length, hostEndPoint);
-            sender.Close();
+            sender.Send(data, data.Length, hostEndPoint);
         }
         catch (Exception e)
         {
@@ -120,6 +123,8 @@ public class DesktopSessionListener : MonoBehaviour
     {
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         transport.SetConnectionData(_hostIp, _hostPort);
+        // Do not disable yet if you need to keep the connection, 
+        // but here we stop the UDP listener discovery logic
         enabled = false;
     }
 

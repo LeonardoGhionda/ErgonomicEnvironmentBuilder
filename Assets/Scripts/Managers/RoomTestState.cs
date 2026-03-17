@@ -24,7 +24,6 @@ public class RoomTestState : AbsAppState
         _networkPrefabMimic = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs
             .Select(p => p.Prefab.GetComponent<NetworkPrefabMimic>())
             .First(mimic => mimic != null);
-
     }
 
     public override void Enter()

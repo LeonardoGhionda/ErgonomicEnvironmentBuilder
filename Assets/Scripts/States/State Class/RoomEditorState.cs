@@ -18,7 +18,7 @@ public class RoomEditorState : AbsAppState
     private readonly DTSelectionManager _selectionManager;
     private readonly MeasureManager _measureManager;
 
-    private Vector2 mousePos => _input.Ui.Point.ReadValue<Vector2>();
+    private Vector2 MousePos => _input.Ui.Point.ReadValue<Vector2>();
 
     private bool _mouseShownInPerspective = false;
 
@@ -52,8 +52,8 @@ public class RoomEditorState : AbsAppState
         _view.OnSaveClicked += SaveRoom;
         _view.OnQuitClicked += QuitRoom;
         _view.OnModelButtonClicked += PlaceModel;
-        _view.OnTranformButtonClicked += (TransformMode mode) => ChangeTransformType(mode);
-        _view.OnCoordinateModeChanged += (CoordText button) => ChangeCoordSystem(button);
+        _view.OnTranformButtonClicked += mode => ChangeTransformType(mode);
+        _view.OnCoordinateModeChanged += button => ChangeCoordSystem(button);
         _view.OnTransformInputChanged += HandleTransformChange;
         _view.OnMeasureButtonPressed += StartMeasure;
         _view.OnClearMeasureButtonPressed += ClearMeasures;
@@ -77,7 +77,7 @@ public class RoomEditorState : AbsAppState
 
         // Start Camera
         _camController.enabled = true;
-        Vector3 camParams = GetCameraParameters();
+        Vector3 camParams = RoomManagementTools.GetCameraParameters();
         _camController.InitOrtho(_input, new Vector3(camParams.x, 50f, camParams.y), camParams.z);
 
         // Ui Action always enabled
@@ -98,8 +98,8 @@ public class RoomEditorState : AbsAppState
         _view.OnSaveClicked -= SaveRoom;
         _view.OnQuitClicked -= QuitRoom;
         _view.OnModelButtonClicked -= PlaceModel;
-        _view.OnTranformButtonClicked -= (TransformMode mode) => ChangeTransformType(mode);
-        _view.OnCoordinateModeChanged -= (CoordText button) => ChangeCoordSystem(button);
+        _view.OnTranformButtonClicked -= mode => ChangeTransformType(mode);
+        _view.OnCoordinateModeChanged -= button => ChangeCoordSystem(button);
         _view.OnTransformInputChanged -= HandleTransformChange;
         _view.OnMeasureButtonPressed -= StartMeasure;
         _view.OnClearMeasureButtonPressed -= ClearMeasures;
@@ -130,7 +130,7 @@ public class RoomEditorState : AbsAppState
         // Move camera in position and generate a room preview
         // Preview is used in Vr menus
         _camController.SetOrtho(true);
-        RoomManagementTools.GenerateRoomPreview(_camController.Camera, _rbm.RoomName);
+        RoomManagementTools.GenerateRoomPreview(_rbm.RoomName);
     }
 
     public override void UpdateState()
@@ -139,7 +139,7 @@ public class RoomEditorState : AbsAppState
         if (_measureManager.IsMeasuring)
         {
 #if !USE_XR 
-            _measureManager.MoveCursor(mousePos); 
+            _measureManager.MoveCursor(MousePos); 
 #endif
             return;
         }
@@ -147,7 +147,7 @@ public class RoomEditorState : AbsAppState
         if (_selectionManager.SelectionExist)
         {
             _gizmoManager.ScaleHandlesByCameraDistance(_selectionManager.SelectionTransform);
-            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, mousePos, _input.Ui.Snap.IsPressed());
+            _gizmoManager.HandleDragging(_selectionManager.SelectionTransform, MousePos, _input.Ui.Snap.IsPressed());
             if (_gizmoManager.SelectedMoved())
             {
                 // Update HUD values during dragging
@@ -190,7 +190,7 @@ public class RoomEditorState : AbsAppState
         // If there is a selection, check if we hit a handle first
         if (_selectionManager.SelectionExist)
         {
-            if (_gizmoManager.TrySelectHandle(mousePos))
+            if (_gizmoManager.TrySelectHandle(MousePos))
             {
                 return;
             }
@@ -381,70 +381,6 @@ public class RoomEditorState : AbsAppState
     //UTILS 
     //-------------
 
-    /// <summary>
-    /// Gets the initialization camera parameters that are centered on the room bounds.
-    /// </summary>
-    /// <returns>A vector 3 where (x,y) are the camera position (x,z) and z = orthograficSize</returns>
-    Vector3 GetCameraParameters()
-    {
-        Transform roomContainer = GameObject.Find("Room Container")?.transform;
-
-        if (roomContainer == null)
-        {
-            return new Vector3(0, 0, 5f);
-        }
-
-        //Force Unity to update collider bounds immediately
-        Physics.SyncTransforms();
-
-        // Get relevant colliders (excluding Ground/Roof)
-        BoxCollider[] colliders = roomContainer
-            .GetComponentsInChildren<BoxCollider>()
-            .Where(c => !c.name.Contains("Ground") && !c.name.Contains("Roof"))
-            .ToArray();
-
-        if (colliders.Length == 0) return new Vector3(0, 0, 5f);
-
-        // Calculate total bounds 
-        Bounds totalBounds = colliders[0].bounds;
-        foreach (BoxCollider c in colliders)
-        {
-            totalBounds.Encapsulate(c.bounds);
-        }
-
-        // Camera calculations
-        float padding = 1.2f; // 20% margin
-        float screenAspect = Camera.main != null ? Camera.main.aspect : 1.77f;
-
-        // Dimensions
-        float roomWidth = totalBounds.size.x;
-        float roomHeight = totalBounds.size.z; // Z is height in top-down view
-        float roomAspect = roomWidth / roomHeight;
-
-        float orthoSize;
-
-        // Determine limiting dimension
-        if (screenAspect >= roomAspect)
-        {
-            // Screen is wider than room: Fit to Height (Z)
-            orthoSize = (roomHeight / 2f) * padding;
-        }
-        else
-        {
-            // Screen is narrower than room: Fit to Width (X)
-            // Formula: Size = Width / (2 * AspectRatio)
-            orthoSize = (roomWidth / (2f * screenAspect)) * padding;
-        }
-
-        // Safety clamp to prevent 0 zoom
-        orthoSize = Mathf.Max(orthoSize, 2f);
-
-
-
-        // Return: X = CenterX, Y = CenterZ, Z = OrthoSize
-        return new Vector3(totalBounds.center.x, totalBounds.center.z, orthoSize);
-    }
-
     private bool IsPointerOverUi()
     {
         // Check if EventSystem exists
@@ -484,7 +420,7 @@ public class RoomEditorState : AbsAppState
     private void ApplyModification(Transform t, TransSpace space, TransType type, Axis axis, float val)
     {
         // Helper to modify a single component of a vector
-        Vector3 ModifyVector(Vector3 original, Axis a, float v)
+        static Vector3 ModifyVector(Vector3 original, Axis a, float v)
         {
             if (a == Axis.X) original.x = v;
             if (a == Axis.Y) original.y = v;
