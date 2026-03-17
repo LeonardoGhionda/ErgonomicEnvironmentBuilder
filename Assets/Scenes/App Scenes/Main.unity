@@ -38563,12 +38563,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f22f2cba326f94e8e4fde5319164b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moCapContainer: {fileID: 0}
-  moCapRoot: {fileID: 0}
-  moCapHead: {fileID: 0}
+  mocapPrefab: {fileID: 4458246625269001003, guid: e138a61291490164abee67f318b32172, type: 3}
   vrCamera: {fileID: 1489869853}
-  eyeOffset: {x: 0, y: 0.15, z: 0.15}
-  rootRotationOffset: 0
+  EyeOffset: {x: 0, y: 0.15, z: 0.1}
+  RotationOffset: 90
 --- !u!4 &6528530117724131401
 Transform:
   m_ObjectHideFlags: 0

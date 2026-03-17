@@ -15,7 +15,7 @@ public class SpectatorState : AbsAppState
         _input.CameraMovement.Enable();
 
         string json = GameObject.FindAnyObjectByType<RoomBuilderManager>().RoomJson;
-        RoomManagementTools.BuildSpectatorRoom(json);
+        RoomManagementTools.CreateSpectatorRoom(json);
 
         _ = NetworkManager.Singleton.StartClient();
     }

@@ -1,11 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class RoomTestState : AbsAppState
 {
-    readonly private RoomBuilderManager _rbm;
-    readonly private GameObject _vrPlayer;
+    private readonly RoomBuilderManager _rbm;
+    private readonly GameObject _vrPlayer;
     private readonly VRHostBroadcaster _inviteBroadcaster;
+    private readonly NetworkPrefabMimic _networkPrefabMimic;
 
     public RoomTestState(
         StateManager manager,
@@ -17,37 +20,39 @@ public class RoomTestState : AbsAppState
         _rbm = rbm;
         _vrPlayer = vrPlayer;
         _inviteBroadcaster = GameObject.FindAnyObjectByType<VRHostBroadcaster>(FindObjectsInactive.Include);
+
+        _networkPrefabMimic = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs
+            .Select(p => p.Prefab.GetComponent<NetworkPrefabMimic>())
+            .First(mimic => mimic != null);
+
     }
 
     public override void Enter()
     {
-        // Room creation and player positioning
-        RoomManagementTools.CreateTestRoom(_rbm.RoomName);
-        // Forece physics update to sync transforms
+        _inviteBroadcaster.enabled = true;
+        _inviteBroadcaster.StartHostingAndBroadcasting(_rbm.RoomName);
+
+        RoomManagementTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
+
         Physics.SyncTransforms();
-        // Set player position inside walls 
+
         Vector3 insideWallPosition = RoomManagementTools.FindInternalPoint();
         insideWallPosition.y = 0;
         _vrPlayer.transform.position = insideWallPosition;
 
-        // Lock far interaction
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
-
-        // Spectator mode
-        _inviteBroadcaster.enabled = true;
-        _inviteBroadcaster.StartHostingAndBroadcasting(_rbm.RoomName);
+        
+        _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = true;
     }
 
     public override void Exit()
     {
-        // Unlock far interaction
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
-        foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
+        foreach (NearFarInteractor item in interactors) item.enableFarCasting = true;
+
+        _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = false;
     }
 
-    public override void UpdateState()
-    {
-
-    }
+    public override void UpdateState() {}
 }

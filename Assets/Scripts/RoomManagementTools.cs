@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -395,20 +396,13 @@ static public class RoomManagementTools
 
     }
 
-    public static void CreateTestRoom(string roomName)
+    public static void CreateTestRoom(string roomName, GameObject mimicPrefab)
     {
-        // --- Get Resources ---
-
-        // All object added at runtime are stored here
         GameObject objectsContainer = GameObject.Find("Objects Container");
 
-        // Create the generic room
         RoomData data = LoadRoomDataFromName(roomName);
         CreateRoom(data);
 
-        // --- Floor Teleportation ---
-
-        // Get floor
         string groundName = floorName;
         GameObject ground = GameObject.Find(groundName);
 
@@ -418,19 +412,14 @@ static public class RoomManagementTools
             return;
         }
 
-
-        // Setup ground for teleportation
         TeleportationArea tpArea = ground.AddComponent<TeleportationArea>();
         tpArea.teleportationProvider = GameObject.FindFirstObjectByType<TeleportationProvider>();
         tpArea.colliders.Add(ground.GetComponent<Collider>());
         tpArea.interactionLayers = InteractionLayerMask.GetMask("Teleport");
 
-
-        // --- Vr Object initialization ---
         InteractableParent[] parents = objectsContainer.GetComponentsInChildren<InteractableParent>();
         ParentData[] parentsData = data.objects.ToArray();
 
-        // We need to iterate again on data to initialize gravity 
         foreach (ParentData parentData in parentsData)
         {
             try
@@ -439,11 +428,15 @@ static public class RoomManagementTools
 
                 InteractableObject[] children = parent.GetComponentsInChildren<InteractableObject>();
 
-
                 foreach (ChildrenData childrenData in parentData.children)
                 {
                     InteractableObject intObject = children.First(c => c.ID == childrenData.id);
                     SetUpTestObject(intObject.transform, childrenData.gravityEnabled, childrenData.interactable);
+
+                    GameObject mimicInstance = 
+                        UnityEngine.Object.Instantiate(mimicPrefab, intObject.transform.position, intObject.transform.rotation);
+                    mimicInstance.GetComponent<NetworkObject>().Spawn();
+                    mimicInstance.GetComponent<NetworkPrefabMimic>().InitHostSide(intObject);
                 }
             }
             catch (Exception e)
@@ -453,47 +446,36 @@ static public class RoomManagementTools
         }
     }
 
-    /// <summary>
-    /// Only create static elements, the rest is handled by netcode
-    /// </summary>
-    /// <param name="roomName"></param>
-    public static void BuildSpectatorRoom(string json)
+    public static void CreateSpectatorRoom(string json)
     {
         RoomData data = JsonUtility.FromJson<RoomData>(json);
         CreateRoomStructure(data);
 
-        //all object added at runtime are stored here
-        GameObject objectsContainer = GameObject.Find("Objects Container");
+        Transform objectsContainer = GameObject.Find("Objects Container").transform;
 
-        //create objects snd filter non static
         ParentData[] objsData = data.objects.ToArray();
         foreach (ParentData parentData in objsData)
         {
-            //load obj file
             OBJLoader loader = new();
             GameObject parent = loader.FindMTLAndLoad(parentData.objFilePath);
 
-            //copy saved transform
             parentData.transform.ApplyTo(parent.transform);
 
-            // Setup children
+            parent.transform.SetParent(objectsContainer);
+
             ChildrenData[] children = parentData.children.ToArray();
 
-            // Cache valid names into a HashSet for O(1) lookup
             HashSet<string> validNames = new(children.Select(c => c.name));
 
             foreach (ChildrenData childData in children)
             {
-                // Find correct child by name
                 Transform child = parent.transform.Find(childData.name);
 
                 childData.transform.ApplyTo(child.transform);
 
-                // Interactable is only added to use the id (even if some object are not actually interactable)
-                child.AddComponent<InteractableObject>().ID = childData.id;
+                child.gameObject.AddComponent<InteractableObject>().ID = childData.id;
 
-                // Filter previusly deleted 
-                if (!validNames.Contains(child.name)) 
+                if (!validNames.Contains(child.name))
                     GameObject.Destroy(child.gameObject);
             }
         }
@@ -741,10 +723,10 @@ static public class RoomManagementTools
 
         Rigidbody rb = obj.AddComponent<Rigidbody>();
         rb.useGravity = gravityEnabled;
-        rb.isKinematic = false;
+        rb.isKinematic = !gravityEnabled;
 
         XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
-        xrg.throwOnDetach = true;
+        xrg.throwOnDetach = !rb.isKinematic;
         xrg.useDynamicAttach = true;
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;

@@ -19,7 +19,7 @@ abstract public class Interactable : MonoBehaviour
     public static Interactable FindByID(string ID)
     {
         GameObject objContainer = GameObject.Find("Objects Container");
-        if (objContainer != null) throw new Exception("Objects Container not found in current scene");
+        if (objContainer == null) throw new Exception("Objects Container not found in current scene");
         Interactable result = objContainer.GetComponentsInChildren<Interactable>().First(i => i.ID == ID);
         return result;
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using Unity.Netcode;
 using UnityEngine;
 
 public class BoneDataReceiver : MonoBehaviour
@@ -29,10 +30,12 @@ public class BoneDataReceiver : MonoBehaviour
 
     void Start()
     {
-
-        //Vector3 localHeadPos = Avatar.InverseTransformPoint(HeadBone.position);
-        //HeadOffset = new Vector2(localHeadPos.x, localHeadPos.z);
-
+        // The client instance of this armature must not open any connection 
+        if (NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
+        {
+            this.enabled = false;
+            return;
+        }
 
         bones = new List<Transform>();
         GetBoneStructRecursive(RootBone);
