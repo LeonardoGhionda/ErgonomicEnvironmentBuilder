@@ -8,90 +8,54 @@ public class NetworkPrefabMimic : NetworkBehaviour
     private bool _init = false;
     private Transform _target;
 
-    public NetworkVariable<FixedString128Bytes> ID = new(
+    public NetworkVariable<FixedString128Bytes> TargetID = new(
         "",
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
 
-    public override void OnNetworkSpawn()
-    {
-        if (!IsServer)
-        {
-            ID.OnValueChanged += HandleModelPathChanged;
-
-            if (!string.IsNullOrEmpty(ID.Value.ToString()))
-            {
-                InitClientSide(ID.Value.ToString());
-            }
-        }
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        if (!IsServer)
-        {
-            ID.OnValueChanged -= HandleModelPathChanged;
-        }
-    }
-
-    private void HandleModelPathChanged(FixedString128Bytes previousValue, FixedString128Bytes newValue)
-    {
-        if (!_init && !string.IsNullOrEmpty(newValue.ToString()))
-        {
-            InitClientSide(newValue.ToString());
-        }
-    }
-
     public void InitHostSide(Interactable target)
     {
-        if (!IsServer) throw new Exception("This function should only be called from the server/host");
+        if (!IsServer) return;
 
         _target = target.transform;
-        ID.Value = target.ID;
-
+        TargetID.Value = target.ID;
         _init = true;
     }
 
-    public void InitClientSide(string targetID)
+    private void TryInitClientSide()
     {
-        if (IsServer) throw new Exception("This function should only be called from the client");
-        if (string.IsNullOrEmpty(targetID)) Debug.LogError("ID is null or empty");
+        if (_init || TargetID.Value == "") return;
 
-        Interactable foundInteractable = Interactable.FindByID(targetID);
+        Interactable foundInteractable = Interactable.FindByID(TargetID.Value.ToString());
 
         if (foundInteractable != null)
         {
             _target = foundInteractable.transform;
             _init = true;
         }
-        else
-        {
-            Debug.LogError("Could not find Interactable with ID: " + targetID);
-        }
-    }
-
-    public void MimicTarget()
-    {
-        transform.SetPositionAndRotation(_target.position, _target.rotation);
-    }
-
-    public void SetTargetTransform()
-    {
-        _target.SetPositionAndRotation(transform.position, transform.rotation);
     }
 
     private void Update()
     {
-        if (!_init) return;
+        if (!_init)
+        {
+            if (!IsServer)
+            {
+                TryInitClientSide();
+            }
+            return;
+        }
+
+        if (_target == null) return;
 
         if (IsServer)
         {
-            MimicTarget();
+            transform.SetPositionAndRotation(_target.position, _target.rotation);
         }
         else
         {
-            SetTargetTransform();
+            _target.SetPositionAndRotation(transform.position, transform.rotation);
         }
     }
 }

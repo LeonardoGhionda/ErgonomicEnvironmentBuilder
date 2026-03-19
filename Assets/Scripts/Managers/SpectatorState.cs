@@ -17,7 +17,10 @@ public class SpectatorState : AbsAppState
         string json = GameObject.FindAnyObjectByType<RoomBuilderManager>().RoomJson;
         RoomManagementTools.CreateSpectatorRoom(json);
 
-        _ = NetworkManager.Singleton.StartClient();
+        if (!NetworkManager.Singleton.IsListening)
+        {
+            _ = NetworkManager.Singleton.StartClient();
+        }
     }
 
     public override void Exit()

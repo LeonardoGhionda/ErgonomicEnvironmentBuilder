@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -35,6 +36,8 @@ public class StateManager : MonoBehaviour
     [SerializeField] private HandMenuManager handMenuManager;
     [SerializeField] private ScaleManager scaleManager;
 
+    [SerializeField] private NetworkManager networkManager;
+
     [Header("Components")]
     [SerializeField] private CameraController cameraController;
 
@@ -64,7 +67,10 @@ public class StateManager : MonoBehaviour
         // Initialize Input
         _appInput = new AppActions();
 
-        DontDestroyOnLoad(transform.parent.gameObject); // Make all managers persistent through different scenes
+        // Make all managers persistent through different scenes
+        DontDestroyOnLoad(transform.parent.gameObject); 
+        DontDestroyOnLoad(networkManager.gameObject);
+
         DontDestroyOnLoad(VRPlayer);
     }
 
