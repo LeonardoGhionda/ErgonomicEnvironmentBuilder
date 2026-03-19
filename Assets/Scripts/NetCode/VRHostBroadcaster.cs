@@ -18,9 +18,12 @@ public class VRHostBroadcaster : MonoBehaviour
 
     public void StartHostingAndBroadcasting(string sessionName)
     {
-        NetworkManager.Singleton.StartHost();
-        UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         string localIp = GetLocalIPAddress();
+        UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+
+        transport.SetConnectionData(localIp, transport.ConnectionData.Port, "0.0.0.0");
+
+        NetworkManager.Singleton.StartHost();
         ushort hostPort = transport.ConnectionData.Port;
 
         _roomName = sessionName;
@@ -55,15 +58,18 @@ public class VRHostBroadcaster : MonoBehaviour
 
     private string GetLocalIPAddress()
     {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList)
+        try
         {
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
-            {
-                return ip.ToString();
-            }
+            using Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+            socket.Connect("8.8.8.8", 65530);
+            IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+            return endPoint.Address.ToString();
         }
-        return "127.0.0.1";
+        catch (Exception e)
+        {
+            Debug.LogError("IP Resolution Error: " + e.Message);
+            return "127.0.0.1";
+        }
     }
 
     private void OnDisable()

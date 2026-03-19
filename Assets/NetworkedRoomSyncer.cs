@@ -84,9 +84,10 @@ public class NetworkedRoomSyncer : MonoBehaviour
                 string originalMatch = m.Groups[1].Value;
                 string path = originalMatch.Replace("\\\\", "\\").Replace("/", "\\");
                 string fileName = Path.GetFileName(path);
-                string clientPath = Path.Combine(Application.persistentDataPath, "DownloadedModels", fileName).Replace("\\", "/");
 
-                modifiedJson = modifiedJson.Replace(originalMatch, clientPath);
+                string placeholderPath = "CLIENT_LOCAL_MODELS_DIR/" + fileName;
+
+                modifiedJson = modifiedJson.Replace(originalMatch, placeholderPath);
 
                 if (!filePaths.Contains(path)) filePaths.Add(path);
             }
@@ -157,7 +158,11 @@ public class NetworkedRoomSyncer : MonoBehaviour
         byte[] jsonData = new byte[length];
         messagePayload.ReadBytesSafe(ref jsonData, length);
 
-        _pendingJson = Encoding.UTF8.GetString(jsonData);
+        string rawJson = Encoding.UTF8.GetString(jsonData);
+
+        string clientSaveDir = Path.Combine(Application.persistentDataPath, "DownloadedModels").Replace("\\", "/");
+        _pendingJson = rawJson.Replace("CLIENT_LOCAL_MODELS_DIR", clientSaveDir);
+
         CheckCompletion();
     }
 
