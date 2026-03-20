@@ -10,14 +10,14 @@ public class MainMenuState : AbsAppState
 
     private readonly InputAction _backAction;
 
-    private readonly DesktopSessionListener _sessionListener;
+    private readonly SpectatorNetworkManager _sessionListener;
 
     // Costruttore: riceve View e Manager
     public MainMenuState(StateManager manager, AppActions input, MainMenuUI view) : base(manager, input)
     {
         _view = view;
         _backAction = _input.Ui.GoBackLong;
-        _sessionListener = GameObject.FindAnyObjectByType<DesktopSessionListener>(FindObjectsInactive.Include);
+        _sessionListener = GameObject.FindAnyObjectByType<SpectatorNetworkManager>(FindObjectsInactive.Include);
         GameObject.FindAnyObjectByType<RoomBuilderManager>();
     }
 

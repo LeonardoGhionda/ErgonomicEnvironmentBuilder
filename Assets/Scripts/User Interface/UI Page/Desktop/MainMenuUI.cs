@@ -21,7 +21,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Button joinButton;
 
-    private DesktopSessionListener _sessionListener;
+    private SpectatorNetworkManager _sessionListener;
 
     // !!! keep _notificationDuration > _fadeInDuration * 2
     private float _notificationTimer = 0f;
@@ -36,7 +36,7 @@ public class MainMenuUI : MonoBehaviour
         loadRoom.onClick.AddListener(() => OnLoadRoomClicked?.Invoke());
         options.onClick.AddListener(() => OnOptionsClicked?.Invoke());
 
-        _sessionListener = FindAnyObjectByType<DesktopSessionListener>();
+        _sessionListener = FindAnyObjectByType<SpectatorNetworkManager>();
         _sessionListener.InvitationRecevied += ShowInvitation;
 
         joinButton.onClick.AddListener(() =>{ OnJoinClicked?.Invoke(); });
