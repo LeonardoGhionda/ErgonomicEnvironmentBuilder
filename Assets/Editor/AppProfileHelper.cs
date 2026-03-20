@@ -59,9 +59,24 @@ public static class AppProfileHelper
         string nextVersion = GetNextVersion();
         string rootPath = Path.Combine(Directory.GetCurrentDirectory(), BuildFolderName, nextVersion);
 
-        BuildDT(rootPath);
-        BuildVR(rootPath);
+        string currentDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
+        bool isVR = currentDefines.Contains(XR_DEFINE);
 
+        if(isVR)
+        {
+            // Build the current profile before (faster)
+            BuildVR(rootPath);
+            BuildDT(rootPath);
+            // Return to the initial profile
+            FlagVR();
+        }
+        else
+        {
+            BuildDT(rootPath);
+            BuildVR(rootPath);
+            FlagDesktop();
+        }
+        
         Debug.Log($"Batch build complete for version: {nextVersion}");
     }
 

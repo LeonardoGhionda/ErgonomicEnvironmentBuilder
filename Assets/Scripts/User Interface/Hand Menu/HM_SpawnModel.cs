@@ -19,17 +19,70 @@ public class HM_SpawnModel : HM_Base
         GameObject obj = loader.FindMTLAndLoad(modelFullPath);
         obj.name = $"[P] {obj.name}";
         obj.transform.SetParent(GameObject.Find("Objects Container").transform);
-        Camera cam = _deps.player.GetComponentInChildren<Camera>();
-        obj.transform.localPosition = cam.transform.position + cam.transform.forward * 4f;
+
         obj.AddComponent<InteractableParent>().Path = modelFullPath;
 
+        // Set up children and add colliders to measure the actual size of the object
         foreach (Transform child in obj.transform)
         {
             RoomManagementTools.SetUpVrObject(child, _deps.selection, false, true);
             _ = child.AddComponent<InteractableObject>();
         }
 
-        // Interactable parent and object are necessary to make them savable (see Rooms Utility)
+        BoxCollider[] colliders = obj.GetComponentsInChildren<BoxCollider>();
+        Bounds bounds = new Bounds(obj.transform.position, Vector3.zero);
+        bool hasBounds = false;
+
+        if (colliders.Length > 0)
+        {
+            bounds = colliders[0].bounds;
+            foreach (BoxCollider col in colliders)
+            {
+                bounds.Encapsulate(col.bounds);
+            }
+            hasBounds = true;
+        }
+
+        Camera cam = _deps.player.GetComponentInChildren<Camera>();
+
+        // Use bounds magnitude to guarantee clearance
+        float objectRadius = hasBounds ? bounds.extents.magnitude : 0.5f;
+        float playerBuffer = 0.5f;
+        float minDistance = objectRadius + playerBuffer;
+        float targetDistance = 4f;
+        float maxDistance = targetDistance;
+
+        int wallLayer = LayerMask.GetMask("Wall Layer");
+
+        // Detect walls and restrict the maximum distance to avoid clipping outside
+        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit wallHit, targetDistance + objectRadius, wallLayer))
+        {
+            maxDistance = wallHit.distance - objectRadius;
+        }
+
+        float spawnDistance = targetDistance;
+
+        spawnDistance = Mathf.Clamp(spawnDistance, minDistance, maxDistance);
+
+        Vector3 newPos = cam.transform.position + cam.transform.forward * spawnDistance;
+        obj.transform.position = newPos;
+
+        // Snap exactly to the floor at Y=0 using the bounds
+        if (hasBounds)
+        {
+            // Recalculate bounds at the new position
+            bounds = colliders[0].bounds;
+            foreach (BoxCollider col in colliders)
+            {
+                bounds.Encapsulate(col.bounds);
+            }
+
+            // Calculate the offset from the pivot to the lowest point
+            float ypos = bounds.size.y / 2f - bounds.center.y;
+
+            // Set Y position so the lowest point rests exactly at 0
+            obj.transform.position = new Vector3(obj.transform.position.x, ypos, obj.transform.position.z);
+        }
 
         // Close HM on obj spawn
         _deps.handMenu.Show(false);

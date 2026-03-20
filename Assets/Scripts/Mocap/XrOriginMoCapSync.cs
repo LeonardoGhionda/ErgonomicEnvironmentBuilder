@@ -29,11 +29,19 @@ public class XROriginMoCapSync : MonoBehaviour
         netObj.Spawn();
 
         _mocapHead = _mocap.Find("MvnPuppet/Avatar/Hips/Chest/Chest2/Chest3/Chest4/Neck 1/Head 1");
+        if (_mocapHead == null) Debug.LogError($"_mocap head is null");
+
         _mocapRoot = _mocap.GetChild(0);
 
         _oldRotationOffset = RotationOffset;
 
         AlignRoomToAvatar();
+
+        // Subscribe to the network disconnect event when the script starts
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += HandleNetworkDisconnect;
+        }
     }
 
     public void AlignRoomToAvatar()
@@ -49,9 +57,7 @@ public class XROriginMoCapSync : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_mocap == null) return;
-        if (_mocapRoot == null) return;
-        if (_mocapHead == null) return;
+
 
         if (_oldRotationOffset != RotationOffset)
         {
@@ -86,5 +92,20 @@ public class XROriginMoCapSync : MonoBehaviour
         // Save the final state to compare against in the next frame
         expectedPosition = transform.position;
         expectedRotation = transform.rotation;
+    }
+
+    private void HandleNetworkDisconnect(ulong clientId)
+    {
+        // Disable this component immediately when the network closes
+        enabled = false;
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up the event subscription to prevent memory leaks
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback -= HandleNetworkDisconnect;
+        }
     }
 }

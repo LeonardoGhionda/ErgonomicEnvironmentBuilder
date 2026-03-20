@@ -7,7 +7,7 @@ public class RoomTestState : AbsAppState
 {
     private readonly RoomBuilderManager _rbm;
     private readonly GameObject _vrPlayer;
-    private readonly VRHostBroadcaster _inviteBroadcaster;
+    private readonly InvitationBroadcaster _inviteBroadcaster;
     private readonly NetworkPrefabMimic _networkPrefabMimic;
 
     public RoomTestState(
@@ -19,7 +19,7 @@ public class RoomTestState : AbsAppState
     {
         _rbm = rbm;
         _vrPlayer = vrPlayer;
-        _inviteBroadcaster = GameObject.FindAnyObjectByType<VRHostBroadcaster>(FindObjectsInactive.Include);
+        _inviteBroadcaster = GameObject.FindAnyObjectByType<InvitationBroadcaster>(FindObjectsInactive.Include);
 
         _networkPrefabMimic = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs
             .Select(p => p.Prefab.GetComponent<NetworkPrefabMimic>())
@@ -30,7 +30,7 @@ public class RoomTestState : AbsAppState
     public override void Enter()
     {
         _inviteBroadcaster.enabled = true;
-        _inviteBroadcaster.StartHostingAndBroadcasting(_rbm.RoomName);
+        _inviteBroadcaster.StartBroadcasting(_rbm.RoomName);
 
         RoomManagementTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
 

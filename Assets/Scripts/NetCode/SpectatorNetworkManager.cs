@@ -8,7 +8,7 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 
-public class DesktopSessionListener : MonoBehaviour
+public class SpectatorNetworkManager : MonoBehaviour
 {
     [SerializeField] private int listenPort = 6987;
 
@@ -21,23 +21,18 @@ public class DesktopSessionListener : MonoBehaviour
     public Action<string> InvitationRecevied;
     public Action<(string, string)> RoomDataReceived;
 
-    public static DesktopSessionListener Singleton;
-
-    private void Awake()
-    {
-        if (Singleton != null && Singleton != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Singleton = this;
-    }
-
     private void Start()
     {
-        _udpListener = new UdpClient(listenPort);
-        _udpListener.BeginReceive(ReceiveCallback, null);
+        try
+        {
+            _udpListener = new UdpClient(listenPort);
+            _udpListener.BeginReceive(ReceiveCallback, null);
+        }
+        catch (SocketException e)
+        {
+            Debug.LogWarning("Port collision detected. Destroying duplicate SpectatorNetworkManager component. Error: " + e.Message);
+            Destroy(this);
+        }
     }
 
     private void ReceiveCallback(IAsyncResult ar)
@@ -60,14 +55,11 @@ public class DesktopSessionListener : MonoBehaviour
             _udpListener.BeginReceive(ReceiveCallback, null);
         }
         catch (ObjectDisposedException) { }
-        catch (Exception e)
-        {
-            Debug.LogError("Receive error: " + e.Message);
-        }
     }
 
     private void Update()
     {
+
         if (_inviteReceived)
         {
             _inviteReceived = false;
@@ -101,7 +93,22 @@ public class DesktopSessionListener : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(1.0f);
+        bool isNetworkClear = false;
+        while (!isNetworkClear)
+        {
+            try
+            {
+                using UdpClient testClient = new();
+                testClient.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
+                isNetworkClear = true;
+            }
+            catch (SocketException) { }
+
+            if (!isNetworkClear) yield return null;
+        }
+
+        yield return new WaitForEndOfFrame();
+        yield return null;
 
         string filepath = Path.Combine(Application.persistentDataPath, "tempRoom.json");
         File.WriteAllText(filepath, jsonContent);

@@ -4,11 +4,12 @@ using System.Net.Sockets;
 using System.Text;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class VRHostBroadcaster : MonoBehaviour
+public class InvitationBroadcaster : MonoBehaviour
 {
-    [SerializeField] private int outPort = 6987;
+    [SerializeField] private int broadcastPort = 6987;
 
     private UdpClient _outChannel;
     private bool _isBroadcasting = false;
@@ -16,24 +17,25 @@ public class VRHostBroadcaster : MonoBehaviour
     private string _broadcastMessage;
     private string _roomName;
 
-    public void StartHostingAndBroadcasting(string sessionName)
+    public void StartBroadcasting(string sessionName)
     {
         string localIp = GetLocalIPAddress();
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
 
+        // Accept incoming connections from any network interface
         transport.SetConnectionData(localIp, transport.ConnectionData.Port, "0.0.0.0");
 
         NetworkManager.Singleton.StartHost();
         ushort hostPort = transport.ConnectionData.Port;
 
         _roomName = sessionName;
-        _broadcastMessage = "VR_INVITE|" + _roomName + "|" + localIp + "|" + hostPort;
+        _broadcastMessage = "VR_INVITE|" + sessionName + "|" + localIp + "|" + hostPort;
 
         _outChannel = new UdpClient { EnableBroadcast = true };
         _isBroadcasting = true;
         _timer = 10f;
 
-        NetworkedRoomSyncer.Singleton.SetHostSessionName(_roomName);
+        FindAnyObjectByType<ModelExchangeManager>().SetHostSessionName(_roomName);
     }
 
     private void Update()
@@ -45,7 +47,7 @@ public class VRHostBroadcaster : MonoBehaviour
             {
                 _timer = 0f;
                 byte[] data = Encoding.UTF8.GetBytes(_broadcastMessage);
-                IPEndPoint endPoint = new(IPAddress.Broadcast, outPort);
+                IPEndPoint endPoint = new(IPAddress.Broadcast, broadcastPort);
                 _outChannel.Send(data, data.Length, endPoint);
             }
         }
@@ -56,11 +58,19 @@ public class VRHostBroadcaster : MonoBehaviour
         _isBroadcasting = false;
     }
 
+    /// <summary>
+    /// Opens a dummy UDP socket and pretends to connect to Google's Public DNS (8.8.8.8). 
+    /// The operating system's routing table is forced to reveal which local network interface actually has internet access, 
+    /// guaranteeing we capture the correct LAN IP address.
+    /// 
+    /// Dns.GetHostEntry often fail because they grab the IP addresses of 
+    /// VirtualBox, VMware, or VPN adapters instead of the actual Wi-Fi or Ethernet card
+    /// </summary>
     private string GetLocalIPAddress()
     {
         try
         {
-            using Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+            using Socket socket = new (AddressFamily.InterNetwork, SocketType.Dgram, 0);
             socket.Connect("8.8.8.8", 65530);
             IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
             return endPoint.Address.ToString();

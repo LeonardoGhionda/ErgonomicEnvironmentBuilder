@@ -7475,9 +7475,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 639293732}
-  - component: {fileID: 639293731}
-  - component: {fileID: 639293730}
   - component: {fileID: 639293729}
+  - component: {fileID: 639293734}
+  - component: {fileID: 639293733}
   m_Layer: 0
   m_Name: Network Helpers
   m_TagString: Untagged
@@ -7497,32 +7497,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dba8761cad91f140bb54c3ea758558c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &639293730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 639293727}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f565c029636351e43a851226c43bf739, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outPort: 6987
---- !u!114 &639293731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 639293727}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e4b9ceca19305441b5ce3b1b2cd2519, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  listenPort: 6987
 --- !u!4 &639293732
 Transform:
   m_ObjectHideFlags: 0
@@ -7538,6 +7512,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 341732030}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &639293733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639293727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b7569ab308f4d4d9331b7da07bdfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  listenPort: 6987
+--- !u!114 &639293734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639293727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8381d6f5692d8ca4cb2d50e19eea1a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  broadcastPort: 6987
 --- !u!1 &644063182
 GameObject:
   m_ObjectHideFlags: 0

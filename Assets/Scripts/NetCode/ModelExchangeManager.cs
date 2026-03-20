@@ -7,22 +7,24 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class NetworkedRoomSyncer : MonoBehaviour
+
+/// <summary>
+/// Handle the transfer of the room 3D models (.obj)
+/// It achive this throug CustomMessagingManager, Unity netcode
+/// API to send larger quantity of data trough the already established
+/// connection.
+/// </summary>
+public class ModelExchangeManager : MonoBehaviour
 {
-    public static NetworkedRoomSyncer Singleton;
-    private const int CHUNK_SIZE = 32000;
+    private const int CHUNK_SIZE = 32000; 
     private string _hostSessionName = "";
 
-    private Dictionary<string, MemoryStream> _incomingFiles = new Dictionary<string, MemoryStream>();
+    private readonly Dictionary<string, MemoryStream> _incomingFiles = new();
     private int _expectedFiles = 0;
     private int _completedFiles = 0;
     private string _pendingJson = "";
     private bool _hasRequestedFiles = false;
-
-    private void Awake()
-    {
-        Singleton = this;
-    }
+    private CustomMessagingManager MessagingManager => NetworkManager.Singleton.CustomMessagingManager;
 
     private void Start()
     {
@@ -49,7 +51,7 @@ public class NetworkedRoomSyncer : MonoBehaviour
 
     private void SetupServer()
     {
-        NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler("ReqData", HandleDataRequest);
+        MessagingManager.RegisterNamedMessageHandler("ReqData", HandleDataRequest);
     }
 
     private void SetupClient(ulong clientId)
@@ -59,11 +61,11 @@ public class NetworkedRoomSyncer : MonoBehaviour
             if (_hasRequestedFiles) return;
             _hasRequestedFiles = true;
 
-            NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler("RxFile", HandleFileChunk);
-            NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler("RxJson", HandleJson);
+            MessagingManager.RegisterNamedMessageHandler("RxFile", HandleFileChunk);
+            MessagingManager.RegisterNamedMessageHandler("RxJson", HandleJson);
 
-            using FastBufferWriter writer = new FastBufferWriter(0, Allocator.Temp);
-            NetworkManager.Singleton.CustomMessagingManager.SendNamedMessage("ReqData", NetworkManager.ServerClientId, writer, NetworkDelivery.Reliable);
+            using FastBufferWriter writer = new (0, Allocator.Temp);
+            MessagingManager.SendNamedMessage("ReqData", NetworkManager.ServerClientId, writer, NetworkDelivery.Reliable);
         }
     }
 
@@ -71,10 +73,15 @@ public class NetworkedRoomSyncer : MonoBehaviour
     {
         string jsonPath = RoomManagementTools.RoomFullPath(_hostSessionName);
         string roomJson = RoomManagementTools.LoadJson(jsonPath);
-        List<string> filePaths = new List<string>();
+        List<string> filePaths = new();
 
+        // Pattern to find inside the room.json every objFilePath entry
         string pattern = @"""objFilePath""\s*:\s*""(.*?)""";
         MatchCollection matches = Regex.Matches(roomJson, pattern);
+
+        // This will contain a placeholder instead of the
+        // initial path, receiver will change that with 
+        // its persistent data path
         string modifiedJson = roomJson;
 
         foreach (Match m in matches)
@@ -93,8 +100,9 @@ public class NetworkedRoomSyncer : MonoBehaviour
             }
         }
 
+
         int totalFilesToSend = 0;
-        List<string> validPathsToSend = new List<string>();
+        List<string> validPathsToSend = new();
 
         foreach (string path in filePaths)
         {
@@ -104,7 +112,7 @@ public class NetworkedRoomSyncer : MonoBehaviour
                 validPathsToSend.Add(path);
             }
 
-            string mtlPath = path.Substring(0, path.LastIndexOf('.')) + ".mtl";
+            string mtlPath = path[..path.LastIndexOf('.')] + ".mtl";
             if (File.Exists(mtlPath))
             {
                 totalFilesToSend++;
@@ -113,12 +121,13 @@ public class NetworkedRoomSyncer : MonoBehaviour
         }
 
         byte[] jsonData = Encoding.UTF8.GetBytes(modifiedJson);
-        using FastBufferWriter jsonWriter = new FastBufferWriter(jsonData.Length + 8, Allocator.Temp);
+        using FastBufferWriter jsonWriter = new (jsonData.Length + 8, Allocator.Temp);
         jsonWriter.WriteValueSafe(totalFilesToSend);
         jsonWriter.WriteValueSafe(jsonData.Length);
         jsonWriter.WriteBytesSafe(jsonData);
 
-        NetworkManager.Singleton.CustomMessagingManager.SendNamedMessage("RxJson", senderClientId, jsonWriter, NetworkDelivery.ReliableFragmentedSequenced);
+        // Send information about the transmission
+        MessagingManager.SendNamedMessage("RxJson", senderClientId, jsonWriter, NetworkDelivery.ReliableFragmentedSequenced);
 
         foreach (string path in validPathsToSend)
         {
@@ -132,12 +141,13 @@ public class NetworkedRoomSyncer : MonoBehaviour
         string fileName = Path.GetFileName(localPath);
         int totalChunks = Mathf.CeilToInt((float)fileData.Length / CHUNK_SIZE);
 
+        // Divide file in <totalChunks> chuncks of size <CHUNK_SIZE>
         for (int i = 0; i < totalChunks; i++)
         {
             int offset = i * CHUNK_SIZE;
             int length = Mathf.Min(CHUNK_SIZE, fileData.Length - offset);
 
-            using FastBufferWriter writer = new FastBufferWriter(length + 1024, Allocator.Temp);
+            using FastBufferWriter writer = new (length + 1024, Allocator.Temp);
             writer.WriteValueSafe(fileName);
             writer.WriteValueSafe(totalChunks);
             writer.WriteValueSafe(i);
@@ -147,7 +157,7 @@ public class NetworkedRoomSyncer : MonoBehaviour
             Array.Copy(fileData, offset, chunk, 0, length);
             writer.WriteBytesSafe(chunk);
 
-            NetworkManager.Singleton.CustomMessagingManager.SendNamedMessage("RxFile", clientId, writer, NetworkDelivery.ReliableFragmentedSequenced);
+            MessagingManager.SendNamedMessage("RxFile", clientId, writer, NetworkDelivery.ReliableFragmentedSequenced);
         }
     }
 
@@ -202,7 +212,7 @@ public class NetworkedRoomSyncer : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(_pendingJson) && _completedFiles >= _expectedFiles)
         {
-            DesktopSessionListener.Singleton.CompleteRoomLoad(_pendingJson);
+            FindAnyObjectByType<SpectatorNetworkManager>().CompleteRoomLoad(_pendingJson);
         }
     }
 }
