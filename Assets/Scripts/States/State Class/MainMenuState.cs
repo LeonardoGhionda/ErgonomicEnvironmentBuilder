@@ -87,6 +87,7 @@ public class MainMenuState : AbsAppState
 
     private void GoSpectator((string, string) roomData)
     {
+        Debug.Log("going spectator");
         // Save room information
         (string path, string json) = roomData;
 
@@ -100,6 +101,7 @@ public class MainMenuState : AbsAppState
 
     private void AcceptInvite()
     {
+        Debug.Log("join clicked");
         // This avoid double AudioListener Log
         _player.SetActive(false);
 

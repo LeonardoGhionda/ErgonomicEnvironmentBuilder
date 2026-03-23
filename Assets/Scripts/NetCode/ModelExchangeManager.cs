@@ -28,20 +28,18 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void Start()
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnServerStarted += SetupServer;
-            NetworkManager.Singleton.OnClientConnectedCallback += SetupClient;
-        }
+        NetworkManager.Singleton.OnServerStarted += SetupServer;
+        NetworkManager.Singleton.OnClientConnectedCallback += SetupClient;
+
+        Debug.Log("subscribed to OnServerStarted and On CLient Connected Callback");
     }
 
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnServerStarted -= SetupServer;
-            NetworkManager.Singleton.OnClientConnectedCallback -= SetupClient;
-        }
+        if (NetworkManager.Singleton == null) return;
+
+        NetworkManager.Singleton.OnServerStarted -= SetupServer;
+        NetworkManager.Singleton.OnClientConnectedCallback -= SetupClient;
     }
 
     public void SetHostSessionName(string sessionName)
@@ -56,6 +54,7 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void SetupClient(ulong clientId)
     {
+        Debug.Log("Setup client started");
         if (clientId == NetworkManager.Singleton.LocalClientId && !NetworkManager.Singleton.IsServer)
         {
             if (_hasRequestedFiles) return;
@@ -178,10 +177,13 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void HandleFileChunk(ulong senderClientId, FastBufferReader messagePayload)
     {
+
         messagePayload.ReadValueSafe(out string fileName);
         messagePayload.ReadValueSafe(out int totalChunks);
         messagePayload.ReadValueSafe(out int chunkIndex);
         messagePayload.ReadValueSafe(out int length);
+
+        Debug.Log($"received {fileName}");
 
         byte[] chunkData = new byte[length];
         messagePayload.ReadBytesSafe(ref chunkData, length);
@@ -212,7 +214,9 @@ public class ModelExchangeManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(_pendingJson) && _completedFiles >= _expectedFiles)
         {
+            Debug.Log("Models exchange completed");
             FindAnyObjectByType<SpectatorNetworkManager>().CompleteRoomLoad(_pendingJson);
+
         }
     }
 }
