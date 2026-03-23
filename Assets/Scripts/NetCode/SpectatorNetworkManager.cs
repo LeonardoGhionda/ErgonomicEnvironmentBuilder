@@ -17,6 +17,7 @@ public class SpectatorNetworkManager : MonoBehaviour
     private string _hostIp = "";
     private ushort _hostPort = 0;
     private bool _inviteReceived = false;
+    private bool _inviteAccepted = false;
 
     public Action<string> InvitationRecevied;
     public Action<(string, string)> RoomDataReceived;
@@ -37,11 +38,14 @@ public class SpectatorNetworkManager : MonoBehaviour
 
     private void ReceiveCallback(IAsyncResult ar)
     {
+        if (_inviteAccepted) return;
         try
         {
             IPEndPoint endPoint = new(IPAddress.Any, listenPort);
             byte[] receivedBytes = _udpListener.EndReceive(ar, ref endPoint);
             string message = Encoding.UTF8.GetString(receivedBytes);
+
+            Debug.Log(message);
 
             string[] parts = message.Split('|');
             if (parts.Length == 4 && parts[0] == "VR_INVITE")
@@ -69,6 +73,7 @@ public class SpectatorNetworkManager : MonoBehaviour
 
     public void AcceptInvite()
     {
+        _inviteAccepted = true;
         ConfigureTransportAndConnect();
     }
 
@@ -76,7 +81,10 @@ public class SpectatorNetworkManager : MonoBehaviour
     {
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         transport.SetConnectionData(_hostIp, _hostPort);
-        NetworkManager.Singleton.StartClient();
+        Debug.Log("About to start client");
+        if (!NetworkManager.Singleton.StartClient())
+            Debug.Log("Client started successfully");
+        else Debug.Log("Client Started Unsuccessfully");
     }
 
     public void CompleteRoomLoad(string jsonContent)
@@ -113,6 +121,7 @@ public class SpectatorNetworkManager : MonoBehaviour
         string filepath = Path.Combine(Application.persistentDataPath, "tempRoom.json");
         File.WriteAllText(filepath, jsonContent);
 
+        Debug.Log("RoomData received");
         RoomDataReceived?.Invoke((filepath, jsonContent));
     }
 
