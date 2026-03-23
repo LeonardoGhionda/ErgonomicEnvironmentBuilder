@@ -81,6 +81,7 @@ public class StateManager : MonoBehaviour
 
 #if USE_XR
         VRPlayer.SetActive(true);
+        Destroy(DTPlayer);
 
         //---STATE SETUP---
         MenuRoom =        new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
@@ -90,18 +91,20 @@ public class StateManager : MonoBehaviour
         currentState = MenuRoom;
 #else
         DTPlayer.SetActive(true);
+        Destroy(VRPlayer);
+
         //set cursor visible at start
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
         //---STATES SETUP---
-        MainMenu =   new(this, AppInput, mainMenuUI);
+        MainMenu =   new(this, AppInput, mainMenuUI, DTPlayer);
         NewRoom =    new(this, AppInput, newRoomUI, roomBuilderManager);
         LoadRoom =   new(this, AppInput, roomBuilderManager);
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
         RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, DTSelectionManager, measureManager);
-        Spectator =  new(this, AppInput);
+        Spectator =  new(this, AppInput, DTPlayer);
 
         //first state iniziaization
         currentState = MainMenu;

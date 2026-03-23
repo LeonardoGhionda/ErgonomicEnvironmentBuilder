@@ -59,7 +59,6 @@ public class SpectatorNetworkManager : MonoBehaviour
 
     private void Update()
     {
-
         if (_inviteReceived)
         {
             _inviteReceived = false;

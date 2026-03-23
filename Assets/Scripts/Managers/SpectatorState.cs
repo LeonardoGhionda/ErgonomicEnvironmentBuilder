@@ -3,11 +3,15 @@ using UnityEngine;
 
 public class SpectatorState : AbsAppState
 {
+    private GameObject _player;
+
     public SpectatorState(
         StateManager manager,
-        AppActions input
+        AppActions input, 
+        GameObject DTPlayer
         ) : base(manager, input)
     {
+        _player = DTPlayer;
     }
 
     public override void Enter()
@@ -31,6 +35,9 @@ public class SpectatorState : AbsAppState
         {
             NetworkManager.Singleton.Shutdown();
         }
+
+        //active player to be used in other states
+        _player.SetActive(true);
     }
 
     public override void UpdateState()

@@ -17,6 +17,11 @@ public class InvitationBroadcaster : MonoBehaviour
     private string _broadcastMessage;
     private string _roomName;
 
+    private void Start()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback += StopBroadcasting;
+    }
+
     public void StartBroadcasting(string sessionName)
     {
         string localIp = GetLocalIPAddress();
@@ -53,9 +58,11 @@ public class InvitationBroadcaster : MonoBehaviour
         }
     }
 
-    public void StopBroadcasting()
+    private void StopBroadcasting(ulong obj)
     {
         _isBroadcasting = false;
+        this.enabled = false;
+        NetworkManager.Singleton.OnClientConnectedCallback -= StopBroadcasting;
     }
 
     /// <summary>

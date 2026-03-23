@@ -12,13 +12,17 @@ public class MainMenuState : AbsAppState
 
     private readonly SpectatorNetworkManager _sessionListener;
 
+    private GameObject _player;
+
     // Costruttore: riceve View e Manager
-    public MainMenuState(StateManager manager, AppActions input, MainMenuUI view) : base(manager, input)
+    public MainMenuState(StateManager manager, AppActions input, MainMenuUI view, GameObject Player) : base(manager, input)
     {
         _view = view;
         _backAction = _input.Ui.GoBackLong;
         _sessionListener = GameObject.FindAnyObjectByType<SpectatorNetworkManager>(FindObjectsInactive.Include);
         GameObject.FindAnyObjectByType<RoomBuilderManager>();
+
+        _player = Player;
     }
 
     override public void Enter()
@@ -96,6 +100,9 @@ public class MainMenuState : AbsAppState
 
     private void AcceptInvite()
     {
+        // This avoid double AudioListener Log
+        _player.SetActive(false);
+
         _sessionListener.AcceptInvite();
     }
 
