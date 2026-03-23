@@ -45,7 +45,7 @@ public class SpectatorNetworkManager : MonoBehaviour
             byte[] receivedBytes = _udpListener.EndReceive(ar, ref endPoint);
             string message = Encoding.UTF8.GetString(receivedBytes);
 
-            Debug.Log(message);
+            Debug.Log($"[CLIENT] received message: {message}");
 
             string[] parts = message.Split('|');
             if (parts.Length == 4 && parts[0] == "VR_INVITE")
@@ -81,9 +81,15 @@ public class SpectatorNetworkManager : MonoBehaviour
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
         transport.SetConnectionData(_hostIp, _hostPort);
         Debug.Log("About to start client");
-        if (!NetworkManager.Singleton.StartClient())
+
+        if (NetworkManager.Singleton.StartClient())
+        {
             Debug.Log("Client started successfully");
-        else Debug.Log("Client Started Unsuccessfully");
+        }
+        else
+        {
+            Debug.Log("Client Started Unsuccessfully");
+        }
     }
 
     public void CompleteRoomLoad(string jsonContent)

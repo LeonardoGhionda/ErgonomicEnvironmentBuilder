@@ -30,8 +30,6 @@ public class ModelExchangeManager : MonoBehaviour
     {
         NetworkManager.Singleton.OnServerStarted += SetupServer;
         NetworkManager.Singleton.OnClientConnectedCallback += SetupClient;
-
-        Debug.Log("subscribed to OnServerStarted and On CLient Connected Callback");
     }
 
     private void OnDestroy()
