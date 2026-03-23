@@ -28,6 +28,7 @@ public class SpectatorNetworkManager : MonoBehaviour
         {
             _udpListener = new UdpClient(listenPort);
             _udpListener.BeginReceive(ReceiveCallback, null);
+            Debug.Log($"[Client] listening on port {listenPort} listener {_udpListener.ToString()}");
         }
         catch (SocketException e)
         {
