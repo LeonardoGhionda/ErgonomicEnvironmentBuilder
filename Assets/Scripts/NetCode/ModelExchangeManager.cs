@@ -47,6 +47,7 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void SetupServer()
     {
+        Debug.Log("Setup Server");
         MessagingManager.RegisterNamedMessageHandler("ReqData", HandleDataRequest);
     }
 

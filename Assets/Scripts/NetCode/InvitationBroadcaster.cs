@@ -29,9 +29,9 @@ public class InvitationBroadcaster : MonoBehaviour
         Debug.Log($"[HOST] local Ip {localIp}");
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
 
-        transport.SetConnectionData(localIp, transport.ConnectionData.Port, "0.0.0.0");
+        transport.SetConnectionData(localIp, transport.ConnectionData.Port, localIp);
 
-        NetworkManager.Singleton.StartHost();
+        if (!NetworkManager.Singleton.StartHost()) Debug.LogError($"Unable to start host");
         ushort hostPort = transport.ConnectionData.Port;
 
         _roomName = sessionName;
@@ -39,7 +39,7 @@ public class InvitationBroadcaster : MonoBehaviour
 
         _outChannel = new UdpClient { EnableBroadcast = true };
         _isBroadcasting = true;
-        _timer = 10f;
+        _timer = _broadcastFrequence;
 
         FindAnyObjectByType<ModelExchangeManager>().SetHostSessionName(_roomName);
     }

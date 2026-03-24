@@ -884,7 +884,7 @@ MonoBehaviour:
     NetworkProfilingMetrics: 1
     OldPrefabList: []
   RunInBackground: 1
-  LogLevel: 0
+  LogLevel: 1
 --- !u!4 &56474149
 Transform:
   m_ObjectHideFlags: 0
@@ -7538,6 +7538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   broadcastPort: 6987
+  _broadcastFrequence: 3
 --- !u!1 &644063182
 GameObject:
   m_ObjectHideFlags: 0

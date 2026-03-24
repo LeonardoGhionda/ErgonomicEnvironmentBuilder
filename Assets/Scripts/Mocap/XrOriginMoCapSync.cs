@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -18,46 +19,67 @@ public class XROriginMoCapSync : MonoBehaviour
     private Vector3 expectedPosition;
     private Quaternion expectedRotation;
 
+    private bool _initialization = false;
+
     private void Start()
     {
-        // Instantiate locally on the server
-        _mocap = GameObject.Instantiate(mocapPrefab);
-        if (_mocap == null) Debug.LogError($"mocap is null");
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += HandleNetworkDisconnect;
 
-        // Spawn across the network for all clients
+            if (NetworkManager.Singleton.IsServer)
+            {
+                InitializeHost();
+            }
+            else
+            {
+                NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+            }
+        }
+    }
+
+    private void OnServerStarted()
+    {
+        InitializeHost();
+    }
+
+    private void InitializeHost()
+    {
+        NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+
+        Debug.Log("Spawning mocap puppet");
+        _mocap = Instantiate(mocapPrefab);
         NetworkObject netObj = _mocap.GetComponent<NetworkObject>();
         netObj.Spawn();
 
         _mocapHead = _mocap.Find("MvnPuppet/Avatar/Hips/Chest/Chest2/Chest3/Chest4/Neck 1/Head 1");
-        if (_mocapHead == null) Debug.LogError($"_mocap head is null");
-
         _mocapRoot = _mocap.GetChild(0);
 
         _oldRotationOffset = RotationOffset;
 
-        AlignRoomToAvatar();
+        _initialization = true;
 
-        // Subscribe to the network disconnect event when the script starts
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientDisconnectCallback += HandleNetworkDisconnect;
-        }
+        AlignRoomToAvatar();
     }
 
     public void AlignRoomToAvatar()
     {
-        // Align room rotation to avatar rotation applying the model offset
         float correctedY = _mocapRoot.rotation.eulerAngles.y + RotationOffset;
         transform.rotation = Quaternion.Euler(0f, correctedY, 0f);
 
-        // Reset expectations to prevent the script from detecting this alignment as a teleport
         expectedPosition = transform.position;
         expectedRotation = transform.rotation;
     }
 
     private void LateUpdate()
     {
+        if (_initialization == false) return;
 
+        // Block spectators from running the update loop
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+        {
+            return;
+        }
 
         if (_oldRotationOffset != RotationOffset)
         {
@@ -65,47 +87,49 @@ public class XROriginMoCapSync : MonoBehaviour
             _oldRotationOffset = RotationOffset;
         }
 
-        // Calculate how much the XR Origin was moved by an external script like TeleportationProvider
+        // Calculate external movement
         Vector3 externalDeltaPos = transform.position - expectedPosition;
         Quaternion externalDeltaRot = transform.rotation * Quaternion.Inverse(expectedRotation);
 
-        // Apply that exact movement to the MoCap Avatar container
+        // Apply external movement to avatar
         if (externalDeltaPos.sqrMagnitude > 0.0001f || Quaternion.Angle(Quaternion.identity, externalDeltaRot) > 0.01f)
         {
             _mocap.position += externalDeltaPos;
             _mocap.rotation = externalDeltaRot * _mocap.rotation;
         }
 
-        // Map standard directions to custom bone axes
+        // Calculate custom bone directions
         Vector3 customRight = _mocapHead.forward;
         Vector3 customUp = -_mocapHead.right;
         Vector3 customForward = -_mocapHead.up;
 
-        // Build the offset vector and find target eye position
+        // Apply headset offsets
         Vector3 trueOffset = (customRight * EyeOffset.x) + (customUp * EyeOffset.y) + (customForward * EyeOffset.z);
         Vector3 targetEyePosition = _mocapHead.position + trueOffset;
 
-        // Calculate local headset drift and apply position cancellation
         Vector3 headsetDrift = transform.TransformVector(vrCamera.localPosition);
         transform.position = targetEyePosition - headsetDrift;
 
-        // Save the final state to compare against in the next frame
+        // Save state for next frame
         expectedPosition = transform.position;
         expectedRotation = transform.rotation;
     }
 
     private void HandleNetworkDisconnect(ulong clientId)
     {
-        // Disable this component immediately when the network closes
-        enabled = false;
+        // Only disable the script if this specific machine gets disconnected
+        if (NetworkManager.Singleton != null && clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            enabled = false;
+        }
     }
 
     private void OnDestroy()
     {
-        // Clean up the event subscription to prevent memory leaks
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientDisconnectCallback -= HandleNetworkDisconnect;
+            NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
         }
     }
 }
