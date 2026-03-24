@@ -76,10 +76,8 @@ public class XROriginMoCapSync : MonoBehaviour
         if (_initialization == false) return;
 
         // Block spectators from running the update loop
-        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
-        {
-            return;
-        }
+        if (!NetworkManager.Singleton.IsServer) return;
+        
 
         if (_oldRotationOffset != RotationOffset)
         {

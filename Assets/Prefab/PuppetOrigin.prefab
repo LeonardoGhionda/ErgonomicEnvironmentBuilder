@@ -121,6 +121,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   RootBone: {fileID: 7211975679391780038}
   Hip: {fileID: 7211975679391780038}
+  AvatarBone: {fileID: 7236989959139167183}
   rotationThreshold: 0.1
 --- !u!1001 &3977828718021500564
 PrefabInstance:
