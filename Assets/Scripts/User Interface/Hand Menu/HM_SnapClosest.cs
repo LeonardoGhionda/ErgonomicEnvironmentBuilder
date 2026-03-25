@@ -9,7 +9,7 @@ public class HM_SnapClosest : HM_Base
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _deps.selection.OnSelectionChanged += ChangeTarget;
+        Managers.Get<VRSelectionManager>().OnSelectionChanged += ChangeTarget;
         _snapTools = new SnapTools();
     }
 

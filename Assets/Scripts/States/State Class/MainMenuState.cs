@@ -12,7 +12,7 @@ public class MainMenuState : AbsAppState
 
     private readonly SpectatorNetworkManager _sessionListener;
 
-    private GameObject _player;
+    private readonly GameObject _player;
 
     // Costruttore: riceve View e Manager
     public MainMenuState(StateManager manager, AppActions input, MainMenuUI view, GameObject Player) : base(manager, input)

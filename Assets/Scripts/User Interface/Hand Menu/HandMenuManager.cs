@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
 
 public enum HandMenuInput
@@ -13,28 +14,29 @@ public enum HandMenuInput
 
 public class HandMenuManager : MonoBehaviour
 {
-    [SerializeField] ControllerInputActionManager hand;
-
-    private readonly float _stepAngle = 45f;
-    private int _maxEntriesShown = 8;
-    private List<HM_Base> _entries;
-    public List<HM_Base> Entries => _entries;
-
-    private LinkedList<int> _right, _left;
-    private int _selected;
-
-    private int _lMax, _rMax;
-
     [SerializeField] GameObject entryContainer;
     [SerializeField] float radius;
+    [SerializeField] GameObject handMenuPrefab;
 
-    private bool _open = false;
+    // HandMenu entry movement
+    private readonly float _stepAngle = 45f;
+    private int _maxEntriesShown = 8;
+    private LinkedList<int> _right, _left;
+    private int _selected;
+    private int _lMax, _rMax;
 
-    public bool Open => _open;
+    // Gameobject
+    private GameObject _handMenu;
+    Transform hand;
 
+    // Hand Menu Current Eentries
+    public List<HM_Base> Entries => _entries;
+    private List<HM_Base> _entries;
+
+    // State
     public bool Lock { get; set; }
-    public Transform HandTransform => hand.transform;
-
+    public bool Open => _open;
+    private bool _open = false;
     public Action<bool> OnMenuStateChange;
 
     private LocomotionManager _locomotionManager;
@@ -49,8 +51,11 @@ public class HandMenuManager : MonoBehaviour
     public void Init()
     {
         Lock = false;
-        transform.SetParent(hand.transform);
-        transform.localPosition = Vector3.zero;
+
+        hand = DependencyProvider.LeftHand;
+        _handMenu = Instantiate(handMenuPrefab);
+        _handMenu.transform.SetParent(hand);
+        _handMenu.transform.localPosition = Vector3.zero;
         Show(_open);
     }
 
@@ -91,7 +96,7 @@ public class HandMenuManager : MonoBehaviour
 
     public void ProcessInput(HandMenuInput input)
     {
-        if (gameObject.activeInHierarchy == false) return;
+        if (_handMenu.activeInHierarchy == false) return;
 
         switch (input)
         {
@@ -229,13 +234,13 @@ public class HandMenuManager : MonoBehaviour
     }
 
     // --- Entries Handling ---
-    public void AddMenuEntries(List<HM_Base> entries, HM_Base.Dependencies deps)
+    public void AddMenuEntries(List<HM_Base> entries)
     {
         entries.ForEach(e =>
         {
-            e.transform.SetParent(transform, false);
+            e.transform.SetParent(_handMenu.transform, false);
             e.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-            e.Initialize(deps);
+            e.Initialize();
         });
 
         _entries.AddRange(entries);
@@ -280,9 +285,9 @@ public class HandMenuManager : MonoBehaviour
         if (Lock) return;
 
         _open = visible;
-        gameObject.SetActive(_open);
+        _handMenu.SetActive(_open);
         OnMenuStateChange?.Invoke(_open);
-        if (_locomotionManager == null) _locomotionManager = FindAnyObjectByType<LocomotionManager>();
+        if (_locomotionManager == null) _locomotionManager = Managers.Get<LocomotionManager>();
         _locomotionManager.LockMove(_open);
     }
 
@@ -296,7 +301,7 @@ public class HandMenuManager : MonoBehaviour
         Lock = false; // Override lock state
 
         Show(false);
-        transform.SetParent(null, false);
         RemoveAllEntries();
+        Destroy(hand.gameObject);
     }
 }

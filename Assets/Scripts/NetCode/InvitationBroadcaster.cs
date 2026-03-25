@@ -26,7 +26,6 @@ public class InvitationBroadcaster : MonoBehaviour
     public void StartBroadcasting(string sessionName)
     {
         string localIp = GetLocalIPAddress();
-        Debug.Log($"[HOST] local Ip {localIp}");
         UnityTransport transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
 
         transport.SetConnectionData(localIp, transport.ConnectionData.Port, localIp);
@@ -55,7 +54,6 @@ public class InvitationBroadcaster : MonoBehaviour
                 byte[] data = Encoding.UTF8.GetBytes(_broadcastMessage);
                 IPEndPoint endPoint = new(IPAddress.Broadcast, broadcastPort);
                 _outChannel.Send(data, data.Length, endPoint);
-                Debug.Log($"[HOST] Broadcasting {_broadcastMessage}");
             }
         }
     }

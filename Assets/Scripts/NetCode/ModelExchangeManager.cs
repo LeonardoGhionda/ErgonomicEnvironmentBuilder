@@ -47,13 +47,11 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void SetupServer()
     {
-        Debug.Log("Setup Server");
         MessagingManager.RegisterNamedMessageHandler("ReqData", HandleDataRequest);
     }
 
     private void SetupClient(ulong clientId)
     {
-        Debug.Log("Setup client started");
         if (clientId == NetworkManager.Singleton.LocalClientId && !NetworkManager.Singleton.IsServer)
         {
             if (_hasRequestedFiles) return;

@@ -7,8 +7,6 @@ public class ControllerMeasureView : MonoBehaviour
     [SerializeField] TextMeshProUGUI height;
     [SerializeField] TextMeshProUGUI distance;
 
-    [SerializeField] Transform controller;
-
     [SerializeField] InputActionReference openAction;
     [SerializeField] float fontSizeWarning;
 
@@ -45,7 +43,7 @@ public class ControllerMeasureView : MonoBehaviour
 
     private void Update()
     {
-        Vector3 localPos = controller.localPosition;
+        Vector3 localPos = DependencyProvider.RightHand.localPosition;
 
         height.text = $"{localPos.y:F2}";
 
@@ -61,7 +59,7 @@ public class ControllerMeasureView : MonoBehaviour
         }
 
         // Calculate the vector from belly to controller
-        Vector3 offset = controller.position - _bellyButtonPoint.position;
+        Vector3 offset = DependencyProvider.RightHand.position - _bellyButtonPoint.position;
 
         // Project the offset onto the belly's local axes
         float distanceForward = Vector3.Dot(offset, _bellyButtonPoint.forward);

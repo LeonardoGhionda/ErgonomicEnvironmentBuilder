@@ -8,12 +8,15 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class HM_SnapTarget : HM_Base
 {
     XRGrabInteractable _snap1;
-    Renderer s1Renderer => _snap1.GetComponent<MeshRenderer>();
+    Renderer S1Renderer => _snap1.GetComponent<MeshRenderer>();
     [SerializeField] FollowCameraUI _tutorialText;
     [SerializeField] Material _snapSelectedMaterial;
     [SerializeField, Range(0.01f, 16f)] float textScaleFactor = 0.1f;
     [SerializeField] float minFont, maxFont;
     Material[] _originalMaterials;
+
+    VRSelectionManager _selectionManager;
+    HandMenuManager _handMenu;
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -26,6 +29,8 @@ public class HM_SnapTarget : HM_Base
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _selectionManager = Managers.Get<VRSelectionManager>();
+        _handMenu = Managers.Get<HandMenuManager>();
     }
 
     public override void OnClick()
@@ -33,31 +38,31 @@ public class HM_SnapTarget : HM_Base
         base.OnClick();
 
         // Safety Check: Is something actually selected?
-        if (_deps.selection.Selected == null) return;
+        if (_selectionManager.Selected == null) return;
 
-        _snap1 = _deps.selection.Selected;
+        _snap1 = _selectionManager.Selected;
 
         // Clear strictly AFTER saving the reference
-        _deps.selection.ClearSelection();
+        _selectionManager.ClearSelection();
 
         // Save and Change Materials
-        _originalMaterials = s1Renderer.materials;
+        _originalMaterials = S1Renderer.materials;
         Material[] newMats = new Material[_originalMaterials.Length];
         for (int i = 0; i < newMats.Length; i++) newMats[i] = _snapSelectedMaterial;
-        s1Renderer.materials = newMats;
+        S1Renderer.materials = newMats;
 
         // Tutorial Text Setup
         SetupTutorialTXT();
 
         // Subscribe
         // This one trigger onSelection of any XRGrabbableInteractor
-        _deps.selection.OnSelectionChanged += ExecuteSnap;
-        _deps.selection.OnRaycastPerformed += ExecuteSnap;
+        _selectionManager.OnSelectionChanged += ExecuteSnap;
+        _selectionManager.OnRaycastPerformed += ExecuteSnap;
 
 
         // Lock UI
-        _deps.handMenu.Show(false);
-        _deps.handMenu.Lock = true;
+        _handMenu.Show(false);
+        _handMenu.Lock = true;
     }
 
     /// <summary>
@@ -77,8 +82,8 @@ public class HM_SnapTarget : HM_Base
         if (hit.collider.GetComponent<XRGrabInteractable>() != null) return;
 
         // Stop listening immediately!
-        _deps.selection.OnSelectionChanged -= ExecuteSnap;
-        _deps.selection.OnRaycastPerformed -= ExecuteSnap;
+        _selectionManager.OnSelectionChanged -= ExecuteSnap;
+        _selectionManager.OnRaycastPerformed -= ExecuteSnap;
 
         BoxCollider snap2 = hit.collider as BoxCollider;
 
@@ -89,18 +94,15 @@ public class HM_SnapTarget : HM_Base
         }
 
         // Perform Logic
-        _deps.selection.ClearSelection();
-
-
-        SnapFollow snapComp;
+        _selectionManager.ClearSelection();
 
         // Update or add the target to follow
-        if (!_snap1.TryGetComponent(out snapComp))
+        if (!_snap1.TryGetComponent(out SnapFollow snapComp))
             snapComp = _snap1.AddComponent<SnapFollow>();
 
         snapComp.Init(snap2.transform, hit.point);
 
-        _deps.handMenu.Show(false);
+        _handMenu.Show(false);
 
         // snap + gravity cause weird physics interactions.
         if (_snap1.TryGetComponent<Rigidbody>(out Rigidbody rb))
@@ -137,24 +139,23 @@ public class HM_SnapTarget : HM_Base
         }
 
         // Stop listening immediately!
-        _deps.selection.OnSelectionChanged -= ExecuteSnap;
-        _deps.selection.OnRaycastPerformed -= ExecuteSnap;
+        _selectionManager.OnSelectionChanged -= ExecuteSnap;
+        _selectionManager.OnRaycastPerformed -= ExecuteSnap;
 
 
         // Perform Logic
         XRGrabInteractable snap2 = interactable;
 
-        _deps.selection.ClearSelection();
+        _selectionManager.ClearSelection();
 
 
-        SnapFollow snapComp;
         // Update or add the target to follow
-        if (!_snap1.TryGetComponent(out snapComp))
+        if (!_snap1.TryGetComponent(out SnapFollow snapComp))
             snapComp = _snap1.AddComponent<SnapFollow>();
 
         snapComp.Init(snap2.transform, args.contactPoint);
 
-        _deps.handMenu.Show(false);
+        _handMenu.Show(false);
 
 
         // snap + gravity cause weird physics interactions.
@@ -180,16 +181,16 @@ public class HM_SnapTarget : HM_Base
         if (_snap1 != null)
         {
             // Material Reset
-            s1Renderer.materials = _originalMaterials;
+            S1Renderer.materials = _originalMaterials;
         }
 
         _snap1 = null;
 
         // Unlock Hand
-        _deps.handMenu.Lock = false;
+        _handMenu.Lock = false;
 
         // Ensure we don't have lingering listeners (safe to call even if not subscribed)
-        _deps.selection.OnSelectionChanged -= ExecuteSnap;
+        _selectionManager.OnSelectionChanged -= ExecuteSnap;
 
     }
 

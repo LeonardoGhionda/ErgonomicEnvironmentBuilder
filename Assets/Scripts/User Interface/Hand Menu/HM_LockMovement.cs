@@ -9,7 +9,7 @@ public class HM_LockMovement : HM_Toggle
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _sm = _deps.selection;
+        _sm = Managers.Get<VRSelectionManager>();
         _sm.OnSelectionChanged += ChangeTarget;
         ChangeTarget(new(_sm.Selected));
     }

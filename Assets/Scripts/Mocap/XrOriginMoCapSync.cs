@@ -18,6 +18,7 @@ public class XROriginMoCapSync : MonoBehaviour
 
     private Vector3 expectedPosition;
     private Quaternion expectedRotation;
+    private Vector3 expectedLocalHeadsetPosition;
 
     private bool _initialization = false;
 
@@ -46,8 +47,6 @@ public class XROriginMoCapSync : MonoBehaviour
     private void InitializeHost()
     {
         NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
-
-        Debug.Log("Spawning mocap puppet");
         _mocap = Instantiate(mocapPrefab);
         NetworkObject netObj = _mocap.GetComponent<NetworkObject>();
         netObj.Spawn();
@@ -69,15 +68,14 @@ public class XROriginMoCapSync : MonoBehaviour
 
         expectedPosition = transform.position;
         expectedRotation = transform.rotation;
+        expectedLocalHeadsetPosition = vrCamera.localPosition;
     }
 
     private void LateUpdate()
     {
         if (_initialization == false) return;
 
-        // Block spectators from running the update loop
         if (!NetworkManager.Singleton.IsServer) return;
-        
 
         if (_oldRotationOffset != RotationOffset)
         {
@@ -85,37 +83,40 @@ public class XROriginMoCapSync : MonoBehaviour
             _oldRotationOffset = RotationOffset;
         }
 
-        // Calculate external movement
+        // Calculate teleportation movement and physical walking movement
         Vector3 externalDeltaPos = transform.position - expectedPosition;
         Quaternion externalDeltaRot = transform.rotation * Quaternion.Inverse(expectedRotation);
 
-        // Apply external movement to avatar
-        if (externalDeltaPos.sqrMagnitude > 0.0001f || Quaternion.Angle(Quaternion.identity, externalDeltaRot) > 0.01f)
+        Vector3 localHeadsetDelta = vrCamera.localPosition - expectedLocalHeadsetPosition;
+        Vector3 worldHeadsetDelta = transform.TransformVector(localHeadsetDelta);
+
+        // Push the mannequin by the combined teleport and walking distance
+        if (externalDeltaPos.sqrMagnitude > 0.0001f || worldHeadsetDelta.sqrMagnitude > 0 || Quaternion.Angle(Quaternion.identity, externalDeltaRot) > 0.01f)
         {
-            _mocap.position += externalDeltaPos;
+            _mocap.position += externalDeltaPos + worldHeadsetDelta;
             _mocap.rotation = externalDeltaRot * _mocap.rotation;
         }
 
-        // Calculate custom bone directions
+        // Calculate offset axes based on the mannequin head orientation
         Vector3 customRight = _mocapHead.forward;
         Vector3 customUp = -_mocapHead.right;
         Vector3 customForward = -_mocapHead.up;
 
-        // Apply headset offsets
         Vector3 trueOffset = (customRight * EyeOffset.x) + (customUp * EyeOffset.y) + (customForward * EyeOffset.z);
         Vector3 targetEyePosition = _mocapHead.position + trueOffset;
 
+        // Pull the XR Origin so the physical camera lands exactly on the target eye position
         Vector3 headsetDrift = transform.TransformVector(vrCamera.localPosition);
         transform.position = targetEyePosition - headsetDrift;
 
-        // Save state for next frame
+        // Save all states to compare against in the next frame
         expectedPosition = transform.position;
         expectedRotation = transform.rotation;
+        expectedLocalHeadsetPosition = vrCamera.localPosition;
     }
 
     private void HandleNetworkDisconnect(ulong clientId)
     {
-        // Only disable the script if this specific machine gets disconnected
         if (NetworkManager.Singleton != null && clientId == NetworkManager.Singleton.LocalClientId)
         {
             enabled = false;

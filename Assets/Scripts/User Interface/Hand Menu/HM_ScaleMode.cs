@@ -2,17 +2,29 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class HM_ScaleMode : HM_Base
 {
+    VRSelectionManager _sm;
+    HandMenuManager _handMenu;
+    ScaleManager _scaleManager;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _sm = Managers.Get<VRSelectionManager>();
+        _handMenu = Managers.Get<HandMenuManager>();
+        _scaleManager = Managers.Get<ScaleManager>();
+    }
+
     public override void OnClick()
     {
         base.OnClick();
-        if (_deps.selection.SelectionExist)
+        if (_sm.SelectionExist)
         {
-            _deps.scale.StartScaling(_deps.selection.Selected.gameObject);
+            _scaleManager.StartScaling(_sm.Selected.gameObject);
         }
 
-        _deps.selection.OnSelectionChanged += EndScaling;
-        _deps.handMenu.Show(false);
-        _deps.handMenu.Lock = true;
+        _sm.OnSelectionChanged += EndScaling;
+        _handMenu.Show(false);
+        _handMenu.Lock = true;
     }
 
     private void EndScaling(VRSelectionManager.SelectionChangedArgs args)
@@ -22,15 +34,15 @@ public class HM_ScaleMode : HM_Base
         if (interactable == null)
         {
             // Save Scale 
-            _deps.scale.ConfirmScale();
+            _scaleManager.ConfirmScale();
         }
         else
         {
             // Reset scale 
-            _deps.scale.ResetScale();
+            _scaleManager.ResetScale();
         }
 
-        _deps.selection.OnSelectionChanged -= EndScaling;
-        _deps.handMenu.Lock = false;
+        _sm.OnSelectionChanged -= EndScaling;
+        _handMenu.Lock = false;
     }
 }

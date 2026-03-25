@@ -7,8 +7,9 @@ public class HM_StopFollow : HM_Toggle
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _deps.selection.OnSelectionChanged += UpdateTarget;
-        UpdateTarget(new(_deps.selection.Selected));
+        var sm = Managers.Get<VRSelectionManager>();
+        sm.OnSelectionChanged += UpdateTarget;
+        UpdateTarget(new(sm.Selected));
     }
 
     public override void OnClick()

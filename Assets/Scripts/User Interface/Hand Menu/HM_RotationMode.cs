@@ -9,8 +9,17 @@ public class HM_RotationMode : HM_Toggle
 
 
     XRGrabInteractable _target;
+    VRSelectionManager _sm;
+    HandMenuManager _handMenu;
 
     bool _tp, _tr, _ts;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _sm = Managers.Get<VRSelectionManager>();
+        _handMenu = Managers.Get<HandMenuManager>();    
+    }
 
     // Override single choices made previously 
     override public void OnClick()
@@ -23,16 +32,16 @@ public class HM_RotationMode : HM_Toggle
     {
         if (state)
         {
-            _deps.selection.OnSelectionChanged += ChangeTarget;
-            ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _deps.selection.Selected });
-            _deps.handMenu.AddMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard }, _deps);
+            _sm.OnSelectionChanged += ChangeTarget;
+            ChangeTarget(new VRSelectionManager.SelectionChangedArgs { selection = _sm.Selected });
+            _handMenu.AddMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
 
         }
         else
         {
-            _deps.selection.OnSelectionChanged -= ChangeTarget;
+            _sm.OnSelectionChanged -= ChangeTarget;
             ChangeTarget(new());
-            _deps.handMenu.RemoveMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
+            _handMenu.RemoveMenuEntries(new System.Collections.Generic.List<HM_Base>() { pivotCard });
         }
     }
 

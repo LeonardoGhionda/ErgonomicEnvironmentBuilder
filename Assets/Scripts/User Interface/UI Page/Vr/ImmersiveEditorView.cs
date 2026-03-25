@@ -4,21 +4,21 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 
 public class ImmersiveEditorView : MonoBehaviour
 {
-    [SerializeField] HandMenuManager handMenu;
+    HandMenuManager _handMenu;
     [SerializeField] ContinuousMoveProvider moveProvider;
 
     [SerializeField] List<HM_Base> baseEntries;
 
-    HM_Base.Dependencies _dependencies;
 
-    public void Init(HM_Base.Dependencies deps)
+    public void Init()
     {
-        _dependencies = deps;
-        handMenu.AddMenuEntries(baseEntries, _dependencies);
+        _handMenu = Managers.Get<HandMenuManager>();
+        _handMenu.Init();
+        _handMenu.AddMenuEntries(baseEntries);
     }
 
     public void HandMenuActions(HandMenuInput input)
     {
-        handMenu.ProcessInput(input);
+        _handMenu.ProcessInput(input);
     }
 }

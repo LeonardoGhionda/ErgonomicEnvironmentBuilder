@@ -12,8 +12,8 @@ public class HM_BBMeasures : HM_Toggle
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _sm = _deps.selection;
-        _mm = _deps.measure;
+        _sm = Managers.Get<VRSelectionManager>();
+        _mm = Managers.Get<MeasureManager>();
         _sm.OnSelectionChanged += ChangeTarget;
         ChangeTarget(new(_sm.Selected));
     }

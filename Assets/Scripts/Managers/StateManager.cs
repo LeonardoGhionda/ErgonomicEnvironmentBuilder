@@ -19,6 +19,7 @@ public class StateManager : MonoBehaviour
     // VR Views
     [SerializeField] private MenuRoomView menuRoomView;
     [SerializeField] private ImmersiveEditorView iEditorView;
+    [SerializeField] private RoomTestView roomTestView;
     // DT Views
     [SerializeField] private MainMenuUI mainMenuUI;
     [SerializeField] private NewRoomUI newRoomUI;
@@ -26,6 +27,8 @@ public class StateManager : MonoBehaviour
 
     [Header("Room Containers")]
     [SerializeField] private GameObject menuRoomContainer;
+    [SerializeField] private GameObject viewContainer;
+    [SerializeField] private GameObject uiElements;
 
     [Header("Managers")]
     [SerializeField] private RoomBuilderManager roomBuilderManager;
@@ -70,8 +73,9 @@ public class StateManager : MonoBehaviour
         // Make all managers persistent through different scenes
         DontDestroyOnLoad(transform.parent.gameObject); 
         DontDestroyOnLoad(networkManager.gameObject);
-
         DontDestroyOnLoad(VRPlayer);
+        DontDestroyOnLoad(viewContainer);
+        DontDestroyOnLoad(uiElements);
     }
 
     private void Start()
@@ -86,7 +90,7 @@ public class StateManager : MonoBehaviour
         //---STATE SETUP---
         MenuRoom =        new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
         ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager, scaleManager);
-        TestRoom =        new(this, AppInput, roomBuilderManager, VRPlayer);
+        TestRoom =        new(this, AppInput, roomTestView);
 
         currentState = MenuRoom;
 #else

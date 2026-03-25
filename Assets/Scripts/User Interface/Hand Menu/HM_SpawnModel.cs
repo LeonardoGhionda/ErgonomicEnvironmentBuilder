@@ -5,6 +5,15 @@ using UnityEngine;
 public class HM_SpawnModel : HM_Base
 {
     public string modelFullPath;
+    VRSelectionManager _selectionManager;
+    HandMenuManager _handMenu;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _selectionManager = Managers.Get<VRSelectionManager>();
+        _handMenu = Managers.Get<HandMenuManager>();
+    }
 
     public override void OnClick()
     {
@@ -25,12 +34,12 @@ public class HM_SpawnModel : HM_Base
         // Set up children and add colliders to measure the actual size of the object
         foreach (Transform child in obj.transform)
         {
-            RoomManagementTools.SetUpVrObject(child, _deps.selection, false, true);
+            RoomManagementTools.SetUpVrObject(child, _selectionManager, false, true);
             _ = child.AddComponent<InteractableObject>();
         }
 
         BoxCollider[] colliders = obj.GetComponentsInChildren<BoxCollider>();
-        Bounds bounds = new Bounds(obj.transform.position, Vector3.zero);
+        Bounds bounds = new (obj.transform.position, Vector3.zero);
         bool hasBounds = false;
 
         if (colliders.Length > 0)
@@ -43,7 +52,7 @@ public class HM_SpawnModel : HM_Base
             hasBounds = true;
         }
 
-        Camera cam = _deps.player.GetComponentInChildren<Camera>();
+        Camera cam = DependencyProvider.VRPlayer.GetComponentInChildren<Camera>();
 
         // Use bounds magnitude to guarantee clearance
         float objectRadius = hasBounds ? bounds.extents.magnitude : 0.5f;
@@ -85,6 +94,6 @@ public class HM_SpawnModel : HM_Base
         }
 
         // Close HM on obj spawn
-        _deps.handMenu.Show(false);
+        _handMenu.Show(false);
     }
 }

@@ -21,10 +21,12 @@ public class HM_BellyCalibration : HM_Base
     [SerializeField] private float _lookPointDistance = 10f;
 
     private GameObject _spawnedLookPoint;
+    private HandMenuManager _handMenu;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _handMenu = Managers.Get<HandMenuManager>();
         _bpm = FindAnyObjectByType<BodyPointsManager>();
         _tmp = GetComponentInChildren<TextMeshProUGUI>();
         _text = _tmp.text;
@@ -49,7 +51,7 @@ public class HM_BellyCalibration : HM_Base
 
             _fase = Fase.Calibrate;
 
-            _deps.handMenu.Lock = true;
+            _handMenu.Lock = true;
         }
         else if (_fase == Fase.Calibrate)
         {
@@ -61,8 +63,8 @@ public class HM_BellyCalibration : HM_Base
 
             _bpm.Calibrate();
             _fase = Fase.Init;
-            _deps.handMenu.Lock = false;
-            _deps.handMenu.Show(false);
+            _handMenu.Lock = false;
+            _handMenu.Show(false);
         }
 
 

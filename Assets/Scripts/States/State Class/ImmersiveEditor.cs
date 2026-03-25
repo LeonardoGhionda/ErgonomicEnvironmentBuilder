@@ -77,19 +77,7 @@ public class ImmersiveEditor : AbsAppState
 
         _measureManager.Init(_vrPlayer.GetComponentInChildren<Camera>());
 
-        _view.Init(
-            new HM_Base.Dependencies
-            {
-                measure = _measureManager,
-                player = _vrPlayer,
-                rbm = _rbm,
-                selection = _selectionManager,
-                state = _manager,
-                handMenu = _handMenuManager,
-                scale = _scaleManager,
-            });
-
-        _handMenuManager.Init();
+        _view.Init();
     }
 
     public override void Exit()

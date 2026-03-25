@@ -13,22 +13,8 @@ using UnityEngine.UI;
 /// </summary>
 public class HM_Base : MonoBehaviour
 {
-    public class Dependencies
+    public void Initialize()
     {
-        public VRSelectionManager selection;
-        public StateManager state;
-        public RoomBuilderManager rbm;
-        public MeasureManager measure;
-        public GameObject player;
-        public HandMenuManager handMenu;
-        public ScaleManager scale;
-    }
-
-    protected Dependencies _deps;
-
-    public void Initialize(Dependencies deps)
-    {
-        _deps = deps;
         OnInitialized();
     }
 
@@ -106,6 +92,8 @@ public class HM_Group : HM_Base
     [SerializeField] string closeText;
     string _baseText;
 
+    HandMenuManager _handMenu;
+
     private void Awake()
     {
         // --- Image Init ---
@@ -123,19 +111,24 @@ public class HM_Group : HM_Base
         _baseText = _textComp.text;
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _handMenu = Managers.Get<HandMenuManager>();
+    }
+
     public override void OnClick()
     {
         base.OnClick();
         _isMenuOpen = !_isMenuOpen;
-
         if (_isMenuOpen)
         {
             // Save previous cards to restore when menu close
-            _resetGroup = new(_deps.handMenu.Entries);
+            _resetGroup = new(_handMenu.Entries);
 
             // Change menu entries
-            _deps.handMenu.RemoveAllEntries();
-            _deps.handMenu.AddMenuEntries(_group.Append(this).ToList(), _deps);
+            _handMenu.RemoveAllEntries();
+            _handMenu.AddMenuEntries(_group.Append(this).ToList());
 
             // Now This card will become the close menu card
 
@@ -148,8 +141,8 @@ public class HM_Group : HM_Base
         else
         {
             // Restore menu entries
-            _deps.handMenu.RemoveAllEntries();
-            _deps.handMenu.AddMenuEntries(_resetGroup, _deps);
+            _handMenu.RemoveAllEntries();
+            _handMenu.AddMenuEntries(_resetGroup);
 
             // Image
             _imageComp.sprite = _baseSprite;

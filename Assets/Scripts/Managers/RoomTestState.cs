@@ -9,21 +9,23 @@ public class RoomTestState : AbsAppState
     private readonly GameObject _vrPlayer;
     private readonly InvitationBroadcaster _inviteBroadcaster;
     private readonly NetworkPrefabMimic _networkPrefabMimic;
+    private readonly RoomTestView _view;
 
     public RoomTestState(
         StateManager manager,
         AppActions input,
-        RoomBuilderManager rbm,
-        GameObject vrPlayer
+        RoomTestView view
     ) : base(manager, input)
     {
-        _rbm = rbm;
-        _vrPlayer = vrPlayer;
+        _rbm = Managers.Get<RoomBuilderManager>();
+        _vrPlayer = DependencyProvider.VRPlayer;
         _inviteBroadcaster = GameObject.FindAnyObjectByType<InvitationBroadcaster>(FindObjectsInactive.Include);
 
         _networkPrefabMimic = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs
             .Select(p => p.Prefab.GetComponent<NetworkPrefabMimic>())
             .First(mimic => mimic != null);
+
+        _view = view;
     }
 
     public override void Enter()
@@ -43,6 +45,8 @@ public class RoomTestState : AbsAppState
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
         
         _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = true;
+        _view.gameObject.SetActive(true);
+        _view.Init();
     }
 
     public override void Exit()
@@ -51,6 +55,8 @@ public class RoomTestState : AbsAppState
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = true;
 
         _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = false;
+
+        _view.gameObject.SetActive(false);
     }
 
     public override void UpdateState() {}

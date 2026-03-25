@@ -2,22 +2,17 @@ using UnityEngine;
 
 public class FollowCameraUI : MonoBehaviour
 {
-    [SerializeField] private Camera Camera;
+    private Camera _camera;
     [SerializeField] private bool onlyY;
 
     private void Start()
     {
-        if (Camera == null)
-        {
-            Debug.LogError("FollowCameraUI: Missing camera reference.");
-        }
+        _camera = DependencyProvider.CurrentCamera;
     }
 
     private void Update()
     {
-        if (Camera == null) return;
-
-        Vector3 direction = transform.position - Camera.transform.position;
+        Vector3 direction = transform.position - _camera.transform.position;
 
         if (onlyY)
         {
