@@ -64,6 +64,7 @@ public class StateManager : MonoBehaviour
     private void Awake()
     {
         _appInput = new AppActions();
+        DependencyProvider.Input = _appInput;
     }
 
     private void Start()

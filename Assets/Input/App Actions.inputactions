@@ -1239,6 +1239,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Body Rotation",
+                    "type": "Value",
+                    "id": "924094f6-bd54-4e5e-b795-3593278a053a",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Confirm Calibration",
+                    "type": "Button",
+                    "id": "de66ce91-4ccb-48ed-91c8-c6e81c806d4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1283,6 +1301,61 @@
                     "processors": "AxisDeadzone(min=0.2)",
                     "groups": "",
                     "action": "HeadOffset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "HTC vive",
+                    "id": "91afa4a7-4249-42a7-9d11-36078bff86d4",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Body Rotation",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "1dc87d61-3dbc-4a25-9814-be273eecf65d",
+                    "path": "<ViveController>{RightHand}/{Primary2DAxisClick}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Body Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "22dd9450-84c8-4a35-b0d0-0a6d508487bf",
+                    "path": "<ViveController>{RightHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "AxisDeadzone(min=0.5)",
+                    "groups": "",
+                    "action": "Body Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "2d0f92f3-7491-44a0-a68b-19cd8d90ff67",
+                    "path": "<QuestTouchPlusController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Body Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d3f8c74-a05f-4f7a-b14e-b8768685650a",
+                    "path": "<XRController>/{MenuButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm Calibration",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DependencyProvider : MonoBehaviour
 {
@@ -46,6 +47,7 @@ public class DependencyProvider : MonoBehaviour
     static public GameObject BuildingContainer => Instance._BuildingContainer;
     static public GameObject ObjectContainer => Instance._ObjectContainer;
     static public GameObject MenuRoom => Instance._MenuRoom;
+    static public AppActions Input { get; set; }
 
     static public GameObject CurrentPlayer
     {

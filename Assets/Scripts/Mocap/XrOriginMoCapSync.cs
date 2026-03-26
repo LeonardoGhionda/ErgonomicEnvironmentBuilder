@@ -7,8 +7,8 @@ public class XROriginMoCapSync : MonoBehaviour
     [SerializeField] private Transform mocapPrefab;
     [SerializeField] private Transform vrCamera;
 
-    [SerializeField] private Vector3 EyeOffset = new(0f, 0.15f, 0.1f);
-    [SerializeField] private float RotationOffset = 0f;
+    public Vector3 EyeOffset = new(0f, 0.15f, 0.1f);
+    public float RotationOffset = 0f;
 
     private float _oldRotationOffset;
 
@@ -43,7 +43,7 @@ public class XROriginMoCapSync : MonoBehaviour
     {
         _mocap.GetComponent<NetworkObject>().Despawn(true);
         _initialization = false;
-        NetworkManager.Singleton?.Shutdown();
+        NetworkManager.Singleton.Shutdown();
     }
 
     private void OnServerStarted()

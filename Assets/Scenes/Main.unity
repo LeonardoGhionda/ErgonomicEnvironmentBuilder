@@ -5444,6 +5444,8 @@ MonoBehaviour:
   mainMenuUI: {fileID: 379573651}
   newRoomUI: {fileID: 1437130161}
   editorHUD: {fileID: 1646270202}
+  menuRoomContainer: {fileID: 0}
+  viewContainer: {fileID: 0}
   roomBuilderManager: {fileID: 1752906936}
   gizmoManager: {fileID: 1817764072}
   DTSelectionManager: {fileID: 1536421251}

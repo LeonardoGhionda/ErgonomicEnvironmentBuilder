@@ -1325,6 +1325,24 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Body Rotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""924094f6-bd54-4e5e-b795-3593278a053a"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Confirm Calibration"",
+                    ""type"": ""Button"",
+                    ""id"": ""de66ce91-4ccb-48ed-91c8-c6e81c806d4a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1369,6 +1387,61 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": ""AxisDeadzone(min=0.2)"",
                     ""groups"": """",
                     ""action"": ""HeadOffset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""HTC vive"",
+                    ""id"": ""91afa4a7-4249-42a7-9d11-36078bff86d4"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Body Rotation"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""1dc87d61-3dbc-4a25-9814-be273eecf65d"",
+                    ""path"": ""<ViveController>{RightHand}/{Primary2DAxisClick}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Body Rotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""22dd9450-84c8-4a35-b0d0-0a6d508487bf"",
+                    ""path"": ""<ViveController>{RightHand}/{Primary2DAxis}"",
+                    ""interactions"": """",
+                    ""processors"": ""AxisDeadzone(min=0.5)"",
+                    ""groups"": """",
+                    ""action"": ""Body Rotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d0f92f3-7491-44a0-a68b-19cd8d90ff67"",
+                    ""path"": ""<QuestTouchPlusController>{RightHand}/thumbstick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Body Rotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d3f8c74-a05f-4f7a-b14e-b8768685650a"",
+                    ""path"": ""<XRController>/{MenuButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Confirm Calibration"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1424,6 +1497,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         // VR Calibration
         m_VRCalibration = asset.FindActionMap("VR Calibration", throwIfNotFound: true);
         m_VRCalibration_HeadOffset = m_VRCalibration.FindAction("HeadOffset", throwIfNotFound: true);
+        m_VRCalibration_BodyRotation = m_VRCalibration.FindAction("Body Rotation", throwIfNotFound: true);
+        m_VRCalibration_ConfirmCalibration = m_VRCalibration.FindAction("Confirm Calibration", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -2245,6 +2320,8 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_VRCalibration;
     private List<IVRCalibrationActions> m_VRCalibrationActionsCallbackInterfaces = new List<IVRCalibrationActions>();
     private readonly InputAction m_VRCalibration_HeadOffset;
+    private readonly InputAction m_VRCalibration_BodyRotation;
+    private readonly InputAction m_VRCalibration_ConfirmCalibration;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR Calibration".
     /// </summary>
@@ -2260,6 +2337,14 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "VRCalibration/HeadOffset".
         /// </summary>
         public InputAction @HeadOffset => m_Wrapper.m_VRCalibration_HeadOffset;
+        /// <summary>
+        /// Provides access to the underlying input action "VRCalibration/BodyRotation".
+        /// </summary>
+        public InputAction @BodyRotation => m_Wrapper.m_VRCalibration_BodyRotation;
+        /// <summary>
+        /// Provides access to the underlying input action "VRCalibration/ConfirmCalibration".
+        /// </summary>
+        public InputAction @ConfirmCalibration => m_Wrapper.m_VRCalibration_ConfirmCalibration;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2289,6 +2374,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @HeadOffset.started += instance.OnHeadOffset;
             @HeadOffset.performed += instance.OnHeadOffset;
             @HeadOffset.canceled += instance.OnHeadOffset;
+            @BodyRotation.started += instance.OnBodyRotation;
+            @BodyRotation.performed += instance.OnBodyRotation;
+            @BodyRotation.canceled += instance.OnBodyRotation;
+            @ConfirmCalibration.started += instance.OnConfirmCalibration;
+            @ConfirmCalibration.performed += instance.OnConfirmCalibration;
+            @ConfirmCalibration.canceled += instance.OnConfirmCalibration;
         }
 
         /// <summary>
@@ -2303,6 +2394,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @HeadOffset.started -= instance.OnHeadOffset;
             @HeadOffset.performed -= instance.OnHeadOffset;
             @HeadOffset.canceled -= instance.OnHeadOffset;
+            @BodyRotation.started -= instance.OnBodyRotation;
+            @BodyRotation.performed -= instance.OnBodyRotation;
+            @BodyRotation.canceled -= instance.OnBodyRotation;
+            @ConfirmCalibration.started -= instance.OnConfirmCalibration;
+            @ConfirmCalibration.performed -= instance.OnConfirmCalibration;
+            @ConfirmCalibration.canceled -= instance.OnConfirmCalibration;
         }
 
         /// <summary>
@@ -2634,5 +2731,19 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHeadOffset(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Body Rotation" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBodyRotation(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Confirm Calibration" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnConfirmCalibration(InputAction.CallbackContext context);
     }
 }
