@@ -10,15 +10,13 @@ public class MenuRoomState : AbsAppState
     public MenuRoomState(
         StateManager manager,
         AppActions input,
-        GameObject container,
-        MenuRoomView view,
-        RoomBuilderManager roomBuilderManager,
-        GameObject vrPlayer) : base(manager, input)
+        MenuRoomView view
+        ) : base(manager, input)
     {
-        _container = container;
+        _container = DependencyProvider.MenuRoom;
+        _vrPlayer = DependencyProvider.VRPlayer;
+        _rbm = Managers.Get<RoomBuilderManager>();
         _view = view;
-        _rbm = roomBuilderManager;
-        _vrPlayer = vrPlayer;
     }
 
     public override void Enter()
@@ -56,6 +54,8 @@ public class MenuRoomState : AbsAppState
     void StartTest(string roomName)
     {
         _rbm.RoomName = roomName;
+
+        _container.SetActive(false);
         _manager.ChangeStateInNewScene(_manager.TestRoom, StateManager.SceneName.Simulation);
     }
 }

@@ -13,7 +13,6 @@ public class ImmersiveEditorView : MonoBehaviour
     public void Init()
     {
         _handMenu = Managers.Get<HandMenuManager>();
-        _handMenu.Init();
         _handMenu.AddMenuEntries(baseEntries);
     }
 

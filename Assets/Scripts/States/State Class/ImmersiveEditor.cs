@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.Inputs;
@@ -10,7 +11,6 @@ public class ImmersiveEditor : AbsAppState
     private readonly VRSelectionManager _selectionManager;
     private readonly MeasureManager _measureManager;
     private readonly HandMenuManager _handMenuManager;
-    private readonly ScaleManager _scaleManager;
     private readonly LocomotionManager _locomotionManager;
 
     private Vector3 _insideWallPosition = Vector3.zero;
@@ -27,8 +27,7 @@ public class ImmersiveEditor : AbsAppState
         ImmersiveEditorView view,
         VRSelectionManager selectionManager,
         MeasureManager measureManager,
-        HandMenuManager handMenuManager,
-        ScaleManager scaleManager) : base(manager, input)
+        HandMenuManager handMenuManager) : base(manager, input)
     {
         _rbm = roomBuilderManager;
         _vrPlayer = vrPlayer;
@@ -36,7 +35,6 @@ public class ImmersiveEditor : AbsAppState
         _selectionManager = selectionManager;
         _measureManager = measureManager;
         _handMenuManager = handMenuManager;
-        _scaleManager = scaleManager;
 
         // Get controllers from VR player
         if (_vrPlayer.TryGetComponent<XRInputModalityManager>(out XRInputModalityManager imManager))
@@ -46,7 +44,7 @@ public class ImmersiveEditor : AbsAppState
         }
         else Debug.LogError($"Missing XRInputModalityManager from Vr player");
 
-        _locomotionManager = GameObject.FindAnyObjectByType<LocomotionManager>();
+        _locomotionManager = Managers.Get<LocomotionManager>();
     }
 
     public override void Enter()
@@ -77,7 +75,9 @@ public class ImmersiveEditor : AbsAppState
 
         _measureManager.Init(_vrPlayer.GetComponentInChildren<Camera>());
 
+        _handMenuManager.Init();
         _view.Init();
+        _handMenuManager.OnMenuStateChange += LockMovement;
     }
 
     public override void Exit()
@@ -107,6 +107,7 @@ public class ImmersiveEditor : AbsAppState
         _measureManager.ClearAllMeasures();
         _measureManager.ResetTool();
 
+        _handMenuManager.OnMenuStateChange += LockMovement;
         _handMenuManager.TurnOff();
     }
 
@@ -180,6 +181,11 @@ public class ImmersiveEditor : AbsAppState
         {
             Debug.LogError($"Trigger performet that is neither left or right");
         }
+    }
+
+    private void LockMovement(bool open)
+    {
+        _locomotionManager.LockMove(open);
     }
 }
 

@@ -3878,11 +3878,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58162ea689896c24b83d2072aa3d4aa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _DTPlayer: {fileID: 52964973}
+  _DTCamera: {fileID: 52964975}
   _VRPlayer: {fileID: 1717954561719780674}
   _VRCamera: {fileID: 1489869848}
   _RightHand: {fileID: 1377221790}
   _LeftHand: {fileID: 1033337983}
   _UIElements: {fileID: 1040335715}
+  _HMEntries: {fileID: 1974736972}
+  _BuildingContainer: {fileID: 2119345386}
+  _ObjectContainer: {fileID: 311203535}
+  _MenuRoom: {fileID: 1991485403}
 --- !u!114 &341732032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5438,9 +5444,6 @@ MonoBehaviour:
   mainMenuUI: {fileID: 379573651}
   newRoomUI: {fileID: 1437130161}
   editorHUD: {fileID: 1646270202}
-  menuRoomContainer: {fileID: 1991485403}
-  viewContainer: {fileID: 764658311}
-  uiElements: {fileID: 1040335715}
   roomBuilderManager: {fileID: 1752906936}
   gizmoManager: {fileID: 1817764072}
   DTSelectionManager: {fileID: 1536421251}
@@ -6263,7 +6266,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Camera: {fileID: 1489869848}
   onlyY: 0
 --- !u!114 &506794674
 MonoBehaviour:
@@ -9991,7 +9993,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: {fileID: 1951817120}
   distance: {fileID: 1002639657}
-  controller: {fileID: 1377221790}
   openAction: {fileID: -3161209338645177983, guid: 55127edae9832bc45b3a50feb5998d0d, type: 3}
   fontSizeWarning: 0.028
 --- !u!114 &864057002
@@ -11738,6 +11739,7 @@ Transform:
   - {fileID: 1984413922}
   - {fileID: 206293134}
   - {fileID: 1098117540}
+  - {fileID: 1974736979}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1040547948
@@ -15191,7 +15193,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: {fileID: 1979480038}
   distance: {fileID: 2138920839}
-  controller: {fileID: 1033337983}
   openAction: {fileID: -3161209338645177983, guid: 55127edae9832bc45b3a50feb5998d0d, type: 3}
   fontSizeWarning: 0.028
 --- !u!114 &1405645215
@@ -23326,7 +23327,7 @@ GameObject:
   - component: {fileID: 1974736976}
   - component: {fileID: 1974736975}
   m_Layer: 5
-  m_Name: '[VR] Hand Menu Entries Container'
+  m_Name: HandMenu Entries Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23410,7 +23411,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974736972}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -7}
   m_LocalScale: {x: 0.001, y: 0.001, z: 0.001}
   m_ConstrainProportionsScale: 1
@@ -23433,7 +23434,7 @@ RectTransform:
   - {fileID: 1289831511}
   - {fileID: 2938377}
   - {fileID: 669365639}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1040335716}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -25196,7 +25197,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2119345387}
   m_Layer: 0
-  m_Name: Room Container
+  m_Name: Building Container
   m_TagString: SceneContainer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34085,7 +34086,6 @@ SceneRoots:
   - {fileID: 341732030}
   - {fileID: 56474149}
   - {fileID: 1040335716}
-  - {fileID: 1974736979}
   - {fileID: 2119345387}
   - {fileID: 311203536}
   - {fileID: 1717954561719780673}

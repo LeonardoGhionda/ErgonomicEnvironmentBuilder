@@ -34,5 +34,6 @@ public class MissingManagerException : Exception
     public MissingManagerException(Type t)
         : base($"Failed to find manager of type: {t.Name}")
     {
+        Debug.Log($"[INFO] New manager must be set as child of the Manager GameObject to be able to be found");
     }
 }

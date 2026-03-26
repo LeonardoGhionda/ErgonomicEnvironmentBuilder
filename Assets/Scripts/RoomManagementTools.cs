@@ -490,7 +490,7 @@ static public class RoomManagementTools
         List<RoomDotData> dots = data.dots;
 
         //get basic room element
-        GameObject roomContainer = GameObject.Find("Room Container");
+        GameObject roomContainer = DependencyProvider.BuildingContainer;
         GameObject baseWallPivot = Resources.Load<GameObject>("Room Builder/Base Wall Pivot");
         GameObject baseColumnPivot = Resources.Load<GameObject>("Room Builder/Base Column Pivot");
         GameObject roof = Resources.Load<GameObject>("Room Builder/Roof");
@@ -903,30 +903,17 @@ static public class RoomManagementTools
 
     public static void CleanupRoom()
     {
-        GameObject c = GameObject.Find("Room Container");
-        if (c != null)
+        GameObject c = DependencyProvider.BuildingContainer;
+        foreach (Transform child in c.transform)
         {
-            foreach (Transform child in c.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-        }
-        else
-        {
-            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Room Container' not found!");
+            GameObject.Destroy(child.gameObject);
         }
 
-        c = GameObject.Find("Objects Container");
-        if (c != null)
+        c = DependencyProvider.ObjectContainer;
+        foreach (Transform child in c.transform)
         {
-            foreach (Transform child in c.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-        }
-        else
-        {
-            Debug.LogError("RoomBuilderManager.CleanupRoom: 'Objects Container' not found!");
+            GameObject.Destroy(child.gameObject);
+
         }
     }
 
@@ -936,7 +923,7 @@ static public class RoomManagementTools
     /// <returns>A vector 3 where (x,y) are the camera position (x,z) and z = orthograficSize</returns>
     public static Vector3 GetCameraParameters()
     {
-        Transform roomContainer = GameObject.Find("Room Container").transform;
+        Transform roomContainer = DependencyProvider.BuildingContainer.transform;
 
         //Force Unity to update collider bounds immediately
         Physics.SyncTransforms();

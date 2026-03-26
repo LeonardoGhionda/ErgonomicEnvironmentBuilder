@@ -15,7 +15,6 @@ public class RoomTestView : MonoBehaviour
 
     public void Init()
     {
-        _handMenu.Init();
         _handMenu.AddMenuEntries(baseEntries);
     }
 

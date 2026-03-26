@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,17 +12,15 @@ public class StateManager : MonoBehaviour
         Simulation,
     }
 
-    IAppState currentState;
+    private IAppState _currentState;
 
     public AppActions AppInput => _appInput;
     AppActions _appInput;
 
     [Header("Views")]
-    // VR Views
     [SerializeField] private MenuRoomView menuRoomView;
     [SerializeField] private ImmersiveEditorView iEditorView;
     [SerializeField] private RoomTestView roomTestView;
-    // DT Views
     [SerializeField] private MainMenuUI mainMenuUI;
     [SerializeField] private NewRoomUI newRoomUI;
     [SerializeField] private EditorHUDView editorHUD;
@@ -28,7 +28,6 @@ public class StateManager : MonoBehaviour
     [Header("Room Containers")]
     [SerializeField] private GameObject menuRoomContainer;
     [SerializeField] private GameObject viewContainer;
-    [SerializeField] private GameObject uiElements;
 
     [Header("Managers")]
     [SerializeField] private RoomBuilderManager roomBuilderManager;
@@ -48,10 +47,8 @@ public class StateManager : MonoBehaviour
     [SerializeField] private GameObject VRPlayer;
     [SerializeField] private GameObject DTPlayer;
 
-    // Public Getter
     public CameraController CameraController => cameraController;
 
-    // --- DT STATES ---
     public MainMenuState MainMenu { get; private set; }
     public NewRoomState NewRoom { get; private set; }
     public LoadRoomState LoadRoom { get; private set; }
@@ -60,114 +57,95 @@ public class StateManager : MonoBehaviour
     public RoomEditorState RoomEditor { get; private set; }
     public SpectatorState Spectator { get; private set; }
 
-    // --- VR STATES ---
     public MenuRoomState MenuRoom { get; private set; }
     public ImmersiveEditor ImmersiveEditor { get; private set; }
     public RoomTestState TestRoom { get; private set; }
 
     private void Awake()
     {
-        // Initialize Input
         _appInput = new AppActions();
-
-        // Make all managers persistent through different scenes
-        DontDestroyOnLoad(transform.parent.gameObject); 
-        DontDestroyOnLoad(networkManager.gameObject);
-        DontDestroyOnLoad(VRPlayer);
-        DontDestroyOnLoad(viewContainer);
-        DontDestroyOnLoad(uiElements);
     }
 
     private void Start()
     {
-
-        // Initialize states and set the first state to enter
-
 #if USE_XR
         VRPlayer.SetActive(true);
         Destroy(DTPlayer);
 
-        //---STATE SETUP---
-        MenuRoom =        new(this, AppInput, menuRoomContainer, menuRoomView, roomBuilderManager, VRPlayer);
-        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager, scaleManager);
-        TestRoom =        new(this, AppInput, roomTestView);
+        MenuRoom = new(this, AppInput, menuRoomView);
+        ImmersiveEditor = new(this, AppInput, roomBuilderManager, VRPlayer, iEditorView, VRSelectionManager, measureManager, handMenuManager);
+        TestRoom = new(this, AppInput, roomTestView);
 
-        currentState = MenuRoom;
+        _currentState = MenuRoom;
 #else
         DTPlayer.SetActive(true);
         Destroy(VRPlayer);
 
-        //set cursor visible at start
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        //---STATES SETUP---
         MainMenu =   new(this, AppInput, mainMenuUI, DTPlayer);
         NewRoom =    new(this, AppInput, newRoomUI, roomBuilderManager);
         LoadRoom =   new(this, AppInput, roomBuilderManager);
         Option =     new(this, AppInput);
         Pause =      new(this, AppInput);
         RoomEditor = new(this, AppInput, editorHUD, roomBuilderManager, gizmoManager, DTSelectionManager, measureManager);
-        Spectator =  new(this, AppInput, DTPlayer);
+        Spectator =  new(this, AppInput);
 
-        //first state iniziaization
-        currentState = MainMenu;
+        _currentState = MainMenu;
 #endif
-        currentState.Enter();
+        _currentState.Enter();
     }
 
     private void Update()
     {
-
-        currentState.UpdateState();
+        _currentState.UpdateState();
     }
 
     internal void ChangeState(IAppState newState)
     {
-        currentState?.Exit();
-        currentState = newState;
-        if (currentState == null)
+        _currentState?.Exit();
+        _currentState = newState;
+
+        if (_currentState == null)
         {
-            Destroy(this); //close the app
+            Application.Quit();
             return;
         }
-        currentState?.Enter();
+
+        _currentState?.Enter();
     }
 
     internal void ChangeStateInNewScene(IAppState newState, SceneName newScene)
     {
-        currentState?.Exit();
-        currentState = newState;
+        _currentState?.Exit();
 
-        if (currentState == null)
+        bool newSceneIsMain = newScene == SceneName.Main;
+
+        if (newSceneIsMain)
         {
-            Destroy(this); //close the app
-            return;
+            _currentState = null;
+            SceneManager.LoadScene(newScene.ToString(), LoadSceneMode.Single);
         }
-
-        // Subscribe to the scene loaded event
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.LoadScene(newScene.ToString());
+        else
+        {
+            _currentState = newState;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.LoadScene(newScene.ToString(), LoadSceneMode.Additive);
+        }
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode LSM)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        currentState?.Enter();
+        _currentState?.Enter();
     }
 
     public void ExitApplication()
     {
-        ChangeState(null);
-    }
-
-    private void OnDestroy()
-    {
 #if UNITY_EDITOR
-        // Stop the Editor play mode
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        // Close the built application
         Application.Quit();
 #endif
     }

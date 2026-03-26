@@ -180,8 +180,6 @@ public class ModelExchangeManager : MonoBehaviour
         messagePayload.ReadValueSafe(out int chunkIndex);
         messagePayload.ReadValueSafe(out int length);
 
-        Debug.Log($"received {fileName}");
-
         byte[] chunkData = new byte[length];
         messagePayload.ReadBytesSafe(ref chunkData, length);
 
@@ -211,9 +209,8 @@ public class ModelExchangeManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(_pendingJson) && _completedFiles >= _expectedFiles)
         {
-            Debug.Log("Models exchange completed");
+            // Models exchange completed
             FindAnyObjectByType<SpectatorNetworkManager>().CompleteRoomLoad(_pendingJson);
-
         }
     }
 }

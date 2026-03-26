@@ -14,6 +14,12 @@ public class LocomotionManager : MonoBehaviour
     private bool _snapTurnEnabled = true;
     private bool _continuousTurnEnabled = false;
 
+    // Getters
+    public bool MoveEnabled => _moveEnabled;
+    public bool TeleportEnabled => _teleportEnabled;
+    public bool SnapTurnEnabled => _snapTurnEnabled;    
+    public bool ContinuousTurnEnabled => _continuousTurnEnabled;
+
     public void LockMove(bool locked)
     {
         _moveEnabled = !locked;
@@ -46,7 +52,7 @@ public class LocomotionManager : MonoBehaviour
 
     private void ToggleAction(InputActionReference actionRef, bool isEnabled)
     {
-        if (actionRef?.action == null) return;
+        if (actionRef.action == null) return;
 
         if (isEnabled)
         {

@@ -22,7 +22,7 @@ public class XROriginMoCapSync : MonoBehaviour
 
     private bool _initialization = false;
 
-    private void Start()
+    private void OnEnable()
     {
         if (NetworkManager.Singleton != null)
         {
@@ -37,6 +37,13 @@ public class XROriginMoCapSync : MonoBehaviour
                 NetworkManager.Singleton.OnServerStarted += OnServerStarted;
             }
         }
+    }
+
+    private void OnDisable()
+    {
+        _mocap.GetComponent<NetworkObject>().Despawn(true);
+        _initialization = false;
+        NetworkManager.Singleton?.Shutdown();
     }
 
     private void OnServerStarted()
