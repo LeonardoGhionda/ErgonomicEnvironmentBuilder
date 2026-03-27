@@ -11,7 +11,6 @@ public class BoneDataReceiver : MonoBehaviour
     // -- Bones --
     [SerializeField] private Transform RootBone;
     [SerializeField] private Transform Avatar;
-    [SerializeField] private Transform HeadBone;
     [SerializeField] private Transform Hip;
     private List<Transform> bones;
 
