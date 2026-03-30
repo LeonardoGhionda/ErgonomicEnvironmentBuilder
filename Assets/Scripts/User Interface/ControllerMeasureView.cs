@@ -7,7 +7,7 @@ public class ControllerMeasureView : MonoBehaviour
     [SerializeField] TextMeshProUGUI height;
     [SerializeField] TextMeshProUGUI distance;
 
-    [SerializeField] InputActionReference openAction;
+    InputAction openAction;
     [SerializeField] float fontSizeWarning;
 
     private Transform _bellyButtonPoint;
@@ -30,8 +30,8 @@ public class ControllerMeasureView : MonoBehaviour
         _canvas = GetComponent<Canvas>();
         _canvas.enabled = _open;
 
-        openAction.action.Enable();
-        openAction.action.performed += ShowMenu;
+        openAction = DependencyProvider.Input.VRMenu.ControllerDistance;
+        openAction.performed += ShowMenu;
 
     }
 
@@ -70,7 +70,7 @@ public class ControllerMeasureView : MonoBehaviour
 
     private void OnDestroy()
     {
-        openAction.action.performed -= ShowMenu;
+        openAction.performed -= ShowMenu;
     }
 
 

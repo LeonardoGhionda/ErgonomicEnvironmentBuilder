@@ -973,15 +973,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Show Hand Mesures",
-                    "type": "Button",
-                    "id": "d19d090a-c157-4756-895b-dd719c42aaaa",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -993,28 +984,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Open",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a90b173d-521f-4fd7-a585-376ea5a1edaf",
-                    "path": "<XRController>{RightHand}/{MenuButton}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Show Hand Mesures",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1fe7a385-1275-4921-9828-c1197516405a",
-                    "path": "<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{RightHand}/primarybutton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Show Hand Mesures",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1356,6 +1325,54 @@
                     "processors": "",
                     "groups": "",
                     "action": "Confirm Calibration",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "VR Menu",
+            "id": "e8c9e219-64b2-4aee-9e91-c716303718ba",
+            "actions": [
+                {
+                    "name": "Controller Distance",
+                    "type": "Button",
+                    "id": "e446184d-fe4e-45e8-9d30-db2f19dce33d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Toggle Screen",
+                    "type": "Button",
+                    "id": "785d63fa-f8df-461b-8374-6199afaec9c7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4f30b5fb-ef80-4c5f-b2bf-fd88fc90a489",
+                    "path": "<XRController>{RightHand}/{MenuButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Controller Distance",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "868fd508-455e-49e8-9879-64cf45dd7c7c",
+                    "path": "<XRController>{RightHand}/{MenuButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle Screen",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -63,6 +63,10 @@ public class RoomTestState : AbsAppState
         _input.HandMenu.Confirm.performed += HandMenuConfirm;
         _input.HandMenu.Open.performed += MenuButtonClicked;
 
+        _input.VRMenu.ToggleScreen.Enable();
+
+        Managers.Get<ScreenShareManager>().gameObject.SetActive(true);
+
         // Lock motion
         var locManager = Managers.Get<LocomotionManager>();
         locManager.LockMove(true);
@@ -85,6 +89,10 @@ public class RoomTestState : AbsAppState
         _input.HandMenu.MoveEntries.canceled -= MoveHandMenuEntriesReleased;
         _input.HandMenu.Confirm.performed -= HandMenuConfirm;
         _input.HandMenu.Open.performed -= MenuButtonClicked;
+
+        _input.VRMenu.ToggleScreen.Disable();
+
+        Managers.Get<ScreenShareManager>().gameObject.SetActive(true);
 
         // Unlock motion
         var locManager = Managers.Get<LocomotionManager>();

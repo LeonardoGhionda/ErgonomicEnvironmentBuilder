@@ -70,6 +70,8 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.LeftTrigger.performed += TriggerPerformed;
         _input.VR.RightTrigger.performed += TriggerPerformed;
 
+        _input.VRMenu.ControllerDistance.Enable();
+
 
         _snapTool = new();
 
@@ -102,6 +104,9 @@ public class ImmersiveEditor : AbsAppState
         _input.VR.LeftTrigger.performed -= TriggerPerformed;
         _input.VR.RightTrigger.performed -= TriggerPerformed;
         _input.VR.Disable();
+
+        _input.VRMenu.ControllerDistance.Disable();
+
 
         // Selection Manager
         _measureManager.ClearAllMeasures();

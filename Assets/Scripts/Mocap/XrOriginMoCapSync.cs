@@ -41,7 +41,11 @@ public class XROriginMoCapSync : MonoBehaviour
 
     private void OnDisable()
     {
-        _mocap.GetComponent<NetworkObject>().Despawn(true);
+        var netObj = _mocap.GetComponent<NetworkObject>();
+
+        if (netObj.IsSpawned) netObj.Despawn(true); // Despown the network object destroy gameobject
+        else Destroy(_mocap.gameObject);            // Just destroy gameobject if it was never spawned
+
         _initialization = false;
         NetworkManager.Singleton.Shutdown();
     }

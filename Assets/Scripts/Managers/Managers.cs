@@ -21,7 +21,7 @@ public class Managers : MonoBehaviour
     {
         if (Instance == null) throw new MissingManagerException(typeof(Managers));
 
-        T manager = Instance.GetComponentInChildren<T>() ?? 
+        T manager = Instance.GetComponentInChildren<T>(includeInactive: true) ?? 
             throw new MissingManagerException(typeof(T));
 
         return manager;

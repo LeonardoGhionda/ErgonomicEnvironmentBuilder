@@ -7,7 +7,9 @@ using UnityEngine.UI;
 public class ScreenReceiver : MonoBehaviour
 {
     [Header("Screen Display")]
-    [SerializeField] private RawImage displayUI;
+    private RawImage displayUI;
+    public RawImage rawImage{ get { return displayUI; } set { displayUI = value; displayUI.texture = receivedTexture; } }
+
     private Texture2D receivedTexture;
     private byte[] readyImageData;
     private bool hasNewImage = false;

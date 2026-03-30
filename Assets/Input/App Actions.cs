@@ -1059,15 +1059,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Show Hand Mesures"",
-                    ""type"": ""Button"",
-                    ""id"": ""d19d090a-c157-4756-895b-dd719c42aaaa"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1079,28 +1070,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Open"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a90b173d-521f-4fd7-a585-376ea5a1edaf"",
-                    ""path"": ""<XRController>{RightHand}/{MenuButton}"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Show Hand Mesures"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""1fe7a385-1275-4921-9828-c1197516405a"",
-                    ""path"": ""<XRInputV1::Oculus::MetaQuestTouchPlusControllerOpenXR>{RightHand}/primarybutton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Show Hand Mesures"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1446,6 +1415,54 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""VR Menu"",
+            ""id"": ""e8c9e219-64b2-4aee-9e91-c716303718ba"",
+            ""actions"": [
+                {
+                    ""name"": ""Controller Distance"",
+                    ""type"": ""Button"",
+                    ""id"": ""e446184d-fe4e-45e8-9d30-db2f19dce33d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle Screen"",
+                    ""type"": ""Button"",
+                    ""id"": ""785d63fa-f8df-461b-8374-6199afaec9c7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""4f30b5fb-ef80-4c5f-b2bf-fd88fc90a489"",
+                    ""path"": ""<XRController>{RightHand}/{MenuButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Controller Distance"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""868fd508-455e-49e8-9879-64cf45dd7c7c"",
+                    ""path"": ""<XRController>{RightHand}/{MenuButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Screen"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1486,7 +1503,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_HandMenu_MoveEntries = m_HandMenu.FindAction("Move Entries", throwIfNotFound: true);
         m_HandMenu_Confirm = m_HandMenu.FindAction("Confirm", throwIfNotFound: true);
         m_HandMenu_Open = m_HandMenu.FindAction("Open", throwIfNotFound: true);
-        m_HandMenu_ShowHandMesures = m_HandMenu.FindAction("Show Hand Mesures", throwIfNotFound: true);
         // VR
         m_VR = asset.FindActionMap("VR", throwIfNotFound: true);
         m_VR_Deselect = m_VR.FindAction("Deselect", throwIfNotFound: true);
@@ -1499,6 +1515,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VRCalibration_HeadOffset = m_VRCalibration.FindAction("HeadOffset", throwIfNotFound: true);
         m_VRCalibration_BodyRotation = m_VRCalibration.FindAction("Body Rotation", throwIfNotFound: true);
         m_VRCalibration_ConfirmCalibration = m_VRCalibration.FindAction("Confirm Calibration", throwIfNotFound: true);
+        // VR Menu
+        m_VRMenu = asset.FindActionMap("VR Menu", throwIfNotFound: true);
+        m_VRMenu_ControllerDistance = m_VRMenu.FindAction("Controller Distance", throwIfNotFound: true);
+        m_VRMenu_ToggleScreen = m_VRMenu.FindAction("Toggle Screen", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1508,6 +1528,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_HandMenu.enabled, "This will cause a leak and performance issues, AppActions.HandMenu.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_VR.enabled, "This will cause a leak and performance issues, AppActions.VR.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_VRCalibration.enabled, "This will cause a leak and performance issues, AppActions.VRCalibration.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_VRMenu.enabled, "This will cause a leak and performance issues, AppActions.VRMenu.Disable() has not been called.");
     }
 
     /// <summary>
@@ -2053,7 +2074,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_HandMenu_MoveEntries;
     private readonly InputAction m_HandMenu_Confirm;
     private readonly InputAction m_HandMenu_Open;
-    private readonly InputAction m_HandMenu_ShowHandMesures;
     /// <summary>
     /// Provides access to input actions defined in input action map "HandMenu".
     /// </summary>
@@ -2077,10 +2097,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "HandMenu/Open".
         /// </summary>
         public InputAction @Open => m_Wrapper.m_HandMenu_Open;
-        /// <summary>
-        /// Provides access to the underlying input action "HandMenu/ShowHandMesures".
-        /// </summary>
-        public InputAction @ShowHandMesures => m_Wrapper.m_HandMenu_ShowHandMesures;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2116,9 +2132,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Open.started += instance.OnOpen;
             @Open.performed += instance.OnOpen;
             @Open.canceled += instance.OnOpen;
-            @ShowHandMesures.started += instance.OnShowHandMesures;
-            @ShowHandMesures.performed += instance.OnShowHandMesures;
-            @ShowHandMesures.canceled += instance.OnShowHandMesures;
         }
 
         /// <summary>
@@ -2139,9 +2152,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @Open.started -= instance.OnOpen;
             @Open.performed -= instance.OnOpen;
             @Open.canceled -= instance.OnOpen;
-            @ShowHandMesures.started -= instance.OnShowHandMesures;
-            @ShowHandMesures.performed -= instance.OnShowHandMesures;
-            @ShowHandMesures.canceled -= instance.OnShowHandMesures;
         }
 
         /// <summary>
@@ -2433,6 +2443,113 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="VRCalibrationActions" /> instance referencing this action map.
     /// </summary>
     public VRCalibrationActions @VRCalibration => new VRCalibrationActions(this);
+
+    // VR Menu
+    private readonly InputActionMap m_VRMenu;
+    private List<IVRMenuActions> m_VRMenuActionsCallbackInterfaces = new List<IVRMenuActions>();
+    private readonly InputAction m_VRMenu_ControllerDistance;
+    private readonly InputAction m_VRMenu_ToggleScreen;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "VR Menu".
+    /// </summary>
+    public struct VRMenuActions
+    {
+        private @AppActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public VRMenuActions(@AppActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "VRMenu/ControllerDistance".
+        /// </summary>
+        public InputAction @ControllerDistance => m_Wrapper.m_VRMenu_ControllerDistance;
+        /// <summary>
+        /// Provides access to the underlying input action "VRMenu/ToggleScreen".
+        /// </summary>
+        public InputAction @ToggleScreen => m_Wrapper.m_VRMenu_ToggleScreen;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_VRMenu; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="VRMenuActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(VRMenuActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="VRMenuActions" />
+        public void AddCallbacks(IVRMenuActions instance)
+        {
+            if (instance == null || m_Wrapper.m_VRMenuActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_VRMenuActionsCallbackInterfaces.Add(instance);
+            @ControllerDistance.started += instance.OnControllerDistance;
+            @ControllerDistance.performed += instance.OnControllerDistance;
+            @ControllerDistance.canceled += instance.OnControllerDistance;
+            @ToggleScreen.started += instance.OnToggleScreen;
+            @ToggleScreen.performed += instance.OnToggleScreen;
+            @ToggleScreen.canceled += instance.OnToggleScreen;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="VRMenuActions" />
+        private void UnregisterCallbacks(IVRMenuActions instance)
+        {
+            @ControllerDistance.started -= instance.OnControllerDistance;
+            @ControllerDistance.performed -= instance.OnControllerDistance;
+            @ControllerDistance.canceled -= instance.OnControllerDistance;
+            @ToggleScreen.started -= instance.OnToggleScreen;
+            @ToggleScreen.performed -= instance.OnToggleScreen;
+            @ToggleScreen.canceled -= instance.OnToggleScreen;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="VRMenuActions.UnregisterCallbacks(IVRMenuActions)" />.
+        /// </summary>
+        /// <seealso cref="VRMenuActions.UnregisterCallbacks(IVRMenuActions)" />
+        public void RemoveCallbacks(IVRMenuActions instance)
+        {
+            if (m_Wrapper.m_VRMenuActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="VRMenuActions.AddCallbacks(IVRMenuActions)" />
+        /// <seealso cref="VRMenuActions.RemoveCallbacks(IVRMenuActions)" />
+        /// <seealso cref="VRMenuActions.UnregisterCallbacks(IVRMenuActions)" />
+        public void SetCallbacks(IVRMenuActions instance)
+        {
+            foreach (var item in m_Wrapper.m_VRMenuActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_VRMenuActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="VRMenuActions" /> instance referencing this action map.
+    /// </summary>
+    public VRMenuActions @VRMenu => new VRMenuActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -2666,13 +2783,6 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnOpen(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Show Hand Mesures" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnShowHandMesures(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "VR" which allows adding and removing callbacks.
@@ -2745,5 +2855,27 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnConfirmCalibration(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "VR Menu" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="VRMenuActions.AddCallbacks(IVRMenuActions)" />
+    /// <seealso cref="VRMenuActions.RemoveCallbacks(IVRMenuActions)" />
+    public interface IVRMenuActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Controller Distance" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnControllerDistance(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Toggle Screen" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleScreen(InputAction.CallbackContext context);
     }
 }
