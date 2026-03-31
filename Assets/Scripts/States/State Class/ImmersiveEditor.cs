@@ -22,19 +22,15 @@ public class ImmersiveEditor : AbsAppState
     public ImmersiveEditor(
         StateManager manager,
         AppActions input,
-        RoomBuilderManager roomBuilderManager,
-        GameObject vrPlayer,
-        ImmersiveEditorView view,
-        VRSelectionManager selectionManager,
-        MeasureManager measureManager,
-        HandMenuManager handMenuManager) : base(manager, input)
+        ImmersiveEditorView view
+    ): base(manager, input)
     {
-        _rbm = roomBuilderManager;
-        _vrPlayer = vrPlayer;
         _view = view;
-        _selectionManager = selectionManager;
-        _measureManager = measureManager;
-        _handMenuManager = handMenuManager;
+        _rbm = Managers.Get<RoomBuilderManager>();
+        _vrPlayer = DependencyProvider.VRPlayer;
+        _selectionManager = Managers.Get<VRSelectionManager>();
+        _measureManager = Managers.Get<MeasureManager>();
+        _handMenuManager = Managers.Get<HandMenuManager>();
 
         // Get controllers from VR player
         if (_vrPlayer.TryGetComponent<XRInputModalityManager>(out XRInputModalityManager imManager))

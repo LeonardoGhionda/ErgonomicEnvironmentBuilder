@@ -80,19 +80,22 @@ public class HM_Toggle : HM_Base
 /// </summary>
 public class HM_Group : HM_Base
 {
-    [SerializeField] protected List<HM_Base> _group;
+    [SerializeField] protected List<HM_Base> Group;
     List<HM_Base> _resetGroup;
     protected bool _isMenuOpen = false;
 
     Image _imageComp;
-    [SerializeField] Sprite closeSprite;
+    [SerializeField] Sprite CloseSprite;
     Sprite _baseSprite;
 
     TextMeshProUGUI _textComp;
-    [SerializeField] string closeText;
+    [SerializeField] string CloseText;
     string _baseText;
 
     HandMenuManager _handMenu;
+
+    [SerializeField, Tooltip("Open group on top of the current entries")] bool AdditiveGroup = false;
+    List<HM_Base> _additiveGroup;
 
     private void Awake()
     {
@@ -126,23 +129,40 @@ public class HM_Group : HM_Base
             // Save previous cards to restore when menu close
             _resetGroup = new(_handMenu.Entries);
 
-            // Change menu entries
-            _handMenu.RemoveAllEntries();
-            _handMenu.AddMenuEntries(_group.Append(this).ToList());
+            // Open menus entries on top of the current entries
+            if (AdditiveGroup)
+            {
+                _additiveGroup = _handMenu.Entries.Where(e => !typeof(HM_Group).IsAssignableFrom(e.GetType())).Concat(Group).ToList();
+                // Change menu entries
+                _handMenu.RemoveAllEntries();
+                // Append this because it is removed from additiveGroup with all the other HM_Group, and we want to keep it in the menu as the close menu card
+                _handMenu.AddMenuEntries(_additiveGroup.Append(this).ToList());
+            }
+            // Open menus entries replacing the current entries
+            else
+            {
+                // Change menu entries
+                _handMenu.RemoveAllEntries();
+                // Append this because it is not added in Group from the inspector, and we want to keep it in the menu as the close menu card 
+                _handMenu.AddMenuEntries(Group.Append(this).ToList());
+            }
 
-            // Now This card will become the close menu card
+            
+
+            // --- Now This card will become the close menu card ---
 
             // Image
-            _imageComp.sprite = closeSprite;
+            _imageComp.sprite = CloseSprite;
 
             //Text
-            _textComp.text = closeText;
+            _textComp.text = CloseText;
         }
         else
         {
             // Restore menu entries
             _handMenu.RemoveAllEntries();
             _handMenu.AddMenuEntries(_resetGroup);
+             
 
             // Image
             _imageComp.sprite = _baseSprite;

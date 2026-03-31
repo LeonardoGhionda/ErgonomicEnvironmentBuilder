@@ -17,11 +17,11 @@ public class NewRoomState : AbsAppState
 
 
     // Constructor
-    public NewRoomState(StateManager manager, AppActions input, NewRoomUI view, RoomBuilderManager rbm)
+    public NewRoomState(StateManager manager, AppActions input, NewRoomUI view)
         : base(manager, input)
     {
         _view = view;
-        _rbm = rbm;
+        _rbm = Managers.Get<RoomBuilderManager>();
         _backAction = _input.Ui.GoBackLong;
         _moveInterface = _input.Ui.MoveInterface;
     }

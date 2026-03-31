@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -70,6 +69,32 @@ public class XROriginMoCapSync : MonoBehaviour
         _initialization = true;
 
         AlignRoomToAvatar();
+    }
+
+    public void SetPosition(Vector3 pos)
+    {
+        if (_mocap != null)
+        {
+            _mocap.position = pos;
+            AlignRoomToAvatar();
+        }
+        else Debug.LogWarning("Trying to set position before mocap initialization");
+    }
+
+    /// <summary>
+    /// Calibrates the rotation offset based on the current orientation of the motion capture head.
+    /// </summary>
+    /// <remarks>This method should be called only to have an broad calibration. 
+    /// Manual calibration should be performed anyway</remarks>
+    public void CalibrateRotation()
+    {
+        if (_mocap != null)
+        {
+            Vector3 flatHeadForward = Vector3.ProjectOnPlane(_mocapHead.right, Vector3.up).normalized;
+            float headYaw = Mathf.Atan2(flatHeadForward.x, flatHeadForward.z) * Mathf.Rad2Deg;
+            RotationOffset = headYaw - transform.rotation.eulerAngles.y;
+        }
+        else Debug.LogWarning("Trying to set rotation offset before mocap initialization");
     }
 
     public void AlignRoomToAvatar()

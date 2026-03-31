@@ -15,14 +15,14 @@ public class MainMenuState : AbsAppState
     private readonly GameObject _player;
 
     // Costruttore: riceve View e Manager
-    public MainMenuState(StateManager manager, AppActions input, MainMenuUI view, GameObject Player) : base(manager, input)
+    public MainMenuState(StateManager manager, AppActions input, MainMenuUI view) : base(manager, input)
     {
         _view = view;
         _backAction = _input.Ui.GoBackLong;
         _sessionListener = GameObject.FindAnyObjectByType<SpectatorNetworkManager>(FindObjectsInactive.Include);
         GameObject.FindAnyObjectByType<RoomBuilderManager>();
 
-        _player = Player;
+        _player = DependencyProvider.DTPlayer;
     }
 
     override public void Enter()
@@ -44,6 +44,10 @@ public class MainMenuState : AbsAppState
         // Spectator mode
         _sessionListener.enabled = true;
         _sessionListener.RoomDataReceived += GoSpectator;
+
+        // Cursor management
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     override public void Exit()

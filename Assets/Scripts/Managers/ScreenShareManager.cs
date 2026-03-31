@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -13,6 +12,8 @@ public class ScreenShareManager : MonoBehaviour
     private ScreenReceiver _screenReceiver;
     private Transform _current;
     private InputAction _toggleAction;
+
+    public Transform ScreenToOpen => _current == null ? floatingScreen : _current;
 
     private void Awake()
     {
@@ -29,7 +30,7 @@ public class ScreenShareManager : MonoBehaviour
 
     void OnEnable()
     {
-        Transform initalScreen = handScreen;
+        Transform initalScreen = null;
 
         _screenReceiver.rawImage = initalScreen == handScreen ? handRaw : floatingRaw;
         _screenReceiver.enabled = true;
@@ -38,7 +39,7 @@ public class ScreenShareManager : MonoBehaviour
         _toggleAction.performed += ToggleScreenWrapper;
     }
 
-    private void ChangeScreenType(Transform value)
+    public void ChangeScreenType(Transform value)
     {
         // Disable previous screen
         if (_current != null) _current.gameObject.SetActive(false);
@@ -51,7 +52,7 @@ public class ScreenShareManager : MonoBehaviour
         if (_current != null) _screenReceiver.rawImage = _current == handScreen ? handRaw : floatingRaw;
     }
 
-    private void ToggleScreen()
+    public void ToggleScreen()
     {
         if (_current == handScreen) ChangeScreenType(floatingScreen);
         else ChangeScreenType(handScreen);

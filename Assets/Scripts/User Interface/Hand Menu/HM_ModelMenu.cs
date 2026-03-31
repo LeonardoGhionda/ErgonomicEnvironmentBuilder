@@ -15,15 +15,15 @@ public class HM_ModelMenu : HM_Group
             System.Collections.Generic.List<HM_SpawnModel> modelsCards = ModelButtonGenerator.VRInit(HMEntryTemplate);
 
             // Add to group
-            _group.AddRange(modelsCards.Select(mb => mb.GetComponent<HM_Base>()));
+            Group.AddRange(modelsCards.Select(mb => mb.GetComponent<HM_Base>()));
         }
         else
         {
-            foreach (HM_Base item in _group)
+            foreach (HM_Base item in Group)
             {
                 Destroy(item.gameObject);
             }
-            _group.Clear();
+            Group.Clear();
         }
 
         base.OnClick();

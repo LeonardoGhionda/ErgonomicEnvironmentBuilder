@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class ScreenReceiver : MonoBehaviour
 {
-    [Header("Screen Display")]
     private RawImage displayUI;
     public RawImage rawImage{ get { return displayUI; } set { displayUI = value; displayUI.texture = receivedTexture; } }
 

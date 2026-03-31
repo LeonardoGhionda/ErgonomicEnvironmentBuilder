@@ -6,12 +6,14 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class RoomTestState : AbsAppState
 {
-    private readonly RoomBuilderManager _rbm;
     private readonly GameObject _vrPlayer;
     private readonly InvitationBroadcaster _inviteBroadcaster;
     private readonly NetworkPrefabMimic _networkPrefabMimic;
     private readonly RoomTestView _view;
 
+    private XROriginMoCapSync _mocapSync;
+
+    private readonly RoomBuilderManager _rbm;
     private readonly HandMenuManager _handMenuManager;
 
     private bool _hmWaitRelease = false;
@@ -37,24 +39,34 @@ public class RoomTestState : AbsAppState
 
     public override void Enter()
     {
+        // Start broadcasting invitation
         _inviteBroadcaster.enabled = true;
         _inviteBroadcaster.StartBroadcasting(_rbm.RoomName);
 
+        //  Create Room
         RoomManagementTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
-
         Physics.SyncTransforms();
 
-        Vector3 insideWallPosition = RoomManagementTools.FindInternalPoint();
-        insideWallPosition.y = 0;
-        _vrPlayer.transform.position = insideWallPosition;
-
+        // Disable far casting (during test only real-life interaction are allowed)
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
-        
-        _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = true;
+
+        // Start mocap sync with HMD
+        _mocapSync = _vrPlayer.GetComponent<XROriginMoCapSync>();
+        _mocapSync.enabled = true;
+
+        // Move player inside the wall 
+        Vector3 insideWallPosition = RoomManagementTools.FindInternalPoint();
+        insideWallPosition.y = 0;
+        _mocapSync.SetPosition(insideWallPosition);
+        _mocapSync.CalibrateRotation();
+
+        _handMenuManager.Init();
+
+        // View
         _view.gameObject.SetActive(true);
-        Managers.Get<HandMenuManager>().Init();
         _view.Init();
+
 
         // Input
         _input.HandMenu.Enable();
@@ -79,7 +91,7 @@ public class RoomTestState : AbsAppState
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = true;
 
-        _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = false;
+        _mocapSync.enabled = false;
 
         _view.gameObject.SetActive(false);
 
@@ -92,7 +104,7 @@ public class RoomTestState : AbsAppState
 
         _input.VRMenu.ToggleScreen.Disable();
 
-        Managers.Get<ScreenShareManager>().gameObject.SetActive(true);
+        Managers.Get<ScreenShareManager>().gameObject.SetActive(false);
 
         // Unlock motion
         var locManager = Managers.Get<LocomotionManager>();
@@ -100,7 +112,7 @@ public class RoomTestState : AbsAppState
         locManager.LockSnapTurn(false);
 
         // Close network
-        _vrPlayer.GetComponent<XROriginMoCapSync>().enabled = false;
+        _mocapSync.enabled = false;
 
         //Clear Room
         RoomManagementTools.CleanupRoom();

@@ -27,18 +27,15 @@ public class RoomEditorState : AbsAppState
     public RoomEditorState(
         StateManager manager,
         AppActions input,
-        EditorHUDView editorHUD,
-        RoomBuilderManager roomBuilderManager,
-        GizmoManager gizmoManager,
-        DTSelectionManager selectionManager,
-        MeasureManager measureManager) : base(manager, input)
+        EditorHUDView editorHUD
+    ) : base(manager, input)
     {
         _view = editorHUD;
-        _camController = manager.CameraController;
-        _rbm = roomBuilderManager;
-        _gizmoManager = gizmoManager;
-        _selectionManager = selectionManager;
-        _measureManager = measureManager;
+        _camController = DependencyProvider.DTCamera.GetComponent<CameraController>();
+        _rbm = Managers.Get<RoomBuilderManager>();
+        _gizmoManager = Managers.Get<GizmoManager>();
+        _selectionManager = Managers.Get<DTSelectionManager>();
+        _measureManager = Managers.Get<MeasureManager>();
     }
 
     public override void Enter()

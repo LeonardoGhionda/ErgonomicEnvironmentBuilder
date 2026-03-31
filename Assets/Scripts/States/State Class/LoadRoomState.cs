@@ -4,9 +4,9 @@ using System.IO;
 public class LoadRoomState : AbsAppState
 {
     readonly RoomBuilderManager _rbm;
-    public LoadRoomState(StateManager manager, AppActions input, RoomBuilderManager rbm) : base(manager, input)
+    public LoadRoomState(StateManager manager, AppActions input) : base(manager, input)
     {
-        _rbm = rbm;
+        _rbm = Managers.Get<RoomBuilderManager>();
     }
 
     public override void Enter()
