@@ -37,11 +37,52 @@ public static class ImportUtils
         string destFile = Path.Combine(destFolder, Path.GetFileName(filePath));
         File.Copy(filePath, destFile, true);
 
-        // If present .mtl copy
+        // If present .mtl and textures copy
         string mtlPath = Path.ChangeExtension(filePath, ".mtl");
-        if (File.Exists(mtlPath))
+        ProcessMtlAndTextures(mtlPath, destFolder);
+    }
+
+    /// <summary>
+    /// if the .mtl file exists, it copies it and all the textures it references to the destination folder
+    /// </summary>
+    /// <param name="mtlPath"></param>
+    /// <param name="destFolder"></param>
+    private static void ProcessMtlAndTextures(string mtlPath, string destFolder)
+    {
+        if (!File.Exists(mtlPath)) return;
+
+        string sourceDir = Path.GetDirectoryName(mtlPath);
+        string[] mtlLines = File.ReadAllLines(mtlPath);
+
+        foreach (string line in mtlLines)
         {
-            File.Copy(mtlPath, Path.Combine(destFolder, Path.GetFileName(mtlPath)), true);
+            string trimmedLine = line.Trim();
+
+            // Find texture maps
+            if (trimmedLine.StartsWith("map_") || trimmedLine.StartsWith("bump ") || trimmedLine.StartsWith("disp ") || trimmedLine.StartsWith("decal "))
+            {
+                int firstSpaceIndex = trimmedLine.IndexOf(' ');
+
+                if (firstSpaceIndex > 0)
+                {
+                    // Extract string after the command to allow spaces
+                    string textureFileName = trimmedLine.Substring(firstSpaceIndex + 1).Trim();
+
+                    // Strip quotes if they exist
+                    textureFileName = textureFileName.Trim('\"', '\'');
+
+                    string sourceTexturePath = Path.Combine(sourceDir, textureFileName);
+
+                    if (File.Exists(sourceTexturePath))
+                    {
+                        string destTexturePath = Path.Combine(destFolder, Path.GetFileName(textureFileName));
+                        File.Copy(sourceTexturePath, destTexturePath, true);
+                    }
+                }
+            }
         }
+
+        // Copy MTL file
+        File.Copy(mtlPath, Path.Combine(destFolder, Path.GetFileName(mtlPath)), true);
     }
 }
