@@ -231,6 +231,8 @@ public class RoomEditorState : AbsAppState
 
     private void OnToggleMouseRight(InputAction.CallbackContext ctx)
     {
+        if (_gizmoManager.IsDragging) return; 
+       
         _mouseShownInPerspective = !_mouseShownInPerspective;
         _camController.SetMouseFree(_mouseShownInPerspective);
     }

@@ -65,9 +65,15 @@ public class Gizmo : MonoBehaviour
             return;
         }
 
+        BoxCollider box = selectedObj.GetComponent<BoxCollider>();
+
+        // Calculate the center manually to avoid stale bounds data
+        // box.center is local space, so we transform it to world space
+        Vector3 worldCenter = selectedObj.TransformPoint(box.center);
+
         foreach (Transform handle in _handles)
         {
-            handle.transform.position = origin? selectedObj.position: selectedObj.GetComponent<BoxCollider>().bounds.center;
+            handle.transform.position = origin ? selectedObj.position : worldCenter;
         }
 
         // Rotation depends on Local vs Global setting

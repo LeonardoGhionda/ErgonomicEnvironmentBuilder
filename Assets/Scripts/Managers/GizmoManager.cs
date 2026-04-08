@@ -27,6 +27,8 @@ public class GizmoManager : MonoBehaviour
     public bool LocalTransform => _localTransform;
     public bool PivotModeOrigin { get { return _pivotModeOrigin; } set { _pivotModeOrigin = value; } }
 
+    public bool IsDragging => _currentGizmo != null && _currentGizmo.IsHandleSelected;
+
     public bool SelectedMoved()
     {
         bool returnValue = _objMoved;
@@ -100,6 +102,8 @@ public class GizmoManager : MonoBehaviour
 
     // Cache to avoid GC allocations
     private readonly RaycastHit[] _raycastHitsCache = new RaycastHit[16];
+
+    private Vector3 _lastPos, _lastRot, _lastSca; 
     #endregion
 
     #region Injected variables
@@ -201,7 +205,6 @@ public class GizmoManager : MonoBehaviour
         Transform selected = Managers.Get<DTSelectionManager>().SelectionTransform;
         if (selected != null && _currentGizmo != null)
         {
-            _currentGizmo.SetActive(true);
             _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
         }
     }
@@ -215,7 +218,23 @@ public class GizmoManager : MonoBehaviour
         if (_firstDrag)
         {
             _lastMousePos = mousePos;
+
+            _lastPos = selected.position;
+            _lastRot = selected.rotation.eulerAngles;
+            _lastSca = selected.localScale;
+
             _firstDrag = false;
+        }
+
+        // Cancel transformation and reset to original state
+        if (DependencyProvider.Input.Ui.RightClick.WasPressedThisFrame()) 
+        {
+            selected.position = _lastPos;
+            selected.rotation = Quaternion.Euler(_lastRot);
+            selected.localScale = _lastSca;
+            DeselectHandle(selected);
+
+            return;
         }
 
         if (_currentGizmo == null || !_currentGizmo.IsHandleSelected) return;
