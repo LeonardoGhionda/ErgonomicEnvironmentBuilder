@@ -11,6 +11,14 @@ abstract public class Interactable : MonoBehaviour
         set => _idInternal = new Guid(value);
     }
 
+    private bool _locked = false;
+
+    public bool Locked
+    {
+        get => _locked;
+        set => _locked = value;
+    }
+
     protected virtual void Awake()
     {
         // Generate a new ID only if one hasn't been assigned yet
@@ -19,6 +27,8 @@ abstract public class Interactable : MonoBehaviour
             _idInternal = Guid.NewGuid();
         }
     }
+
+    protected virtual void Start() {}
 
     abstract public void OnSelect();
     abstract public void OnDeselect();

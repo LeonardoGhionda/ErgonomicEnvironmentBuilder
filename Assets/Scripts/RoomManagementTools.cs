@@ -234,9 +234,11 @@ static public class RoomManagementTools
             //save children
             foreach (Transform go in parent.transform)
             {
+                InteractableObject interactableGO = go.GetComponent<InteractableObject>();
+
                 ChildrenData data = new()
                 {
-                    id = go.GetComponent<Interactable>().ID,
+                    id = interactableGO.ID,
                     name = go.name,
                     transform = new(),
                     colliderData = new(),
@@ -256,13 +258,7 @@ static public class RoomManagementTools
                 if (go.TryGetComponent<Rigidbody>(out Rigidbody rb)) data.gravityEnabled = rb.useGravity;
                 else data.gravityEnabled = false;
 
-                // Interactable / Tranformation Locked
-                data.interactable = true; //default 
-
-                if (go.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable grab) &&
-                    !grab.trackPosition &&
-                    !grab.trackRotation &&
-                    !grab.trackScale) data.interactable = false;
+                data.interactable = !interactableGO.Locked && !interactableGO.Parent.Locked;
 
                 //add to list
                 objData.children.Add(data);
@@ -702,15 +698,14 @@ static public class RoomManagementTools
         XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = false;
         xrg.useDynamicAttach = true;
+        xrg.selectEntered.AddListener(VRSelectionManager.ReleaseIfLocked);
         xrg.selectEntered.AddListener(args => sm.ChangeSelected(args));
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
-        if (!interactable)
+        if(xrg.TryGetComponent(out InteractableObject intObj))
         {
-            xrg.trackPosition = false;
-            xrg.trackRotation = false;
-            xrg.trackScale = false;
+            intObj.Locked = !interactable;
         }
 
         //Scaling
@@ -721,6 +716,7 @@ static public class RoomManagementTools
         gt.maximumScaleRatio = 20f;
         gt.scaleMultiplier = 0.15f;
     }
+
     public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable)
     {
         if (!interactable) return;

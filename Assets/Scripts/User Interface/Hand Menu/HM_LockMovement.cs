@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class HM_LockMovement : HM_Toggle
 {
-    private XRGrabInteractable _target;
+    private InteractableObject _target;
     private VRSelectionManager _sm;
+
 
     protected override void OnInitialized()
     {
@@ -17,40 +17,51 @@ public class HM_LockMovement : HM_Toggle
     // Override single choices made previously 
     override public void OnClick()
     {
+        // If no parent or parent is selected, apply the change to the current target
         if (_target != null)
         {
             base.OnClick();
 
-            // Disable gravity 
-            if (_target.TryGetComponent<Rigidbody>(out Rigidbody rb))
-            {
-                rb.useGravity = false;
-                rb.isKinematic = true;
+            // If parent is locked, unlock it first to avoid lock state conflicts
+            if (_state == false && _target.Parent.Locked)
+            { 
+                _target.Parent.Locked = false; 
             }
 
-            //Remove snap follow
-            Destroy(_target.GetComponent<SnapFollow>());
-
-            if (_state)
-            {
-                _target.trackPosition = false;
-                _target.trackRotation = false;
-                _target.trackScale = false;
-            }
-            else
-            {
-                _target.trackPosition = true;
-                _target.trackRotation = true;
-                _target.trackScale = true;
-            }
-
+            LockTarget(_state);
         }
+    }
+
+    private void LockTarget(bool state)
+    {
+        // Disable gravity 
+        if (_target.TryGetComponent(out Rigidbody rb))
+        {
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
+        //Remove snap follow
+        Destroy(_target.GetComponent<SnapFollow>());
+
+        _target.Locked = state;
     }
 
     void ChangeTarget(VRSelectionManager.SelectionChangedArgs args)
     {
-        _target = args.selection;
-        _state = _target != null && !_target.trackPosition && !_target.trackRotation && !_target.trackScale;
+        if(args.selection == null)
+        {
+            _target = null;
+            _state = false;
+            UpdateVisual();
+            return;
+        }
+
+        _target = args.selection.GetComponent<InteractableObject>();
+
+        // Locked parent overrides child lock state, so if the parent is locked, the child must be locked as well
+        if (_target.Parent.Locked) _target.Locked = true;
+        _state = _target.Locked;
 
         UpdateVisual();
     }

@@ -92,14 +92,14 @@ public class VRSelectionManager : MonoBehaviour
                 _contactPoint = args.interactorObject.GetAttachTransform(args.interactableObject).position;
             }
 
-            // Store the position before grab
+            // Fast click management:
+            // store position and rotation before grab, start timer and subscribe to select exit event to check for fast trigger
             _preGrabPosition = _selected.transform.position;
             _preGrabRotation = _selected.transform.rotation;
             _fastClickTime = Time.time;
             _selected.selectExited.AddListener(CheckForFastTrigger);
-        }
 
-        
+        }
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
@@ -157,6 +157,26 @@ public class VRSelectionManager : MonoBehaviour
             if (manager != null && interactor != null)
                 manager.CancelInteractorSelection(interactor);
 
+        }
+    }
+
+    public static void ReleaseObject(XRGrabInteractable grabbable)
+    {
+        XRInteractionManager manager = GameObject.FindFirstObjectByType<XRInteractionManager>();
+        IXRSelectInteractor interactor = grabbable.firstInteractorSelecting;
+        if (manager != null && interactor != null)
+            manager.CancelInteractorSelection(interactor);
+    }
+
+    public static void ReleaseIfLocked(SelectEnterEventArgs args)
+    {
+        XRGrabInteractable grabbable = args.interactableObject as XRGrabInteractable;
+        InteractableObject obj = grabbable.GetComponent<InteractableObject>();
+        InteractableParent parent = obj.Parent;
+
+        if (obj != null && (obj.Locked || parent.Locked))
+        {
+            ReleaseObject(grabbable);
         }
     }
 
