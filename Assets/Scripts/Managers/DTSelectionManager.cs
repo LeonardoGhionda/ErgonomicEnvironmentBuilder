@@ -27,7 +27,7 @@ public class DTSelectionManager : MonoBehaviour
     public bool Select()
     {
         //ortho and perspective cam have 2 different ray start position
-        Vector2 rayStart = _cam.orthographic
+        Vector2 rayStart = Cursor.visible
             ? Mouse.current.position.ReadValue()
             : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
 

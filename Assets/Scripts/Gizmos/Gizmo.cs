@@ -51,7 +51,7 @@ public class Gizmo : MonoBehaviour
             item.gameObject.SetActive(true);
     }
 
-    public void SetHandlesInPosition(Transform selectedObj, bool local)
+    public void SetHandlesInPosition(Transform selectedObj, bool origin, bool local)
     {
         if (_handles == null)
         {
@@ -67,7 +67,7 @@ public class Gizmo : MonoBehaviour
 
         foreach (Transform handle in _handles)
         {
-            handle.transform.position = selectedObj.position;
+            handle.transform.position = origin? selectedObj.position: selectedObj.GetComponent<BoxCollider>().bounds.center;
         }
 
         // Rotation depends on Local vs Global setting

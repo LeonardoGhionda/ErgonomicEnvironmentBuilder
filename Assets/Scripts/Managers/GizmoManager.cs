@@ -25,6 +25,7 @@ public class GizmoManager : MonoBehaviour
     public Gizmo[] All => new Gizmo[] { Translate, Rotate, Scale };
     public TransformMode TransformMode => _tMode;
     public bool LocalTransform => _localTransform;
+    public bool PivotModeOrigin { get { return _pivotModeOrigin; } set { _pivotModeOrigin = value; } }
 
     public bool SelectedMoved()
     {
@@ -59,7 +60,7 @@ public class GizmoManager : MonoBehaviour
                 break;
         }
         _currentGizmo.SetActive(true);
-        _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
+        _currentGizmo.SetHandlesInPosition(selectedObject, _pivotModeOrigin, _localTransform);
     }
 
     public void SetLocal(bool value, Transform selected)
@@ -69,7 +70,7 @@ public class GizmoManager : MonoBehaviour
         if (_tMode == TransformMode.Scale) _localTransform = true;
 
         if (_currentGizmo != null)
-            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+            _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
     }
     #endregion
 
@@ -82,6 +83,7 @@ public class GizmoManager : MonoBehaviour
     // State of gizmo
     private TransformMode _tMode = TransformMode.Translate;
     private bool _localTransform;
+    private bool _pivotModeOrigin = true; 
 
     // Mouse wrapping variables
     private int _mouseWrapMarginX;
@@ -146,7 +148,7 @@ public class GizmoManager : MonoBehaviour
     public void UpdateGizmoPosition(Transform selected)
     {
         if (_currentGizmo != null)
-            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+            _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
     }
 
     /// <summary>
@@ -190,7 +192,17 @@ public class GizmoManager : MonoBehaviour
         if (_currentGizmo != null)
         {
             _currentGizmo.DeselectHandle();
-            _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+            _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
+        }
+    }
+
+    public void RefreshHandles()
+    {
+        Transform selected = Managers.Get<DTSelectionManager>().SelectionTransform;
+        if (selected != null && _currentGizmo != null)
+        {
+            _currentGizmo.SetActive(true);
+            _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
         }
     }
 
@@ -269,7 +281,7 @@ public class GizmoManager : MonoBehaviour
         _objMoved = true;
         _lastMousePos = mousePos;
 
-        _currentGizmo.SetHandlesInPosition(selected, _localTransform);
+        _currentGizmo.SetHandlesInPosition(selected, _pivotModeOrigin, _localTransform);
     }
 
     private void ApplyTranslation(Transform selected, float projected, float worldScale)
@@ -310,7 +322,7 @@ public class GizmoManager : MonoBehaviour
     {
         SetMode(_tMode, selectedObject);
         _currentGizmo.SetActive(true);
-        _currentGizmo.SetHandlesInPosition(selectedObject, _localTransform);
+        _currentGizmo.SetHandlesInPosition(selectedObject, _pivotModeOrigin, _localTransform);
     }
 
     public void RemoveGizmo()
