@@ -227,12 +227,13 @@ public class GizmoManager : MonoBehaviour
         }
 
         // Cancel transformation and reset to original state
-        if (DependencyProvider.Input.Ui.RightClick.WasPressedThisFrame()) 
+        if (DependencyProvider.Input.Ui.RightClick.WasPressedThisFrame() && IsDragging) 
         {
             selected.position = _lastPos;
             selected.rotation = Quaternion.Euler(_lastRot);
             selected.localScale = _lastSca;
             DeselectHandle(selected);
+            ScaleHandlesByCameraDistance(selected);
 
             return;
         }

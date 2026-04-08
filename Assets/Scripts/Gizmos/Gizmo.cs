@@ -67,8 +67,7 @@ public class Gizmo : MonoBehaviour
 
         BoxCollider box = selectedObj.GetComponent<BoxCollider>();
 
-        // Calculate the center manually to avoid stale bounds data
-        // box.center is local space, so we transform it to world space
+        // Calculate the center manually (istead of box.bounds.center) to avoid stale bounds data
         Vector3 worldCenter = selectedObj.TransformPoint(box.center);
 
         foreach (Transform handle in _handles)
