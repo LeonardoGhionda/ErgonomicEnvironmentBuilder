@@ -5346,7 +5346,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -201587725, guid: abf3c8d4abefe6048b85959fa9f28c23, type: 3}
+  m_Sprite: {fileID: 356888913, guid: e07c016e99508464c9f88e50a334e7bc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16618,7 +16618,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1370093704
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16636,7 +16636,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -221.2, y: 192.59161}
+  m_AnchoredPosition: {x: -230, y: 192.59161}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1370093705
@@ -16733,7 +16733,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1817764072}
         m_TargetAssemblyTypeName: GizmoManager, Assembly-CSharp
-        m_MethodName: RemoveGizmo
+        m_MethodName: RefreshHandles
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -19519,7 +19519,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -201587725, guid: abf3c8d4abefe6048b85959fa9f28c23, type: 3}
+  m_Sprite: {fileID: -1324261165, guid: f0b88dd0bd1c9fd4ba3122c0b30507d1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -22548,7 +22548,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1817764072}
         m_TargetAssemblyTypeName: GizmoManager, Assembly-CSharp
-        m_MethodName: RemoveGizmo
+        m_MethodName: RefreshHandles
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22613,7 +22613,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -221.2, y: 192.59161}
+  m_AnchoredPosition: {x: -230, y: 192.59161}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1718572987 stripped
@@ -25558,7 +25558,6 @@ GameObject:
   - component: {fileID: 1937672291}
   - component: {fileID: 1937672290}
   - component: {fileID: 1937672288}
-  - component: {fileID: 1937672289}
   m_Layer: 5
   m_Name: Text - Pivot
   m_TagString: Untagged
@@ -25657,18 +25656,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &1937672289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1937672287}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b8d252d2e6030747a75bc986e319536, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!222 &1937672290
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -36086,7 +36073,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -221.2, y: 223.1}
+  m_AnchoredPosition: {x: -230, y: 223.1}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7345600663487056867
