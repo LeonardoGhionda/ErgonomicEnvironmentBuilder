@@ -16,6 +16,11 @@ public class VRSelectionManager : MonoBehaviour
     private Material _selectedMaterial;
     private Material[] _baseMaterials;
 
+    // Fast click management
+    private float _fastClickTime;
+    private Vector3 _preGrabPosition;
+    private Quaternion _preGrabRotation;
+
     public class SelectionChangedArgs
     {
         public XRGrabInteractable selection;
@@ -35,15 +40,14 @@ public class VRSelectionManager : MonoBehaviour
 
     // SERIALIZED
     [SerializeField] private Camera VRCam;
-    [SerializeField] Material selectedObjectMaterial;
-    [SerializeField] ColliderVisual colliderVisual;
+    [SerializeField] Material SelectedObjectMaterial;
+    [SerializeField] ColliderVisual ColliderVisual;
 
-    [SerializeField] Transform leftController;
-    [SerializeField] Transform rightController;
+    [SerializeField] float FastClickThreshold = 0.3f;
 
     private void Awake()
     {
-        _selectedMaterial = selectedObjectMaterial;
+        _selectedMaterial = SelectedObjectMaterial;
     }
 
 
@@ -73,7 +77,7 @@ public class VRSelectionManager : MonoBehaviour
             renderer.materials = highlightMaterials;
 
 
-            colliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
+            ColliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
 
             // Get point where selection occurred
             if (args.interactorObject is XRRayInteractor rayInteractor &&
@@ -87,13 +91,19 @@ public class VRSelectionManager : MonoBehaviour
                 // This is where the 'finger tip' or 'hand center' is located
                 _contactPoint = args.interactorObject.GetAttachTransform(args.interactableObject).position;
             }
+
+            // Store the position before grab
+            _preGrabPosition = _selected.transform.position;
+            _preGrabRotation = _selected.transform.rotation;
+            _fastClickTime = Time.time;
+            _selected.selectExited.AddListener(CheckForFastTrigger);
         }
 
+        
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
     }
-
 
     // Need a separate method to avoid null reference issues with XR Interactable events
     public void ClearSelection(bool skipCallback = false)
@@ -104,7 +114,7 @@ public class VRSelectionManager : MonoBehaviour
             ReleaseCurrentlySelectedObject();
         }
 
-        colliderVisual.ChangeTarget(null);
+        ColliderVisual.ChangeTarget(null);
 
         _baseMaterials = null;
         _selected = null;
@@ -118,7 +128,7 @@ public class VRSelectionManager : MonoBehaviour
     {
         if (_selected == null) return;
 
-        colliderVisual.ChangeTarget(null);
+        ColliderVisual.ChangeTarget(null);
 
         Destroy(_selected.gameObject);
 
@@ -174,5 +184,23 @@ public class VRSelectionManager : MonoBehaviour
         }
 
         OnRaycastPerformed?.Invoke(hit);
+    }
+
+    /// <summary>
+    /// Checks whether a fast trigger action has occurred and restores the selected object's position and rotation if
+    /// the trigger is detected.
+    /// </summary>
+    /// <remarks>This method is typically called in response to a select exit event to determine if the action
+    /// should be treated as a fast trigger. If the trigger is detected, the selected object's transform is reset to its
+    /// state prior to being grabbed.</remarks>
+    /// <param name="arg0">The event data associated with the select exit action. Provides context for the trigger check.</param>
+    private void CheckForFastTrigger(SelectExitEventArgs arg0)
+    {
+        if (Time.time - _fastClickTime <= FastClickThreshold)
+        {
+            // Reset position and rotation
+            _selected.transform.position = _preGrabPosition;
+            _selected.transform.rotation = _preGrabRotation;
+        }
     }
 }

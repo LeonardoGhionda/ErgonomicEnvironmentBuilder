@@ -1125,6 +1125,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Right Grip",
+                    "type": "Button",
+                    "id": "906dabaf-f804-4a0a-9cba-ebcc9fabcb72",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1191,6 +1200,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Show Logs",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cf5703ef-c5ad-4f14-b7c1-3e9db0b20734",
+                    "path": "<XRController>{RightHand}/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right Grip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

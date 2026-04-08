@@ -69,9 +69,14 @@ public class StateManager : MonoBehaviour
         {
             InitVR();
         }
-        else
+        else if (DTProfile)
         {
             InitDT();
+        }
+        else
+        {
+            Debug.LogError("No valid profile selected. Please select either VR or Desktop profile.");
+            ExitApplication();
         }
 
         // Call the Enter function of the initial state
@@ -114,8 +119,8 @@ public class StateManager : MonoBehaviour
 
     private void Update()
     {
-        // Delegate the Update call to the current state
-        _currentState.UpdateState();
+        // Delegate the Update call to the current state (+ null check)
+        _currentState?.UpdateState();
     }
 
     /// <summary>

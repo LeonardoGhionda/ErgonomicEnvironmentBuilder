@@ -8236,9 +8236,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8072272ded146c747a0235647a509426, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Group: []
-  CloseSprite: {fileID: 0}
-  CloseText: 
+  Group:
+  - {fileID: 1573666347}
+  - {fileID: 586282976}
+  - {fileID: 1830517290}
+  - {fileID: 2938383}
+  - {fileID: 669365644}
+  CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
+  CloseText: Close
   AdditiveGroup: 0
 --- !u!114 &638094201
 MonoBehaviour:
@@ -11019,8 +11024,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Group: []
-  CloseSprite: {fileID: 0}
-  CloseText: 
+  CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
+  CloseText: Close
   AdditiveGroup: 0
   HMEntryTemplate: {fileID: 2033048771}
 --- !u!1 &855331267
@@ -11892,9 +11897,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ff406af6de6a80408f0ba4d9bf8a670, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Group: []
-  CloseSprite: {fileID: 0}
-  CloseText: 
+  Group:
+  - {fileID: 422844436}
+  - {fileID: 2022826389}
+  - {fileID: 731812088}
+  CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
+  CloseText: Close
   AdditiveGroup: 0
 --- !u!114 &926949118
 MonoBehaviour:
@@ -16619,10 +16627,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VRCam: {fileID: 1489869848}
-  selectedObjectMaterial: {fileID: 2100000, guid: afd5b94812475ec4a9990128e955367e, type: 2}
-  colliderVisual: {fileID: 206293135}
-  leftController: {fileID: 0}
-  rightController: {fileID: 0}
+  SelectedObjectMaterial: {fileID: 2100000, guid: afd5b94812475ec4a9990128e955367e, type: 2}
+  ColliderVisual: {fileID: 206293135}
+  FastClickThreshold: 2
 --- !u!4 &1377221790
 Transform:
   m_ObjectHideFlags: 0

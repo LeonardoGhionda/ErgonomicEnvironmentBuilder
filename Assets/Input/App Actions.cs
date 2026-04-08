@@ -1211,6 +1211,15 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right Grip"",
+                    ""type"": ""Button"",
+                    ""id"": ""906dabaf-f804-4a0a-9cba-ebcc9fabcb72"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1277,6 +1286,17 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Show Logs"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cf5703ef-c5ad-4f14-b7c1-3e9db0b20734"",
+                    ""path"": ""<XRController>{RightHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right Grip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1510,6 +1530,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VR_RightTrigger = m_VR.FindAction("Right Trigger", throwIfNotFound: true);
         m_VR_LeftTrigger = m_VR.FindAction("Left Trigger", throwIfNotFound: true);
         m_VR_ShowLogs = m_VR.FindAction("Show Logs", throwIfNotFound: true);
+        m_VR_RightGrip = m_VR.FindAction("Right Grip", throwIfNotFound: true);
         // VR Calibration
         m_VRCalibration = asset.FindActionMap("VR Calibration", throwIfNotFound: true);
         m_VRCalibration_HeadOffset = m_VRCalibration.FindAction("HeadOffset", throwIfNotFound: true);
@@ -2194,6 +2215,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_VR_RightTrigger;
     private readonly InputAction m_VR_LeftTrigger;
     private readonly InputAction m_VR_ShowLogs;
+    private readonly InputAction m_VR_RightGrip;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR".
     /// </summary>
@@ -2225,6 +2247,10 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "VR/ShowLogs".
         /// </summary>
         public InputAction @ShowLogs => m_Wrapper.m_VR_ShowLogs;
+        /// <summary>
+        /// Provides access to the underlying input action "VR/RightGrip".
+        /// </summary>
+        public InputAction @RightGrip => m_Wrapper.m_VR_RightGrip;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2266,6 +2292,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @ShowLogs.started += instance.OnShowLogs;
             @ShowLogs.performed += instance.OnShowLogs;
             @ShowLogs.canceled += instance.OnShowLogs;
+            @RightGrip.started += instance.OnRightGrip;
+            @RightGrip.performed += instance.OnRightGrip;
+            @RightGrip.canceled += instance.OnRightGrip;
         }
 
         /// <summary>
@@ -2292,6 +2321,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @ShowLogs.started -= instance.OnShowLogs;
             @ShowLogs.performed -= instance.OnShowLogs;
             @ShowLogs.canceled -= instance.OnShowLogs;
+            @RightGrip.started -= instance.OnRightGrip;
+            @RightGrip.performed -= instance.OnRightGrip;
+            @RightGrip.canceled -= instance.OnRightGrip;
         }
 
         /// <summary>
@@ -2826,6 +2858,13 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnShowLogs(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Right Grip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRightGrip(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "VR Calibration" which allows adding and removing callbacks.
