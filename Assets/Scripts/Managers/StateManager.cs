@@ -11,7 +11,10 @@ public class StateManager : MonoBehaviour
     }
 
     private IAppState _currentState;
+    private IAppState _lastState;
+
     private AppActions _appInput;
+
 
     public bool VRProfile { get; private set; }
     public bool DTProfile => !VRProfile;
@@ -24,6 +27,7 @@ public class StateManager : MonoBehaviour
     [SerializeField] private MenuRoomView menuRoomView;
     [SerializeField] private ImmersiveEditorView iEditorView;
     [SerializeField] private RoomTestView roomTestView;
+    [SerializeField] private OptionView optionView;
     [SerializeField] private MainMenuUI mainMenuUI;
     [SerializeField] private NewRoomUI newRoomUI;
     [SerializeField] private EditorHUDView editorHUD;
@@ -99,7 +103,7 @@ public class StateManager : MonoBehaviour
         MainMenu = new(this, _appInput, mainMenuUI);
         NewRoom = new(this, _appInput, newRoomUI);
         LoadRoom = new(this, _appInput);
-        Option = new(this, _appInput);
+        Option = new(this, _appInput, optionView);
         Pause = new(this, _appInput);
         RoomEditor = new(this, _appInput, editorHUD);
         Spectator = new(this, _appInput);
@@ -123,16 +127,23 @@ public class StateManager : MonoBehaviour
     /// <param name="newState">The new application state to transition to. If null, the application will quit.</param>
     internal void ChangeState(IAppState newState)
     {
+        _lastState = _currentState;
+
         _currentState?.Exit();
         _currentState = newState;
 
         if (_currentState == null)
         {
-            Application.Quit();
+            ExitApplication();
             return;
         }
 
         _currentState?.Enter();
+    }
+
+    internal void RevertToLastState()
+    {
+        ChangeState(_lastState);
     }
 
     /// <summary>
@@ -147,6 +158,8 @@ public class StateManager : MonoBehaviour
     /// mode; otherwise, the new state is set and the scene is loaded additively.</param>
     internal void ChangeStateInNewScene(IAppState newState, SceneName newScene)
     {
+        _lastState = _currentState;
+
         _currentState?.Exit();
 
         bool newSceneIsMain = newScene == SceneName.Main;

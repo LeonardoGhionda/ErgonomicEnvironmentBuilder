@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Camera), typeof(CapsuleCollider), typeof(Rigidbody))]
@@ -10,9 +11,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] float lookSpeed = 0.1f;
     [SerializeField] float zoomSpeed = 2f;
 
+    // Option editable properties
+    public float LookSpeed { get { return lookSpeed; } set { lookSpeed = value; } }
+
     [Header("References")]
     [SerializeField] private Texture2D dot;
-    private GameObject roof;
 
     [Header("Lights")]
     [SerializeField] Light OrthoLight;
@@ -60,7 +63,6 @@ public class CameraController : MonoBehaviour
         _input = inputInstance;
         _isInitialized = true;
 
-        roof = GameObject.FindWithTag("Roof");
         SetOrtho(true);
 
         _cam.orthographicSize = orthoSize;
@@ -84,8 +86,9 @@ public class CameraController : MonoBehaviour
     public void SetOrtho(bool value)
     {
         _ortho = value;
+
         _cam.orthographic = _ortho;
-        if (roof != null) roof.SetActive(!_ortho);
+
 
         if (_ortho)
         {

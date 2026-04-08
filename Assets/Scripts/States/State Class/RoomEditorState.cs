@@ -1,4 +1,5 @@
 ﻿using Dummiesman;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -48,6 +49,8 @@ public class RoomEditorState : AbsAppState
         // UI events
         _view.OnSaveClicked += SaveRoom;
         _view.OnQuitClicked += QuitRoom;
+        _view.OnOptionClicked += OpenOption;
+
         _view.OnModelButtonClicked += PlaceModel;
         _view.OnTranformButtonClicked += mode => ChangeTransformType(mode);
         _view.OnCoordinateModeChanged += button => ChangeCoordSystem(button);
@@ -94,6 +97,8 @@ public class RoomEditorState : AbsAppState
         // Cleanup Events
         _view.OnSaveClicked -= SaveRoom;
         _view.OnQuitClicked -= QuitRoom;
+        _view.OnOptionClicked -= OpenOption;
+
         _view.OnModelButtonClicked -= PlaceModel;
         _view.OnTranformButtonClicked -= mode => ChangeTransformType(mode);
         _view.OnCoordinateModeChanged -= button => ChangeCoordSystem(button);
@@ -295,6 +300,12 @@ public class RoomEditorState : AbsAppState
         SaveRoom();
         RoomManagementTools.CleanupRoom();
         _manager.ChangeState(_manager.MainMenu);
+    }
+
+    private void OpenOption()
+    {
+        SaveRoom();
+        _manager.ChangeState(_manager.Option);
     }
 
     private void ImportModel()

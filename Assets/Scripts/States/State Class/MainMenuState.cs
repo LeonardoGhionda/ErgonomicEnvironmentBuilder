@@ -86,7 +86,7 @@ public class MainMenuState : AbsAppState
 
     private void GoOption()
     {
-        throw new NotImplementedException();
+        _manager.ChangeState(_manager.Option);
     }
 
     private void GoSpectator((string, string) roomData)

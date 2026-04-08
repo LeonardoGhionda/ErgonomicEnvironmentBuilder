@@ -15,6 +15,7 @@ public class EditorHUDView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI selectedName;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button saveButton;
+    [SerializeField] private Button optionButton;
     [SerializeField] private Button importButton;
     [SerializeField] private DynamicUiElement measureButton;
     [SerializeField] private DynamicUiElement clearMeasureButton;
@@ -56,6 +57,8 @@ public class EditorHUDView : MonoBehaviour
     // Events for the State to listen to
     public event Action OnQuitClicked;
     public event Action OnSaveClicked;
+    public event Action OnOptionClicked;
+
     public event Action<string> OnModelButtonClicked;
     public event Action<TransformMode> OnTranformButtonClicked;
     public event Action<CoordText> OnCoordinateModeChanged;
@@ -72,6 +75,7 @@ public class EditorHUDView : MonoBehaviour
         // Link Buttons
         quitButton.onClick.AddListener(() => OnQuitClicked?.Invoke());
         saveButton.onClick.AddListener(() => OnSaveClicked?.Invoke());
+        optionButton.onClick.AddListener(() => OnOptionClicked?.Invoke());
 
         translateButton.GetComponent<Button>().onClick.AddListener(() => OnTranformButtonClicked?.Invoke(translateButton.Mode));
         rotateButton.GetComponent<Button>().onClick.AddListener(() => OnTranformButtonClicked?.Invoke(rotateButton.Mode));

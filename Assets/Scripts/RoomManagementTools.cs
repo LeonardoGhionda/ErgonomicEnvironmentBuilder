@@ -121,6 +121,9 @@ static public class RoomManagementTools
 {
 
     public static string floorName = "Floor";
+    public static string roofName = "Roof";
+
+    public static TagHandle roofTag;
 
     public static readonly string roomsFolderPath;
 
@@ -130,6 +133,8 @@ static public class RoomManagementTools
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
             _ = Directory.CreateDirectory(roomsFolderPath);
+        
+        roofTag = TagHandle.GetExistingTag("Roof");
     }
 
     static public string RoomFullPath(string roomName) => Path.ChangeExtension(Path.Combine(roomsFolderPath, roomName), "room");
@@ -563,6 +568,7 @@ static public class RoomManagementTools
 
         //setup roof
         GameObject roofInstance = UnityEngine.Object.Instantiate(roof);
+        roofInstance.name = roofName;
         roofInstance.transform.SetParent(roomContainer.transform, true);
 
         //saved wall height
