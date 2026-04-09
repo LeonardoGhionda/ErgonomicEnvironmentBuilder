@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public struct HistoryEntry
 {
     public Vector3 Position;
@@ -26,7 +25,9 @@ public struct HistoryEntry
 
 public class HistoryManager : MonoBehaviour
 {
-    private Stack<HistoryEntry> _history;
+    [SerializeField] private int _maxHistorySize = 250;
+
+    private LinkedList<HistoryEntry> _history;
     private InputAction _undoAction;
 
     private Interactable _currentTarget;
@@ -43,11 +44,9 @@ public class HistoryManager : MonoBehaviour
 
     private GizmoManager _gizmoManager;
 
-
-
     private void Start()
-    { 
-        _history = new Stack<HistoryEntry>();
+    {
+        _history = new LinkedList<HistoryEntry>();
         _gizmoManager = Managers.Get<GizmoManager>();
         SubscribeToSelectionManager();
     }
@@ -124,8 +123,6 @@ public class HistoryManager : MonoBehaviour
 
             Debug.Log($"New target is {_currentTarget.name}");
         }
-
-
     }
 
     private void RecordState(Vector3 pos, Quaternion rot, Vector3 scale)
@@ -140,19 +137,16 @@ public class HistoryManager : MonoBehaviour
 
         if (_history.Count > 0)
         {
-            HistoryEntry lastEntry = _history.Peek();
+            HistoryEntry lastEntry = _history.Last.Value;
 
             bool isSameTarget = lastEntry.Target == entry.Target;
 
-            // Using SqrMagnitude is faster than Distance because it avoids a square root calculation
-            // A threshold of 0.0001 represents roughly a 1 centimeter difference in standard Unity scale
-            bool isPositionSame = Vector3.SqrMagnitude(lastEntry.Position - entry.Position) < 0.001f;
+ 
+            bool isPositionSame = Vector3.SqrMagnitude(lastEntry.Position - entry.Position) < 0.01f;
 
-            // Quaternion.Angle safely handles 360 degree wrap-arounds
-            // A threshold of 0.1 degrees is virtually unnoticeable to the eye
-            bool isRotationSame = Quaternion.Angle(lastEntry.Rotation, entry.Rotation) < 0.1f;
+            bool isRotationSame = Quaternion.Angle(lastEntry.Rotation, entry.Rotation) < 1f;
 
-            bool isScaleSame = Vector3.SqrMagnitude(lastEntry.Scale - entry.Scale) < 0.001f;
+            bool isScaleSame = Vector3.SqrMagnitude(lastEntry.Scale - entry.Scale) < 0.01f;
 
             if (isSameTarget && isPositionSame && isRotationSame && isScaleSame)
             {
@@ -160,21 +154,25 @@ public class HistoryManager : MonoBehaviour
             }
         }
 
-        _history.Push(entry);
+        _history.AddLast(entry);
+
+        if (_history.Count > _maxHistorySize)
+        {
+            _history.RemoveFirst();
+        }
 
         Debug.Log(entry.GetSummary());
-
     }
 
     private void ExecuteUndo(InputAction.CallbackContext context)
     {
-        // [DT Profile] Clear the gizmo to prevent it from trying to manipulate a target that just got moved back
-        // (VR profile compliant) 
+        // Clear gizmo for VR profile compliance
         _gizmoManager.RemoveGizmo();
-        Debug.Log($"Undo Performed");
+
         if (_history.Count > 0)
         {
-            HistoryEntry entry = _history.Pop();
+            HistoryEntry entry = _history.Last.Value;
+            _history.RemoveLast();
             entry.Undo();
 
             if (_currentTarget == entry.Target)
