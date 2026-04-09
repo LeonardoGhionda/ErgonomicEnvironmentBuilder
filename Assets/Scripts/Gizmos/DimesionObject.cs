@@ -19,8 +19,8 @@ public class DimensionObject : MonoBehaviour
     [SerializeField] float maxLineThickness = .2f;
 
     private Transform _t1, _t2;
-    private Vector3 _p1, _p2; // Current world positions
-    private Vector3 _offset1, _offset2; // Local offsets relative to targets
+    private Vector3 _p1, _p2;
+    private Vector3 _offset1, _offset2;
     private Camera _cam;
 
     private bool _deleteMode = false;
@@ -35,32 +35,28 @@ public class DimensionObject : MonoBehaviour
         _t1 = target1;
         _t2 = target2;
 
-        // Store offset relative to target if it exists otherwise keep world position
         if (_t1 != null) _offset1 = _t1.InverseTransformPoint(p1);
         else _p1 = p1;
 
         if (_t2 != null) _offset2 = _t2.InverseTransformPoint(p2);
         else _p2 = p2;
 
-        // Delte measure data initialization
         if (isFinal)
         {
-            _interactable = new GameObject("delete collider", typeof(BoxCollider), typeof(XRSimpleInteractable));
-
-            _iCollider = _interactable.GetComponent<BoxCollider>();
-            _iCollider.isTrigger = true;
-
-            _iSimpleInt = _interactable.GetComponent<XRSimpleInteractable>();
-            _iSimpleInt.colliders.Clear();
-            _iSimpleInt.colliders.Add(_iCollider);
-            _iSimpleInt.selectEntered.AddListener(DeleteMeasure);
-
+            _interactable = new GameObject("delete collider");
             _interactable.transform.SetParent(transform, false);
+
+            _iCollider = _interactable.AddComponent<BoxCollider>();
+            _iCollider.isTrigger = false;
+
+            Rigidbody rb = _interactable.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+
+            _iSimpleInt = _interactable.AddComponent<XRSimpleInteractable>();
+            _iSimpleInt.selectEntered.AddListener(DeleteMeasure);
         }
 
-        // Initial draw
         gameObject.SetActive(true);
-
     }
 
     public void ResetPosition(Vector3 p1, Vector3 p2, Transform target1 = null, Transform target2 = null)
@@ -68,7 +64,6 @@ public class DimensionObject : MonoBehaviour
         _t1 = target1;
         _t2 = target2;
 
-        // Store offset relative to target if it exists otherwise keep world position
         if (_t1 != null) _offset1 = _t1.InverseTransformPoint(p1);
         else _p1 = p1;
 
@@ -78,44 +73,32 @@ public class DimensionObject : MonoBehaviour
 
     private void DeleteMeasure(SelectEnterEventArgs args)
     {
-        BoxCollider hitCollider = args.interactableObject.colliders.ElementAt(0) as BoxCollider;
-
-        if (_deleteMode) // Delete this gameobject
+        if (_deleteMode)
         {
             _iSimpleInt.selectEntered.RemoveListener(DeleteMeasure);
             Destroy(gameObject);
         }
-        else // Start delete mode
+        else
         {
             _deleteMode = true;
             _ = StartCoroutine(ExitDeleteModeTimer());
             textLabel.text = "Click again\nto delete";
             textLabel.color = Color.red;
         }
-
     }
 
     IEnumerator ExitDeleteModeTimer()
     {
-        // Aspetta 3 secondi (tempo reale di gioco)
         yield return new WaitForSeconds(3f);
 
         _deleteMode = false;
         textLabel.color = Color.yellow;
     }
 
-    private void Update()
-    {
-        if (_interactable != null)
-            _interactable.transform.SetLocalPositionAndRotation(textLabel.transform.localPosition, textLabel.transform.localRotation);
-    }
-
     private void LateUpdate()
     {
         if (_cam == null) return;
 
-        // Recalculate world positions if targets exist
-        // This automatically handles Rotation and Scaling
         if (_t1 != null) _p1 = _t1.TransformPoint(_offset1);
         if (_t2 != null) _p2 = _t2.TransformPoint(_offset2);
 
@@ -124,41 +107,36 @@ public class DimensionObject : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        // Update Line
         lineRenderer.SetPosition(0, _p1);
         lineRenderer.SetPosition(1, _p2);
 
         float p2pDistance = Vector3.Distance(_p1, _p2);
 
-        // Update line thickness
         lineRenderer.widthMultiplier = p2pDistance * lineScaleFactor;
         lineRenderer.widthMultiplier = Mathf.Clamp(lineRenderer.widthMultiplier, minLineThickness, maxLineThickness);
 
-        if (_deleteMode == false) // In deletemode keep delete text
+        if (_deleteMode == false)
         {
-            // Update Text Value
             float dist = Vector3.Distance(_p1, _p2);
             textLabel.text = $"{dist:F2}m";
         }
 
-        // Update Text Position
         textLabel.transform.position = (_p1 + _p2) * 0.5f + Vector3.up * 0.2f;
 
-        // Update text size
         textLabel.fontSize = _cam.orthographic ? 2f : 1f;
         textLabel.fontSize *= p2pDistance * textScaleFactor;
         textLabel.fontSize = Mathf.Clamp(textLabel.fontSize, minTextSize, maxTextSize);
 
-        if (_iCollider != null)
-        {
-            // Size the collider perfectly to the 3D text bounds
-            float offset = 1.3f;
-            _iCollider.size = new(Mathf.Abs(textLabel.textBounds.size.x) * offset, Mathf.Abs(textLabel.textBounds.size.y) * offset, 0.1f);
-            _iCollider.center = textLabel.textBounds.center;
-        }
-
-        // Update text rotation
         textLabel.transform.LookAt(_cam.transform);
         textLabel.transform.Rotate(Vector3.up * 180);
+
+        if (_iCollider != null)
+        {
+            float offset = 1.3f;
+            _iCollider.size = new Vector3(Mathf.Abs(textLabel.textBounds.size.x) * offset, Mathf.Abs(textLabel.textBounds.size.y) * offset, 0.1f);
+            _iCollider.center = textLabel.textBounds.center;
+
+            _interactable.transform.SetLocalPositionAndRotation(textLabel.transform.localPosition, textLabel.transform.localRotation);
+        }
     }
 }

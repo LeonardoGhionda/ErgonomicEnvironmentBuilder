@@ -15,7 +15,9 @@ public static class AppProfileHelper
     private const string BuildFolderName = "Build";
     private const string DesktopSubFolder = "Desktop";
     private const string ImmersiveSubFolder = "Immersive";
-    private const string ExeName = "ErgonomicEnvironmentBuilder.exe";
+    private const string BaseName = "EEB";
+    private const string DTSuffix = "_Desktop.exe";
+    private const string VRSuffix = "_Immersive.exe";
     private const string XR_DEFINE = "USE_XR";
 
     static AppProfileHelper()
@@ -91,7 +93,7 @@ public static class AppProfileHelper
     private static void BuildVR(string rootPath)
     {
         SetXRState(true);
-        ExecuteBuild(Path.Combine(rootPath, ImmersiveSubFolder, ExeName));
+        ExecuteBuild(Path.Combine(rootPath, ImmersiveSubFolder, BaseName + VRSuffix));
     }
 
     [MenuItem("Build/Build Desktop Profile")]
@@ -105,7 +107,7 @@ public static class AppProfileHelper
     private static void BuildDT(string rootPath)
     {
         SetXRState(false);
-        ExecuteBuild(Path.Combine(rootPath, DesktopSubFolder, ExeName));
+        ExecuteBuild(Path.Combine(rootPath, DesktopSubFolder, BaseName + DTSuffix));
     }
 
     [MenuItem("Profile/Desktop Profile")]
