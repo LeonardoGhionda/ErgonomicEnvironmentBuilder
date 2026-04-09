@@ -1397,6 +1397,45 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "History",
+            "id": "f48e6a94-2ce0-45c3-918e-fb4128057f25",
+            "actions": [
+                {
+                    "name": "Undo",
+                    "type": "Button",
+                    "id": "2a28cfcd-3d26-4190-b82e-98b94f6b2a4f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "e7caec33-cdf6-404b-8090-8da02c3d7b05",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Undo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "53830af7-b725-4301-8f24-5d4f0dd955e3",
+                    "path": "<XRController>{LeftHand}/{TriggerButton}",
+                    "interactions": "MultiTap(tapCount=3)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Undo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

@@ -36,6 +36,7 @@ public class VRSelectionManager : MonoBehaviour
 
     // ACTIONS
     public Action<SelectionChangedArgs> OnSelectionChanged;
+    public Action<Interactable> OnInteractableChanged;
     public Action<RaycastHit> OnRaycastPerformed;
 
     // SERIALIZED
@@ -103,6 +104,7 @@ public class VRSelectionManager : MonoBehaviour
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
+        OnInteractableChanged?.Invoke(_selected.GetComponent<Interactable>());
     }
 
     // Need a separate method to avoid null reference issues with XR Interactable events
@@ -122,6 +124,7 @@ public class VRSelectionManager : MonoBehaviour
         if (skipCallback) return;
 
         OnSelectionChanged?.Invoke(new());
+        OnInteractableChanged?.Invoke(null);
     }
 
     public void DeleteSelected()

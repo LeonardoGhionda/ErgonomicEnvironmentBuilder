@@ -1483,6 +1483,45 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""History"",
+            ""id"": ""f48e6a94-2ce0-45c3-918e-fb4128057f25"",
+            ""actions"": [
+                {
+                    ""name"": ""Undo"",
+                    ""type"": ""Button"",
+                    ""id"": ""2a28cfcd-3d26-4190-b82e-98b94f6b2a4f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""e7caec33-cdf6-404b-8090-8da02c3d7b05"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Undo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""53830af7-b725-4301-8f24-5d4f0dd955e3"",
+                    ""path"": ""<XRController>{LeftHand}/{TriggerButton}"",
+                    ""interactions"": ""MultiTap(tapCount=3)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Undo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -1540,6 +1579,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         m_VRMenu = asset.FindActionMap("VR Menu", throwIfNotFound: true);
         m_VRMenu_ControllerDistance = m_VRMenu.FindAction("Controller Distance", throwIfNotFound: true);
         m_VRMenu_ToggleScreen = m_VRMenu.FindAction("Toggle Screen", throwIfNotFound: true);
+        // History
+        m_History = asset.FindActionMap("History", throwIfNotFound: true);
+        m_History_Undo = m_History.FindAction("Undo", throwIfNotFound: true);
     }
 
     ~@AppActions()
@@ -1550,6 +1592,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_VR.enabled, "This will cause a leak and performance issues, AppActions.VR.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_VRCalibration.enabled, "This will cause a leak and performance issues, AppActions.VRCalibration.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_VRMenu.enabled, "This will cause a leak and performance issues, AppActions.VRMenu.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_History.enabled, "This will cause a leak and performance issues, AppActions.History.Disable() has not been called.");
     }
 
     /// <summary>
@@ -2582,6 +2625,102 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="VRMenuActions" /> instance referencing this action map.
     /// </summary>
     public VRMenuActions @VRMenu => new VRMenuActions(this);
+
+    // History
+    private readonly InputActionMap m_History;
+    private List<IHistoryActions> m_HistoryActionsCallbackInterfaces = new List<IHistoryActions>();
+    private readonly InputAction m_History_Undo;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "History".
+    /// </summary>
+    public struct HistoryActions
+    {
+        private @AppActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public HistoryActions(@AppActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "History/Undo".
+        /// </summary>
+        public InputAction @Undo => m_Wrapper.m_History_Undo;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_History; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="HistoryActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(HistoryActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="HistoryActions" />
+        public void AddCallbacks(IHistoryActions instance)
+        {
+            if (instance == null || m_Wrapper.m_HistoryActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_HistoryActionsCallbackInterfaces.Add(instance);
+            @Undo.started += instance.OnUndo;
+            @Undo.performed += instance.OnUndo;
+            @Undo.canceled += instance.OnUndo;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="HistoryActions" />
+        private void UnregisterCallbacks(IHistoryActions instance)
+        {
+            @Undo.started -= instance.OnUndo;
+            @Undo.performed -= instance.OnUndo;
+            @Undo.canceled -= instance.OnUndo;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="HistoryActions.UnregisterCallbacks(IHistoryActions)" />.
+        /// </summary>
+        /// <seealso cref="HistoryActions.UnregisterCallbacks(IHistoryActions)" />
+        public void RemoveCallbacks(IHistoryActions instance)
+        {
+            if (m_Wrapper.m_HistoryActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="HistoryActions.AddCallbacks(IHistoryActions)" />
+        /// <seealso cref="HistoryActions.RemoveCallbacks(IHistoryActions)" />
+        /// <seealso cref="HistoryActions.UnregisterCallbacks(IHistoryActions)" />
+        public void SetCallbacks(IHistoryActions instance)
+        {
+            foreach (var item in m_Wrapper.m_HistoryActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_HistoryActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="HistoryActions" /> instance referencing this action map.
+    /// </summary>
+    public HistoryActions @History => new HistoryActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -2916,5 +3055,20 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleScreen(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "History" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="HistoryActions.AddCallbacks(IHistoryActions)" />
+    /// <seealso cref="HistoryActions.RemoveCallbacks(IHistoryActions)" />
+    public interface IHistoryActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Undo" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUndo(InputAction.CallbackContext context);
     }
 }

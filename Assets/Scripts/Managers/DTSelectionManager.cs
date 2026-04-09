@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,6 +7,8 @@ public class DTSelectionManager : MonoBehaviour
     Interactable _selected;
 
     [SerializeField] ColliderVisual _colliderVisual;
+
+    public Action<Interactable> OnInteractableChanged;
 
     #region getter
     public bool SelectionExist => _selected != null;
@@ -131,5 +134,7 @@ public class DTSelectionManager : MonoBehaviour
             _colliderVisual.ChangeTarget(next.GetComponent<BoxCollider>());
         }
         _selected = next;
+
+        OnInteractableChanged?.Invoke(_selected);
     }
 }

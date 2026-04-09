@@ -50,9 +50,8 @@ public class StateManager : MonoBehaviour
     {
         // Set up input
         // VR basic input is handled by the XR Interaction Toolkit Input action asset
-        _appInput = new AppActions();
-        DependencyProvider.Input = _appInput;
-
+        _appInput = DependencyProvider.Input;
+        
         // Determine the profile based on a flag,
         // toggle automatically by the profile switch in the unity editor
 #if USE_XR
