@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using static UnityEngine.GraphicsBuffer;
 
 public class ScaleManager : MonoBehaviour
 {
@@ -23,11 +24,10 @@ public class ScaleManager : MonoBehaviour
     private Vector3 _cachedColSize;
     private Vector3 _cachedColCenter;
 
-    private VRSelectionManager _sm;
-
-    private void Start()
+    public void SetTarget(GameObject newTarget)
     {
-        _sm = FindAnyObjectByType<VRSelectionManager>();
+        _targetObject = newTarget;
+        _targetCollider = newTarget.GetComponent<BoxCollider>();
     }
 
     /// <summary>
@@ -49,8 +49,8 @@ public class ScaleManager : MonoBehaviour
     public void StartScaling(GameObject target)
     {
         if (target == null) return;
-        _targetObject = target;
-        _targetCollider = target.GetComponent<BoxCollider>();
+        
+        SetTarget(target);
 
         if (_targetCollider == null)
         {
@@ -219,6 +219,21 @@ public class ScaleManager : MonoBehaviour
     {
         if (_targetObject == null) return;
 
+        if (_targetObject.GetComponent<InteractableParent>())
+        {             
+            ConfirmScaleForParentObject();
+        }
+        else
+        {
+            ConfirmScaleForChildObject();
+        }
+
+        SaveAsNewOBJ();
+        Cleanup();
+    }
+
+    private void ConfirmScaleForChildObject()
+    {
         // Bake vertices
         MeshFilter mf = _targetObject.GetComponent<MeshFilter>();
         mf.BakeCurrentScale();
@@ -229,9 +244,32 @@ public class ScaleManager : MonoBehaviour
         // Update the real collider to match new mesh bounds
         _targetCollider.size = mf.sharedMesh.bounds.size;
         _targetCollider.center = mf.sharedMesh.bounds.center;
+    }
 
-        SaveAsNewOBJ();
-        Cleanup();
+    private void ConfirmScaleForParentObject()
+    {
+        // Apply parent scale to childrens
+        foreach (Transform child in _targetObject.transform)
+        {
+            child.localScale = _targetObject.transform.localScale;
+        }
+
+        // Reset the parent transform scale to 1 because the scale is now applied to the children
+        _targetObject.transform.localScale = Vector3.one;
+
+        foreach (MeshFilter mf in _targetObject.GetComponentsInChildren<MeshFilter>())
+        {
+            // Bake
+            mf.BakeCurrentScale();
+            // Reset the transform scale to 1 because the scale is now baked into the mesh vertices
+            mf.transform.localScale = Vector3.one;
+
+            var box = mf.GetComponent<BoxCollider>();
+            // Update the real collider to match new mesh bounds
+            box.size = mf.sharedMesh.bounds.size;
+            box.center = mf.sharedMesh.bounds.center;
+
+        }
     }
 
     public void ResetScale()

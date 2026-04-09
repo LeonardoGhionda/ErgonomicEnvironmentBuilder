@@ -22,7 +22,7 @@ public class GizmoManager : MonoBehaviour
     [SerializeField] Gizmo Scale;
     #endregion
 
-    #region Getter
+    #region Getter n Setters
     public Gizmo[] All => new Gizmo[] { Translate, Rotate, Scale };
     public TransformMode TransformMode => _tMode;
     public bool LocalTransform => _localTransform;
@@ -30,15 +30,15 @@ public class GizmoManager : MonoBehaviour
 
     public bool IsDragging => _currentGizmo != null && _currentGizmo.IsHandleSelected;
 
+    public bool ObjectNonUniformScale { get { return _objNonUniformScale; }  set { _objNonUniformScale = value; } }
+
     public bool SelectedMoved()
     {
         bool returnValue = _objMoved;
         _objMoved = false;
         return returnValue;
     }
-    #endregion
 
-    #region Setters
     public void SetMode(TransformMode newMode, Transform selectedObject)
     {
         // Check and switch
@@ -100,16 +100,15 @@ public class GizmoManager : MonoBehaviour
     private readonly SnapTools _snapTool = new();
 
     private bool _objMoved = false;
+    private bool _objNonUniformScale = false;
 
     // Cache to avoid GC allocations
     private readonly RaycastHit[] _raycastHitsCache = new RaycastHit[16];
 
     private Vector3 _lastPos, _lastRot, _lastSca; 
-    #endregion
 
-    #region Injected variables
-    Camera _cam;
-    CameraController _camController;
+    private Camera _cam;
+
     #endregion
 
     #region Lifecycle
@@ -118,12 +117,11 @@ public class GizmoManager : MonoBehaviour
     /// <summary>
     /// To be called when manager start
     /// </summary>
-    public void Init(Camera cam, CameraController cameraController)
+    public void Init()
     {
         enabled = true;
 
-        _cam = cam;
-        _camController = cameraController;
+        _cam = DependencyProvider.CurrentCamera;
 
         _tMode = TransformMode.Translate;
         _localTransform = true; // Default Local
@@ -337,6 +335,9 @@ public class GizmoManager : MonoBehaviour
         // Prevent negative or zero scale
         if (newScale.x <= minScale || newScale.y < minScale || newScale.z < minScale)
             return;
+
+        // Check for non-uniform scaling, because mesh bake is needed for it to work properly in vr 
+        if (direction != Vector3.one) _objNonUniformScale = true;
 
         selected.localScale = newScale;
     }

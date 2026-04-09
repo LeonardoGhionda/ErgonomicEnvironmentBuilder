@@ -18,6 +18,7 @@ public class RoomEditorState : AbsAppState
     private readonly GizmoManager _gizmoManager;
     private readonly DTSelectionManager _selectionManager;
     private readonly MeasureManager _measureManager;
+    private readonly ScaleManager _scaleManager;
 
     private Vector2 MousePos => _input.Ui.Point.ReadValue<Vector2>();
 
@@ -37,6 +38,7 @@ public class RoomEditorState : AbsAppState
         _gizmoManager = Managers.Get<GizmoManager>();
         _selectionManager = Managers.Get<DTSelectionManager>();
         _measureManager = Managers.Get<MeasureManager>();
+        _scaleManager = Managers.Get<ScaleManager>();
     }
 
     public override void Enter()
@@ -85,7 +87,7 @@ public class RoomEditorState : AbsAppState
 
 
         //start managers
-        _gizmoManager.Init(_camController.Camera, _camController);
+        _gizmoManager.Init();
         _selectionManager.Init(_camController.Camera);
         _measureManager.Init(_camController.Camera);
 
@@ -137,15 +139,14 @@ public class RoomEditorState : AbsAppState
 
     public override void UpdateState()
     {
+#if !USE_XR
         // If measuring, skip gizmo updates
         if (_measureManager.IsMeasuring)
         {
-#if !USE_XR 
             _measureManager.MoveCursor(MousePos); 
-#endif
             return;
         }
-
+#endif
         if (_selectionManager.SelectionExist)
         {
             _gizmoManager.ScaleHandlesByCameraDistance(_selectionManager.SelectionTransform);
@@ -226,6 +227,17 @@ public class RoomEditorState : AbsAppState
         if (_selectionManager.SelectionExist)
         {
             _gizmoManager.DeselectHandle(_selectionManager.SelectionTransform);
+
+            // When releasing the handle, if non-uniform scale was applied bake the new scale (otherwise it will cause problem in the VR profile)
+            if (_gizmoManager.ObjectNonUniformScale)
+            {
+                GameObject selectedGO = _selectionManager.SelectionGO;
+                _selectionManager.ChangeSelectedObject(null);
+                _scaleManager.SetTarget(selectedGO);
+                _scaleManager.ConfirmScale();
+                
+                _gizmoManager.ObjectNonUniformScale = false; // reset flag after applying non-uniform scale
+            }
         }
     }
 

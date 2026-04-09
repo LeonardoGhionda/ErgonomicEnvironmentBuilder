@@ -121,7 +121,6 @@ public class HistoryManager : MonoBehaviour
             _previousFrameRotation = targetTransform.rotation;
             _previousFrameScale = targetTransform.localScale;
 
-            Debug.Log($"New target is {_currentTarget.name}");
         }
     }
 
@@ -160,8 +159,6 @@ public class HistoryManager : MonoBehaviour
         {
             _history.RemoveFirst();
         }
-
-        Debug.Log(entry.GetSummary());
     }
 
     private void ExecuteUndo(InputAction.CallbackContext context)

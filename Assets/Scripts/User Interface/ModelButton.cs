@@ -10,6 +10,7 @@ public class ModelButton : MonoBehaviour
     void Awake()
     {
         _path = Path.Combine(ImportUtils.ModelsPath, gameObject.name);
-        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        // Get the first .obj file that doesn't contain a '#' character (scale modified models)
+        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault(s => !s.Contains('#')); 
     }
 }

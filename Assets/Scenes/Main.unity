@@ -600,7 +600,7 @@ GameObject:
   - component: {fileID: 52964978}
   - component: {fileID: 52964980}
   - component: {fileID: 52964979}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: '[DT] Player'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2458,6 +2458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a778a06bdc1a7746a65e8f9edbdeb52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _maxHistorySize: 250
 --- !u!1 &170754323
 GameObject:
   m_ObjectHideFlags: 0
@@ -12542,7 +12543,7 @@ GameObject:
   - component: {fileID: 995357896}
   - component: {fileID: 995357894}
   - component: {fileID: 995357895}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Player Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
