@@ -30,22 +30,6 @@ public class ScaleManager : MonoBehaviour
         _targetCollider = newTarget.GetComponent<BoxCollider>();
     }
 
-    /// <summary>
-    /// When an InteractableParent is destroyed check if it was a 
-    /// Non uniform scale mod and if so delete the file
-    /// </summary>
-    private void DeleteModFile(InteractableParent parent)
-    {
-        if (parent.Path.Contains("#m"))
-        {
-            if (File.Exists(parent.Path)) File.Delete(parent.Path);
-
-            //Save room because if we delete the file and keep the room the same by quitting without saving, room will be corrupted 
-            RoomBuilderManager roomManager = FindAnyObjectByType<RoomBuilderManager>();
-            if (roomManager != null) RoomManagementTools.Save(roomManager.RoomName);
-        }
-    }
-
     public void StartScaling(GameObject target)
     {
         if (target == null) return;
@@ -323,9 +307,6 @@ public class ScaleManager : MonoBehaviour
             newFilePath = Path.Combine(ogDirPath, newFileName); // Same folder but different OBJ file 
         } while (File.Exists(newFilePath));
 
-        // Delete old file 
-        DeleteModFile(iParent);
-
         //Update this parent path with the new OBJFile path
         iParent.Path = newFilePath;
         // Update parent name 
@@ -337,8 +318,14 @@ public class ScaleManager : MonoBehaviour
         RoomManagementTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
     }
 
-
-    public void DeepCleanUp()
+    /// <summary>
+    /// Removes unused modified model files from the models directory that are no longer referenced by any room file.
+    /// </summary>
+    /// <remarks>This method scans all model files with the '#m' marker in the models directory and deletes
+    /// those that are not referenced by any room definition. Use this method to free disk space and keep the models
+    /// directory synchronized with active room data. This operation cannot be undone; ensure that all room files are up
+    /// to date before calling this method.</remarks>
+    public void CleanMemory()
     {
         string roomsPath = RoomManagementTools.roomsFolderPath;
         string modelsPath = ImportUtils.ModelsPath;
