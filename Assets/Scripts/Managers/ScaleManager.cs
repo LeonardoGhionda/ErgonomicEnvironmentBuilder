@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using static UnityEngine.GraphicsBuffer;
 
 public class ScaleManager : MonoBehaviour
 {
@@ -335,5 +335,52 @@ public class ScaleManager : MonoBehaviour
         OBJExporter.Export(iParent);
 
         RoomManagementTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+    }
+
+
+    public void DeepCleanUp()
+    {
+        string roomsPath = RoomManagementTools.roomsFolderPath;
+        string modelsPath = ImportUtils.ModelsPath;
+
+        List<string> allModifiedModelsPaths = new List<string>();
+        List<string> foundModifiedModelsPaths = new List<string>();
+
+        foreach (string modelDir in Directory.GetDirectories(modelsPath))
+        {
+            foreach (string file in Directory.GetFiles(modelDir, "*.obj"))
+            {
+                if (file.Contains("#m"))
+                {
+                    // Normalize file path to ensure exact string matching later
+                    string normalizedFilePath = Path.GetFullPath(file).Replace('\\', '/');
+                    allModifiedModelsPaths.Add(normalizedFilePath);
+                    Debug.Log($"Found modified model file: {normalizedFilePath}");
+                }
+            }
+        }
+
+        foreach (string roomFile in Directory.GetFiles(roomsPath, "*.room"))
+        {
+            string json = File.ReadAllText(roomFile);
+            RoomData roomData = JsonUtility.FromJson<RoomData>(json);
+
+            foreach (ParentData data in roomData.objects)
+            {
+                if (data.objFilePath.Contains("#m"))
+                {
+                    // Normalize the JSON reference path to match the file system path format
+                    string normalizedRefPath = Path.GetFullPath(data.objFilePath).Replace('\\', '/');
+                    foundModifiedModelsPaths.Add(normalizedRefPath);
+                    Debug.Log($"Found modified model reference: {normalizedRefPath}, in room: {roomFile}");
+                }
+            }
+        }
+
+        foreach (string deletePath in allModifiedModelsPaths.Except(foundModifiedModelsPaths))
+        {
+            File.Delete(deletePath);
+            Debug.Log($"Deleted unused modified model file: {deletePath}");
+        }
     }
 }

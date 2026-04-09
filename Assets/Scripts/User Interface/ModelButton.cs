@@ -11,6 +11,6 @@ public class ModelButton : MonoBehaviour
     {
         _path = Path.Combine(ImportUtils.ModelsPath, gameObject.name);
         // Get the first .obj file that doesn't contain a '#' character (scale modified models)
-        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault(s => !s.Contains('#')); 
+        _path = Directory.GetFiles(_path, "*.obj", SearchOption.TopDirectoryOnly).FirstOrDefault(s => !s.Contains("#m")); 
     }
 }
