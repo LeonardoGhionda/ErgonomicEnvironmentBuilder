@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public enum TransformMode
 {
@@ -315,7 +316,13 @@ public class GizmoManager : MonoBehaviour
     {
         float angle = projected * worldScale * 20f; // Sensitivity multiplier
         // Rotate around handle axis
-        selected.Rotate(_currentGizmo.SelectedDirection(), -angle, Space.World);
+
+        Vector3 point =
+            _pivotModeOrigin ? 
+            selected.position
+            : selected.TransformPoint(selected.GetComponent<BoxCollider>().center);
+
+        selected.RotateAround(point, _currentGizmo.SelectedDirection(), -angle);
     }
 
     private void ApplyScale(Transform selected, float projected, float worldScale)
