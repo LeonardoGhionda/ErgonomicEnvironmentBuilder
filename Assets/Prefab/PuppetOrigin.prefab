@@ -133,8 +133,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4604207225247347492}
   - component: {fileID: 3400388604747072594}
+  - component: {fileID: 2489238499203484056}
   m_Layer: 0
-  m_Name: Collider
+  m_Name: Right Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -177,6 +178,21 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2534964839176971238, guid: 2dc7202783bf4144d882fd32e5c402f5, type: 3}
+--- !u!114 &2489238499203484056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268640445075321990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6648e92ef30c0644af3470604bd45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vibrationIntensity: 0.4
+  Left: 0
+  Right: 1
 --- !u!1 &1711784045513960205
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,6 +203,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1215711744922117025}
   - component: {fileID: 6989158475050666312}
+  - component: {fileID: 1033661375867618845}
   m_Layer: 0
   m_Name: Collider
   m_TagString: Untagged
@@ -230,6 +247,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.25791785, y: 0.15548813, z: 0.13322501}
   m_Center: {x: -0.018592758, y: -0.016366495, z: 0.11653213}
+--- !u!114 &1033661375867618845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711784045513960205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6648e92ef30c0644af3470604bd45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vibrationIntensity: 0.4
+  Left: 1
+  Right: 1
 --- !u!1 &1804165830733501679
 GameObject:
   m_ObjectHideFlags: 0
@@ -240,8 +272,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3083890618722257040}
   - component: {fileID: 7187281595078400499}
+  - component: {fileID: 340788906025287786}
   m_Layer: 0
-  m_Name: Collider
+  m_Name: Left Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -284,6 +317,21 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2534964839176971238, guid: 2dc7202783bf4144d882fd32e5c402f5, type: 3}
+--- !u!114 &340788906025287786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804165830733501679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6648e92ef30c0644af3470604bd45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vibrationIntensity: 0.4
+  Left: 1
+  Right: 0
 --- !u!1 &2326041795445493842
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,6 +342,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8386794270995505198}
   - component: {fileID: 8537235648883151665}
+  - component: {fileID: 4310765989671772190}
   m_Layer: 0
   m_Name: Collider
   m_TagString: Untagged
@@ -337,6 +386,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.25568518, y: 0.1844456, z: 0.29620636}
   m_Center: {x: -0.010633047, y: -0.03324938, z: 0.0681792}
+--- !u!114 &4310765989671772190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2326041795445493842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6648e92ef30c0644af3470604bd45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vibrationIntensity: 0.4
+  Left: 1
+  Right: 1
 --- !u!1 &2454805074808652958
 GameObject:
   m_ObjectHideFlags: 0
@@ -347,6 +411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6388982341587096812}
   - component: {fileID: 6700021229520693851}
+  - component: {fileID: 6613593890246776698}
   m_Layer: 0
   m_Name: Collider
   m_TagString: Untagged
@@ -390,6 +455,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.25490156, y: 0.1864455, z: 0.11976175}
   m_Center: {x: -0.008823518, y: -0.029146018, z: 0.13064685}
+--- !u!114 &6613593890246776698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2454805074808652958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6648e92ef30c0644af3470604bd45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vibrationIntensity: 0.4
+  Left: 1
+  Right: 1
 --- !u!1001 &3977828718021500564
 PrefabInstance:
   m_ObjectHideFlags: 0
