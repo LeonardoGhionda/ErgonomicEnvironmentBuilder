@@ -19,7 +19,7 @@ public class WalkDistanceManager : MonoBehaviour
 
     private Transform _linesContainer;
 
-    private void Start()
+    private void OnEnable()
     {
         if (BalancePoint == null)
         {
@@ -36,7 +36,7 @@ public class WalkDistanceManager : MonoBehaviour
     private void Update()
     {
         Vector2 currentPoint = BalancePoint.position.horizontalPlane();
-        Vector2 lastPoint = _points[_points.Count - 1];
+        Vector2 lastPoint = _points[^1];
 
         if (Vector2.Distance(currentPoint, lastPoint) > DistanceThreshold)
         {
@@ -70,5 +70,15 @@ public class WalkDistanceManager : MonoBehaviour
     {
         _pathVisible = value;
         _linesContainer.gameObject.SetActive(_pathVisible);
+    }
+
+    public void OnDisable()
+    {
+        _points.Clear();
+        foreach (var item in _lines)
+        {
+            Destroy(item);
+        }
+        _lines.Clear();
     }
 }

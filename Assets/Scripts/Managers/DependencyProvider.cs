@@ -53,10 +53,7 @@ public class DependencyProvider : MonoBehaviour
     {
         get
         {
-            if (_inputInternal == null)
-            {
-                _inputInternal = new AppActions();
-            }
+            _inputInternal ??= new AppActions();
             return _inputInternal;
         }
     }

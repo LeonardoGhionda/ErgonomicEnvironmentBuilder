@@ -62,7 +62,7 @@ public class VibrateOnCollision : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag(_tag) || other.gameObject.CompareTag("Player")) return;
+        if (other.gameObject.CompareTag(_tag) || other.gameObject.CompareTag("Floor") || other.gameObject.CompareTag("Player")) return;
 
         if (_leftController == null || _rightController == null) 
         {
