@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MeasureManager : MonoBehaviour
 {
-    public enum MeasureStep { None, SelectFirst, SelectSecond }
+    public enum MeasureStep { None, SelectFirst, SelectSecond, SelectHeight }
 
     [Header("Settings")]
     [SerializeField] private float snapThreshold = 0.3f;
@@ -54,6 +54,12 @@ public class MeasureManager : MonoBehaviour
     {
         Cursor.SetActive(true);
         CurrentStep = MeasureStep.SelectFirst;
+    }
+
+    public void MeasureHeight()
+    {
+        Cursor.SetActive(true);
+        CurrentStep = MeasureStep.SelectHeight;
     }
 
     public void StartMeasure(Vector3 m1, Transform t1 = null)
@@ -108,6 +114,19 @@ public class MeasureManager : MonoBehaviour
             MeasureLine.SetActive(true); // show temporary line 
             _currentStep = MeasureStep.SelectSecond;
         }
+        else if (_currentStep == MeasureStep.SelectHeight)
+        {
+            _startPoint = clickPos;
+            if (_t1 != null)
+            {
+                _startPosEmpty.position = _startPoint;
+                _startPosEmpty.SetParent(_t1, true);
+            }
+
+            OnMeasureEnd?.Invoke();
+            CreateDimension(clickPos, new(_startPoint.x, 0.0f, _startPoint.z), true);
+            ResetTool();
+        }
         else
         {
             OnMeasureEnd?.Invoke();
@@ -132,7 +151,7 @@ public class MeasureManager : MonoBehaviour
 #endif
             Cursor.transform.position = res.point;
 
-            if (CurrentStep == MeasureStep.SelectFirst)
+            if (CurrentStep == MeasureStep.SelectFirst || CurrentStep == MeasureStep.SelectHeight)
             {
                 _t1 = res.hitObject;
             }
@@ -203,7 +222,7 @@ public class MeasureManager : MonoBehaviour
     /// <summary>
     /// Creates a new permanent dimension line between two points.
     /// </summary>
-    public void CreateDimension(Vector3 start, Vector3 end)
+    public void CreateDimension(Vector3 start, Vector3 end, bool height = false)
     {
         if (MeasureLine == null) return;
 
@@ -212,9 +231,14 @@ public class MeasureManager : MonoBehaviour
 
         MeasureLine.SetActive(false); // hide temporary line
 
-        if (dim != null)
+        if (dim != null && !height)
         {
             dim.Initialize(start, end, _cam, true, _t1, _t2);
+            _activeDimensions.Add(dim);
+        }
+        else if (dim != null && height)
+        {
+            dim.Initialize(start, end, _cam, true, _t1, null, true);
             _activeDimensions.Add(dim);
         }
         else

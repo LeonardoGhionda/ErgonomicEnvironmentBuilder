@@ -28,8 +28,9 @@ public class DimensionObject : MonoBehaviour
     private GameObject _interactable;
     private BoxCollider _iCollider;
     private XRSimpleInteractable _iSimpleInt;
+    private bool _isHeight = false;
 
-    public void Initialize(Vector3 p1, Vector3 p2, Camera camera, bool isFinal, Transform target1 = null, Transform target2 = null)
+    public void Initialize(Vector3 p1, Vector3 p2, Camera camera, bool isFinal, Transform target1 = null, Transform target2 = null, bool isHeight = false)
     {
         _cam = camera;
         _t1 = target1;
@@ -55,6 +56,8 @@ public class DimensionObject : MonoBehaviour
             _iSimpleInt = _interactable.AddComponent<XRSimpleInteractable>();
             _iSimpleInt.selectEntered.AddListener(DeleteMeasure);
         }
+
+        _isHeight = isHeight;
 
         gameObject.SetActive(true);
     }
@@ -101,6 +104,12 @@ public class DimensionObject : MonoBehaviour
 
         if (_t1 != null) _p1 = _t1.TransformPoint(_offset1);
         if (_t2 != null) _p2 = _t2.TransformPoint(_offset2);
+
+        if (_isHeight)
+        {
+            _p2 = _p1;
+            _p2.y = 0f;
+        }
 
         UpdateVisuals();
     }
