@@ -14,7 +14,15 @@ public class VibrateOnCollision : MonoBehaviour
 
     private Coroutine vibrationRoutine;
 
-    private readonly string _tag = "Armature";
+    private static readonly string _tag = "Armature";
+
+    private string[] nonTriggeringTags =
+    {
+        _tag, //self
+        "Roof",
+        "Floor",
+        "Player",
+    };
 
     public void Awake()
     {
@@ -62,7 +70,7 @@ public class VibrateOnCollision : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag(_tag) || other.gameObject.CompareTag("Floor") || other.gameObject.CompareTag("Player")) return;
+        foreach (string tag in nonTriggeringTags) if (other.CompareTag(tag)) return;
 
         if (_leftController == null || _rightController == null) 
         {

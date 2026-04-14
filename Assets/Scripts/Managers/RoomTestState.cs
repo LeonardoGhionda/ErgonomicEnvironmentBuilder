@@ -78,7 +78,10 @@ public class RoomTestState : AbsAppState
         _input.VRMenu.ToggleScreen.Enable();
 
         Managers.Get<ScreenShareManager>().gameObject.SetActive(true);
-        Managers.Get<WalkDistanceManager>().gameObject.SetActive(true);
+
+
+        Managers.Get<WalkDistanceManager>().StartCoroutine(InitAfterDelay());
+
 
         // Lock motion
         var locManager = Managers.Get<LocomotionManager>();
@@ -126,7 +129,7 @@ public class RoomTestState : AbsAppState
             SceneManager.UnloadSceneAsync(simulationScene);
         }
 
-        Managers.Get<WalkDistanceManager>().gameObject.SetActive(false);
+        Managers.Get<WalkDistanceManager>().Stop();
     }
 
     public override void UpdateState() {}
@@ -156,4 +159,13 @@ public class RoomTestState : AbsAppState
     {
         _handMenuManager.Toggle();
     }
+    private System.Collections.IEnumerator InitAfterDelay()
+    {
+        // Wait for 4 seconds
+        yield return new WaitForSeconds(2f);
+
+        // Execute the initialization
+        Managers.Get<WalkDistanceManager>().Init();
+    }
+
 }

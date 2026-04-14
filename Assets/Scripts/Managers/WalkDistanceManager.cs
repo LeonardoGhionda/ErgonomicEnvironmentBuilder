@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VolumetricLines;
 
@@ -9,8 +10,8 @@ public class WalkDistanceManager : MonoBehaviour
     [SerializeField] private VolumetricLineBehavior LineTemplate;
     [SerializeField] int MaxLines = 100;
 
-    private List<Vector2> _points = new();
-    private List<GameObject> _lines = new();
+    private readonly List<Vector2> _points = new();
+    private readonly List<GameObject> _lines = new();
 
     private float _totalDistance = 0f;
     private const float LINE_HEIGHT = 0.01f;
@@ -19,22 +20,28 @@ public class WalkDistanceManager : MonoBehaviour
 
     private Transform _linesContainer;
 
-    private void OnEnable()
+    private bool _initialized = false;
+
+    public void Init(Vector2? initialPos = null)
     {
         if (BalancePoint == null)
         {
             BalancePoint = DependencyProvider.CurrentCamera.transform;
         }
 
-        Vector2 startPoint = BalancePoint.position.horizontalPlane();
+        Vector2 startPoint = initialPos == null ? BalancePoint.position.horizontalPlane() : initialPos.Value;
         _points.Add(startPoint);
 
         _linesContainer = new GameObject("WalkPathLines").transform;
         _linesContainer.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        _initialized = true;
     }
 
     private void Update()
     {
+        if (!_initialized) return;
+
         Vector2 currentPoint = BalancePoint.position.horizontalPlane();
         Vector2 lastPoint = _points[^1];
 
@@ -72,7 +79,7 @@ public class WalkDistanceManager : MonoBehaviour
         _linesContainer.gameObject.SetActive(_pathVisible);
     }
 
-    public void OnDisable()
+    public void Stop()
     {
         _points.Clear();
         foreach (var item in _lines)
@@ -80,5 +87,7 @@ public class WalkDistanceManager : MonoBehaviour
             Destroy(item);
         }
         _lines.Clear();
+
+        _initialized = false;
     }
 }
