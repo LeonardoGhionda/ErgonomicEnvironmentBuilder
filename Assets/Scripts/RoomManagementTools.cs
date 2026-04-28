@@ -420,7 +420,7 @@ static public class RoomManagementTools
                 foreach (ChildrenData childrenData in parentData.children)
                 {
                     InteractableObject intObject = children.First(c => c.ID == childrenData.id);
-                    SetUpVrObject(intObject.transform, sm, childrenData.gravityEnabled, childrenData.interactable);
+                    SetUpVrObject(intObject.transform, sm, childrenData.gravityEnabled, childrenData.interactable, childrenData.attachPoints);
                 }
             }
             catch (Exception e)
@@ -721,7 +721,7 @@ static public class RoomManagementTools
         }
     }
 
-    public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled, bool interactable)
+    public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
     {
         if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
 
@@ -749,6 +749,15 @@ static public class RoomManagementTools
         gt.minimumScaleRatio = 0.01f;
         gt.maximumScaleRatio = 20f;
         gt.scaleMultiplier = 0.15f;
+
+        foreach (AttachPointData ap in attachPoints)
+        {
+            // Create isolated child object for the trigger
+            GameObject attachPointGO = new($"AttachPoint_{ap.targetName}");
+            attachPointGO.transform.SetParent(obj, false);
+
+            attachPointGO.AddComponent<AttachPoint>().Setup(ap);
+        }
     }
 
     public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
