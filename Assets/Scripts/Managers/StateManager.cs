@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,6 +23,8 @@ public class StateManager : MonoBehaviour
     private GameObject VRPlayer => DependencyProvider.VRPlayer;
     private GameObject DTPlayer => DependencyProvider.DTPlayer;
 
+
+    public Action OnStateChanged; // Event triggered on state change, can be used for UI updates or other global reactions to state changes
 
     [Header("Views")]
     [SerializeField] private MenuRoomView menuRoomView;
@@ -136,6 +139,8 @@ public class StateManager : MonoBehaviour
         _currentState?.Exit();
         _currentState = newState;
 
+        OnStateChanged?.Invoke();
+
         if (_currentState == null)
         {
             ExitApplication();
@@ -167,6 +172,8 @@ public class StateManager : MonoBehaviour
         _currentState?.Exit();
 
         bool newSceneIsMain = newScene == SceneName.Main;
+
+        OnStateChanged?.Invoke();
 
         if (newSceneIsMain)
         {
