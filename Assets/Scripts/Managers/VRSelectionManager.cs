@@ -104,7 +104,7 @@ public class VRSelectionManager : MonoBehaviour
 
         // Notify of the change 
         OnSelectionChanged?.Invoke(new(_selected, _contactPoint));
-        OnInteractableChanged?.Invoke(_selected.GetComponent<Interactable>());
+        OnInteractableChanged?.Invoke(_selected.TryGetComponent<Interactable>(out var inter) ? inter : null);
     }
 
     // Need a separate method to avoid null reference issues with XR Interactable events
@@ -222,8 +222,7 @@ public class VRSelectionManager : MonoBehaviour
         if (Time.time - _fastClickTime <= FastClickThreshold)
         {
             // Reset position and rotation
-            _selected.transform.position = _preGrabPosition;
-            _selected.transform.rotation = _preGrabRotation;
+            _selected.transform.SetPositionAndRotation(_preGrabPosition, _preGrabRotation);
         }
     }
 }

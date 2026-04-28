@@ -74,6 +74,21 @@ public class BoxColliderData
 }
 
 [Serializable]
+public class AttachPointData
+{
+    public string targetName;
+    public Vector3 posOffset;
+    public Quaternion rotOffset;
+
+    public void LoadFrom(AttachPoint ap)
+    {
+        targetName = ap.TargetName;
+        posOffset = ap.PosOffset;
+        rotOffset = ap.RotOffset;
+    }
+}
+
+[Serializable]
 public class ChildrenData
 {
     public string id; // Unique identifier for the child object
@@ -83,6 +98,7 @@ public class ChildrenData
     public bool gravityEnabled; // Whether gravity is enabled for this child
     public string snapFollowTargetId; // Optional: name of the target for SnapFollow, if applicable
     public bool interactable;
+    public AttachPointData[] attachPoints; // Array of attach points for this child
 }
 
 [Serializable]
@@ -242,12 +258,28 @@ static public class RoomManagementTools
                     name = go.name,
                     transform = new(),
                     colliderData = new(),
+                    attachPoints = new AttachPointData[0],
                 };
 
                 data.transform.LoadFrom(go.transform);
                 data.colliderData.LoadFrom(go.GetComponent<BoxCollider>());
 
-                // Sanp Follow
+                List<AttachPointData> attachPointsData = new();
+                foreach (var item in go.GetComponentsInChildren<AttachPoint>())
+                {
+                    attachPointsData.Add(new AttachPointData()
+                    {
+                        targetName = item.TargetName,
+                        posOffset = item.PosOffset,
+                        rotOffset = item.RotOffset
+                    });
+                }
+
+                Debug.Log($"[RoomManagementTools.Save] Object {go.name} has {attachPointsData.Count} attach points.");
+
+                data.attachPoints = attachPointsData.ToArray();
+
+                // Snap Follow
                 data.snapFollowTargetId = string.Empty;
                 if (go.TryGetComponent<SnapFollow>(out SnapFollow sf))
                 {
@@ -259,6 +291,8 @@ static public class RoomManagementTools
                 else data.gravityEnabled = false;
 
                 data.interactable = !interactableGO.Locked && !interactableGO.Parent.Locked;
+
+                
 
                 //add to list
                 objData.children.Add(data);
@@ -432,7 +466,7 @@ static public class RoomManagementTools
                 foreach (ChildrenData childrenData in parentData.children)
                 {
                     InteractableObject intObject = children.First(c => c.ID == childrenData.id);
-                    SetUpTestObject(intObject.transform, childrenData.gravityEnabled, childrenData.interactable);
+                    SetUpTestObject(intObject.transform, childrenData.gravityEnabled, childrenData.interactable, childrenData.attachPoints);
 
                     GameObject mimicInstance = 
                         UnityEngine.Object.Instantiate(mimicPrefab, intObject.transform.position, intObject.transform.rotation);
@@ -717,7 +751,7 @@ static public class RoomManagementTools
         gt.scaleMultiplier = 0.15f;
     }
 
-    public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable)
+    public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
     {
         if (!interactable) return;
 
@@ -732,6 +766,15 @@ static public class RoomManagementTools
         xrg.useDynamicAttach = true;
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
+
+        foreach (AttachPointData ap in attachPoints)
+        {
+            // Create isolated child object for the trigger
+            GameObject attachPointGO = new($"AttachPoint_{ap.targetName}");
+            attachPointGO.transform.SetParent(obj, false);
+
+            attachPointGO.AddComponent<AttachPoint>().Setup(ap);
+        }
     }
 
     /// <summary>
