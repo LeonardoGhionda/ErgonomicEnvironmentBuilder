@@ -14,6 +14,8 @@ public class StateManager : MonoBehaviour
     private IAppState _currentState;
     private IAppState _lastState;
 
+    public bool CmpState(Type stateType) => _currentState != null && _currentState.GetType() == stateType;
+
     private AppActions _appInput;
 
 

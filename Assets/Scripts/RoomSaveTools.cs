@@ -133,7 +133,7 @@ public static class ValidationErrors
 /// <summary>
 /// Handle saving and creations of rooms
 /// </summary>
-static public class RoomManagementTools
+static public class RoomSaveTools
 {
 
     public static string floorName = "Floor";
@@ -144,7 +144,7 @@ static public class RoomManagementTools
     public static readonly string roomsFolderPath;
 
     //Runs automatically the first time the class is accessed
-    static RoomManagementTools()
+    static RoomSaveTools()
     {
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
@@ -275,7 +275,6 @@ static public class RoomManagementTools
                     });
                 }
 
-                Debug.Log($"[RoomManagementTools.Save] Object {go.name} has {attachPointsData.Count} attach points.");
 
                 data.attachPoints = attachPointsData.ToArray();
 
@@ -729,6 +728,8 @@ static public class RoomManagementTools
         rb.useGravity = gravityEnabled;
         rb.isKinematic = !gravityEnabled;
 
+        sm.ChangeMaterialOnSelection = true;
+
         XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
         xrg.throwOnDetach = false;
         xrg.useDynamicAttach = true;
@@ -747,6 +748,7 @@ static public class RoomManagementTools
         gt.allowOneHandedScaling = false;
         gt.allowTwoHandedScaling = true;
         gt.minimumScaleRatio = 0.01f;
+        gt.maximumScaleRatio = 20f;
         gt.maximumScaleRatio = 20f;
         gt.scaleMultiplier = 0.15f;
 
@@ -771,8 +773,12 @@ static public class RoomManagementTools
         rb.isKinematic = !gravityEnabled;
 
         XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
+        VRSelectionManager sm = Managers.Get<VRSelectionManager>();
+        sm.ChangeMaterialOnSelection = false;
         xrg.throwOnDetach = !rb.isKinematic;
         xrg.useDynamicAttach = true;
+        xrg.selectEntered.AddListener(VRSelectionManager.ReleaseIfLocked);
+        xrg.selectEntered.AddListener(args => sm.ChangeSelected(args));
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
@@ -926,7 +932,6 @@ static public class RoomManagementTools
             }
         }
 
-        Debug.LogWarning("Failed to find internal point after max attempts.");
         return walls[0].transform.position; // Fallback
     }
 

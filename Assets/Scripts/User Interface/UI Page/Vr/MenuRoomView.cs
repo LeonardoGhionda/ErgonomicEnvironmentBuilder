@@ -30,7 +30,7 @@ public class MenuRoomView : MonoBehaviour
 
     private void RefreshRoomList(GridLayoutGroup container, Action<string> action)
     {
-        _roomsPath = RoomManagementTools.roomsFolderPath;
+        _roomsPath = RoomSaveTools.roomsFolderPath;
         // Clear existing cards
         foreach (Transform child in container.transform)
         {

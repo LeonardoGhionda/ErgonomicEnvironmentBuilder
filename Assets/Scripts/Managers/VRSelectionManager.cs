@@ -46,6 +46,8 @@ public class VRSelectionManager : MonoBehaviour
 
     [SerializeField] float FastClickThreshold = 0.3f;
 
+    public bool ChangeMaterialOnSelection = true;
+
     private void Awake()
     {
         _selectedMaterial = SelectedObjectMaterial;
@@ -67,16 +69,18 @@ public class VRSelectionManager : MonoBehaviour
         // Set up new selected 
         if (_selected != null)
         {
-            // Materials swap
-            MeshRenderer renderer = selected.gameObject.GetComponent<MeshRenderer>();
-            _baseMaterials = renderer.sharedMaterials;
-            Material[] highlightMaterials = new Material[_baseMaterials.Length];
-            for (int i = 0; i < highlightMaterials.Length; i++)
+            if (ChangeMaterialOnSelection)
             {
-                highlightMaterials[i] = _selectedMaterial;
+                // Materials swap
+                MeshRenderer renderer = selected.gameObject.GetComponent<MeshRenderer>();
+                _baseMaterials = renderer.sharedMaterials;
+                Material[] highlightMaterials = new Material[_baseMaterials.Length];
+                for (int i = 0; i < highlightMaterials.Length; i++)
+                {
+                    highlightMaterials[i] = _selectedMaterial;
+                }
+                renderer.materials = highlightMaterials;
             }
-            renderer.materials = highlightMaterials;
-
 
             ColliderVisual.ChangeTarget(_selected.GetComponent<BoxCollider>());
 
@@ -112,7 +116,10 @@ public class VRSelectionManager : MonoBehaviour
     {
         if (_selected)
         {
-            _selected.gameObject.GetComponent<MeshRenderer>().materials = _baseMaterials;
+            if (ChangeMaterialOnSelection)
+            {
+                _selected.gameObject.GetComponent<MeshRenderer>().materials = _baseMaterials;
+            }
             ReleaseCurrentlySelectedObject();
         }
 
@@ -146,7 +153,7 @@ public class VRSelectionManager : MonoBehaviour
             }
         }
 
-        RoomManagementTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+        RoomSaveTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
         ClearSelection();
     }
 

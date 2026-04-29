@@ -44,7 +44,7 @@ public class RoomTestState : AbsAppState
         _inviteBroadcaster.StartBroadcasting(_rbm.RoomName);
 
         //  Create Room
-        RoomManagementTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
+        RoomSaveTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
         Physics.SyncTransforms();
 
         // Disable far casting (during test only real-life interaction are allowed)
@@ -56,7 +56,7 @@ public class RoomTestState : AbsAppState
         _mocapSync.enabled = true;
 
         // Move player inside the wall 
-        Vector3 insideWallPosition = RoomManagementTools.FindInternalPoint();
+        Vector3 insideWallPosition = RoomSaveTools.FindInternalPoint();
         insideWallPosition.y = 0;
         _mocapSync.SetPosition(insideWallPosition);
         _mocapSync.CalibrateRotation();
@@ -119,7 +119,7 @@ public class RoomTestState : AbsAppState
         _mocapSync.enabled = false;
 
         //Clear Room
-        RoomManagementTools.CleanupRoom();
+        RoomSaveTools.CleanupRoom();
 
         _handMenuManager.TurnOff();
 

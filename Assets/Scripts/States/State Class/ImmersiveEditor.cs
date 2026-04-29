@@ -45,11 +45,11 @@ public class ImmersiveEditor : AbsAppState
 
     public override void Enter()
     {
-        RoomManagementTools.CreateVrEditRoom(_rbm.RoomName);
+        RoomSaveTools.CreateVrEditRoom(_rbm.RoomName);
         // Forece physics update to sync transforms
         Physics.SyncTransforms();
         // Set player position inside walls 
-        _insideWallPosition = RoomManagementTools.FindInternalPoint();
+        _insideWallPosition = RoomSaveTools.FindInternalPoint();
         _insideWallPosition.y = 0;
         _vrPlayer.transform.position = _insideWallPosition;
 
@@ -82,11 +82,11 @@ public class ImmersiveEditor : AbsAppState
     {
 
         _vrPlayer.SetActive(false);
-        RoomManagementTools.GenerateRoomPreview(_rbm.RoomName);
+        RoomSaveTools.GenerateRoomPreview(_rbm.RoomName);
         _vrPlayer.SetActive(true);
       
-        RoomManagementTools.Save(_rbm.RoomName);
-        RoomManagementTools.CleanupRoom();
+        RoomSaveTools.Save(_rbm.RoomName);
+        RoomSaveTools.CleanupRoom();
 
         // Input
         _input.HandMenu.MoveEntries.started -= MoveHandMenuEntries;

@@ -25,7 +25,7 @@ public class LoadRoomState : AbsAppState
             OnCancel,
             FileBrowser.PickMode.Files,
             false,
-            RoomManagementTools.roomsFolderPath,
+            RoomSaveTools.roomsFolderPath,
             null,
             "Select the room to edit",
             "Load"
@@ -46,7 +46,7 @@ public class LoadRoomState : AbsAppState
         string filePath = paths[0];
         string roomName = Path.GetFileNameWithoutExtension(filePath);
 
-        RoomManagementTools.CreateDTRoom(roomName);
+        RoomSaveTools.CreateDTRoom(roomName);
 
         _rbm.RoomName = roomName;
         _manager.ChangeState(_manager.RoomEditor);
@@ -61,7 +61,7 @@ public class LoadRoomState : AbsAppState
     {
         try
         {
-            System.Collections.Generic.IEnumerable<string> metaFiles = Directory.EnumerateFiles(RoomManagementTools.roomsFolderPath, "*.meta", SearchOption.AllDirectories);
+            System.Collections.Generic.IEnumerable<string> metaFiles = Directory.EnumerateFiles(RoomSaveTools.roomsFolderPath, "*.meta", SearchOption.AllDirectories);
             foreach (string file in metaFiles) File.Delete(file);
         }
         catch { /* Ignore error */ }

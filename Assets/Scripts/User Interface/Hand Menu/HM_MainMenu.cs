@@ -20,8 +20,11 @@ public class HM_MainMenu : HM_Base
         measure.ClearAllMeasures();
 
         // Save Room
-        var rbm = Managers.Get<RoomBuilderManager>();
-        RoomManagementTools.Save(rbm.RoomName);
+        if(Managers.Get<StateManager>().CmpState(typeof(ImmersiveEditor)))
+        {
+            var rbm = Managers.Get<RoomBuilderManager>();
+            RoomSaveTools.Save(rbm.RoomName);
+        }
 
         var state = Managers.Get<StateManager>();
 

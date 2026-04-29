@@ -56,8 +56,16 @@ public class HM_SetAttachPoint : HM_Base
 
     private void OnSecondSelection(VRSelectionManager.SelectionChangedArgs args)
     {
+        if (args == null) return;
+        if (args.selection != null) // target changed
+        {
+            target = args.selection.transform;
+            return;
+        }
+
         _selectionManager.OnSelectionChanged -= OnSecondSelection;
-        _selectionManager.ClearSelection(skipCallback: true);
+
+        if (target == null) return;
 
         // Create isolated child object for the trigger
         GameObject attachPointGO = new($"AttachPoint_{target.name}");

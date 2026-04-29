@@ -34,7 +34,7 @@ public class HM_SpawnModel : HM_Base
         // Set up children and add colliders to measure the actual size of the object
         foreach (Transform child in obj.transform)
         {
-            RoomManagementTools.SetUpVrObject(child, _selectionManager, false, true, new AttachPointData[0]);
+            RoomSaveTools.SetUpVrObject(child, _selectionManager, false, true, new AttachPointData[0]);
             _ = child.AddComponent<InteractableObject>();
         }
 
