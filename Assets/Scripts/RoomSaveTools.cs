@@ -465,6 +465,7 @@ static public class RoomSaveTools
                 foreach (ChildrenData childrenData in parentData.children)
                 {
                     InteractableObject intObject = children.First(c => c.ID == childrenData.id);
+
                     SetUpTestObject(intObject.transform, childrenData.gravityEnabled, childrenData.interactable, childrenData.attachPoints);
 
                     GameObject mimicInstance = 
@@ -764,7 +765,18 @@ static public class RoomSaveTools
 
     public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
     {
+
+        foreach (AttachPointData ap in attachPoints)
+        {
+            // Create isolated child object for the trigger
+            GameObject attachPointGO = new($"AttachPoint_{ap.targetName}");
+            attachPointGO.transform.SetParent(obj, false);
+
+            attachPointGO.AddComponent<AttachPoint>().Setup(ap);
+        }
+
         if (!interactable) return;
+        
 
         if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
 
@@ -775,21 +787,14 @@ static public class RoomSaveTools
         XRGrabInteractable xrg = obj.AddComponent<XRGrabInteractable>();
         VRSelectionManager sm = Managers.Get<VRSelectionManager>();
         sm.ChangeMaterialOnSelection = false;
-        xrg.throwOnDetach = !rb.isKinematic;
+        xrg.throwOnDetach = false;
         xrg.useDynamicAttach = true;
         xrg.selectEntered.AddListener(VRSelectionManager.ReleaseIfLocked);
         xrg.selectEntered.AddListener(args => sm.ChangeSelected(args));
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
-        foreach (AttachPointData ap in attachPoints)
-        {
-            // Create isolated child object for the trigger
-            GameObject attachPointGO = new($"AttachPoint_{ap.targetName}");
-            attachPointGO.transform.SetParent(obj, false);
 
-            attachPointGO.AddComponent<AttachPoint>().Setup(ap);
-        }
     }
 
     /// <summary>
