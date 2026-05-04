@@ -9,6 +9,8 @@ public class HM_MocapCalibration : HM_Base
     private LocomotionManager _locManager;
     private AppActions.VRCalibrationActions _input;
 
+    [SerializeField] private Canvas[] Tutorial;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -31,15 +33,23 @@ public class HM_MocapCalibration : HM_Base
         _input.BodyRotation.performed += ChangeBodyRotation;
         _input.ConfirmCalibration.performed += StopCalibration;
 
+        //Show tutorial
+        foreach (var canvas in Tutorial)
+        {
+            canvas.gameObject.SetActive(true);
+        }
+
         _input.Enable();
     }
 
+    // right controller
     private void ChangeBodyRotation(InputAction.CallbackContext context)
     {
         float rotVal = context.action.ReadValue<Vector2>().x / 2f;
         _mocapSync.RotationOffset += rotVal;
     }
 
+    // left controller
     private void ChangeHeadOffset(InputAction.CallbackContext context)
     {
         Vector2 offset = context.action.ReadValue<Vector2>() / 100f;
@@ -56,6 +66,12 @@ public class HM_MocapCalibration : HM_Base
         _input.HeadOffset.performed -= ChangeHeadOffset;
         _input.BodyRotation.performed -= ChangeBodyRotation;
         _input.ConfirmCalibration.performed -= StopCalibration;
+
+        //Hide tutorial
+        foreach (var canvas in Tutorial)
+        {
+            canvas.gameObject.SetActive(false);
+        }
 
         _input.Disable();
     }
