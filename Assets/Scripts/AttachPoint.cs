@@ -3,13 +3,14 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using static UnityEngine.GraphicsBuffer;
 
 public class AttachPoint : MonoBehaviour
 {
     [SerializeField] float Radius = 0.05f;
 
-    [SerializeField] Transform _target;
+    private Transform _target;
+    private BoxCollider _targetBox;
+
     string _targetName = "";
     CapsuleCollider _collider;
     Vector3 _posOffset;
@@ -21,7 +22,8 @@ public class AttachPoint : MonoBehaviour
 
     private VRSelectionManager _selectionManager;
 
-    private void Start()
+
+    private void Awake()
     {
         _selectionManager = Managers.Get<VRSelectionManager>();
     }
@@ -46,8 +48,8 @@ public class AttachPoint : MonoBehaviour
     {
         _targetName = target.name;
 
-        BoxCollider targetCollider = target.GetComponent<BoxCollider>();
-        Vector3 boxColliderCenterOffset = target.TransformPoint(targetCollider.center);
+        _targetBox = target.GetComponent<BoxCollider>();
+        Vector3 boxColliderCenterOffset = target.TransformPoint(_targetBox.center);
         _posOffset = transform.InverseTransformPoint(boxColliderCenterOffset);
 
         _rotOffset = Quaternion.Inverse(transform.rotation) * target.rotation;
@@ -69,9 +71,7 @@ public class AttachPoint : MonoBehaviour
         {
             _target.rotation = transform.rotation * _rotOffset;
 
-            if (!_target.TryGetComponent<BoxCollider>(out var targetCollider)) Destroy(this);
-
-            Vector3 worldCenterOffset = _target.TransformPoint(targetCollider.center) - _target.position;
+            Vector3 worldCenterOffset = _target.TransformPoint(_targetBox.center) - _target.position;
 
             _target.position = transform.TransformPoint(_posOffset) - worldCenterOffset;
         }
@@ -82,7 +82,7 @@ public class AttachPoint : MonoBehaviour
         if (_target != null) return;
         if (_selectionManager.SelectionExist && _selectionManager.Selected == gameObject) return;
 
-        if (!string.IsNullOrEmpty(_targetName) && CheckNameMatch(other.name))
+        if (!string.IsNullOrEmpty(_targetName) && other.name == _targetName)
         {
             // If the object is currently being held, force it to be released so it can snap to the attach point
             // If its grabbed while inside the trigger, it will not be released
@@ -91,7 +91,15 @@ public class AttachPoint : MonoBehaviour
                 _selectionManager.ClearSelection();
             }
 
+            // get target components
             _target = other.transform;
+            _targetBox = _target.GetComponent<BoxCollider>();
+            if(_targetBox == null)
+            {
+                Debug.LogWarning($"Target {_target.name} does not have a BoxCollider");
+                return;
+            }
+
             _target.rotation = transform.rotation * _rotOffset;
 
             if (Managers.Get<StateManager>().CmpState(typeof(RoomTestState)))
@@ -123,18 +131,4 @@ public class AttachPoint : MonoBehaviour
         else Debug.LogWarning($"Target {_target.name} does not have InteractableObject component, cannot set Locked to true");
     }
 
-    private bool CheckNameMatch(string otherName)
-    {
-        string normalizedTarget = NormalizeName(_targetName);
-        string normalizedOther = NormalizeName(otherName);
-
-        return normalizedOther.Contains(normalizedTarget) || normalizedTarget.Contains(normalizedOther);
-    }
-
-    private string NormalizeName(string name)
-    {
-        string cleanName = name.Replace(" (Clone)", "");
-        cleanName = Regex.Replace(cleanName, @"([_\.]\d+|\s*\(\d+\))$", "");
-        return cleanName;
-    }
 }

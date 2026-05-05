@@ -325,7 +325,7 @@ public class ScaleManager : MonoBehaviour
     /// those that are not referenced by any room definition. Use this method to free disk space and keep the models
     /// directory synchronized with active room data. This operation cannot be undone; ensure that all room files are up
     /// to date before calling this method.</remarks>
-    public void CleanMemory()
+    public void ClearMemoryFromUnusedModifications()
     {
         string roomsPath = RoomSaveTools.roomsFolderPath;
         string modelsPath = ImportUtils.ModelsPath;

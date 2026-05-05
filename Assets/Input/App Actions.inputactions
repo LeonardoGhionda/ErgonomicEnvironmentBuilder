@@ -1364,7 +1364,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Toggle Screen",
+                    "name": "Spawn Avatar",
                     "type": "Button",
                     "id": "785d63fa-f8df-461b-8374-6199afaec9c7",
                     "expectedControlType": "",
@@ -1392,7 +1392,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Toggle Screen",
+                    "action": "Spawn Avatar",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -205,6 +205,6 @@ public class StateManager : MonoBehaviour
 #endif
 
         // Perform cleanup of all unused obj files (created by a non-uniform scale)
-        Managers.Get<ScaleManager>().CleanMemory();
+        Managers.Get<ScaleManager>().ClearMemoryFromUnusedModifications();
     }
 }

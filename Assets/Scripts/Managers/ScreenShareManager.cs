@@ -11,14 +11,12 @@ public class ScreenShareManager : MonoBehaviour
 
     private ScreenReceiver _screenReceiver;
     private Transform _current;
-    private InputAction _toggleAction;
 
     public Transform ScreenToOpen => _current == null ? floatingScreen : _current;
 
     private void Awake()
     {
         // Initial setup
-        _toggleAction = DependencyProvider.Input.VRMenu.ToggleScreen;
         handRaw = handScreen.GetComponentInChildren<RawImage>();
         if (handRaw == null) Debug.LogError($"handRaw null");
         floatingRaw = floatingScreen.GetComponentInChildren<RawImage>();
@@ -36,7 +34,6 @@ public class ScreenShareManager : MonoBehaviour
         _screenReceiver.enabled = true;
 
         ChangeScreenType(initalScreen);
-        _toggleAction.performed += ToggleScreenWrapper;
     }
 
     public void ChangeScreenType(Transform value)
@@ -58,15 +55,8 @@ public class ScreenShareManager : MonoBehaviour
         else ChangeScreenType(handScreen);
     }
 
-    private void ToggleScreenWrapper(InputAction.CallbackContext _)
-    {
-        ToggleScreen();
-    }
-
     private void OnDisable()
     {
-        if (_toggleAction != null) _toggleAction.performed -= ToggleScreenWrapper;
-
         // Safe check to avoid null refs on cleanup
         if (handScreen != null) handScreen.gameObject.SetActive(false);
         if (floatingScreen != null) floatingScreen.gameObject.SetActive(false);

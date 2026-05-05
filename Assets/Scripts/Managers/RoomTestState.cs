@@ -50,16 +50,12 @@ public class RoomTestState : AbsAppState
         // Disable far casting (during test only real-life interaction are allowed)
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
-
-        // Start mocap sync with HMD
-        _mocapSync = _vrPlayer.GetComponent<XROriginMoCapSync>();
-        _mocapSync.enabled = true;
-
-        // Move player inside the wall 
+        
         Vector3 insideWallPosition = RoomSaveTools.FindInternalPoint();
         insideWallPosition.y = 0;
-        _mocapSync.SetPosition(insideWallPosition);
-        _mocapSync.CalibrateRotation();
+
+        _vrPlayer.transform.position = insideWallPosition;  
+
 
         _handMenuManager.Init();
 
@@ -75,7 +71,8 @@ public class RoomTestState : AbsAppState
         _input.HandMenu.Confirm.performed += HandMenuConfirm;
         _input.HandMenu.Open.performed += MenuButtonClicked;
 
-        _input.VRMenu.ToggleScreen.Enable();
+        _input.VRMenu.SpawnAvatar.Enable();
+        _input.VRMenu.SpawnAvatar.performed += InitializeAvatar;
 
         Managers.Get<ScreenShareManager>().gameObject.SetActive(true);
 
@@ -95,7 +92,8 @@ public class RoomTestState : AbsAppState
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = true;
 
-        _mocapSync.enabled = false;
+        if(_mocapSync != null)
+            _mocapSync.enabled = false;
 
         _view.gameObject.SetActive(false);
 
@@ -106,7 +104,7 @@ public class RoomTestState : AbsAppState
         _input.HandMenu.Confirm.performed -= HandMenuConfirm;
         _input.HandMenu.Open.performed -= MenuButtonClicked;
 
-        _input.VRMenu.ToggleScreen.Disable();
+        _input.VRMenu.SpawnAvatar.Disable();
 
         Managers.Get<ScreenShareManager>().gameObject.SetActive(false);
 
@@ -116,7 +114,7 @@ public class RoomTestState : AbsAppState
         locManager.LockSnapTurn(false);
 
         // Close network
-        _mocapSync.enabled = false;
+        if(_mocapSync != null) _mocapSync.enabled = false;
 
         //Clear Room
         RoomSaveTools.CleanupRoom();
@@ -166,6 +164,23 @@ public class RoomTestState : AbsAppState
 
         // Execute the initialization
         Managers.Get<WalkDistanceManager>().Init();
+    }
+
+
+    void InitializeAvatar(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        _input.VRMenu.SpawnAvatar.performed -= InitializeAvatar;
+        _input.VRMenu.SpawnAvatar.Disable();
+
+        // Start mocap sync with HMD
+        _mocapSync = _vrPlayer.GetComponent<XROriginMoCapSync>();
+        _mocapSync.enabled = true;
+
+        // Move player inside the wall
+        Vector3 mocapPos = _vrPlayer.transform.position;
+        mocapPos.y = 0;
+        _mocapSync.SetPosition(mocapPos);
+        _mocapSync.CalibrateRotation();
     }
 
 }

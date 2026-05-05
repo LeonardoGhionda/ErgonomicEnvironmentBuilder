@@ -1450,7 +1450,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Toggle Screen"",
+                    ""name"": ""Spawn Avatar"",
                     ""type"": ""Button"",
                     ""id"": ""785d63fa-f8df-461b-8374-6199afaec9c7"",
                     ""expectedControlType"": """",
@@ -1478,7 +1478,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Toggle Screen"",
+                    ""action"": ""Spawn Avatar"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1578,7 +1578,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         // VR Menu
         m_VRMenu = asset.FindActionMap("VR Menu", throwIfNotFound: true);
         m_VRMenu_ControllerDistance = m_VRMenu.FindAction("Controller Distance", throwIfNotFound: true);
-        m_VRMenu_ToggleScreen = m_VRMenu.FindAction("Toggle Screen", throwIfNotFound: true);
+        m_VRMenu_SpawnAvatar = m_VRMenu.FindAction("Spawn Avatar", throwIfNotFound: true);
         // History
         m_History = asset.FindActionMap("History", throwIfNotFound: true);
         m_History_Undo = m_History.FindAction("Undo", throwIfNotFound: true);
@@ -2523,7 +2523,7 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_VRMenu;
     private List<IVRMenuActions> m_VRMenuActionsCallbackInterfaces = new List<IVRMenuActions>();
     private readonly InputAction m_VRMenu_ControllerDistance;
-    private readonly InputAction m_VRMenu_ToggleScreen;
+    private readonly InputAction m_VRMenu_SpawnAvatar;
     /// <summary>
     /// Provides access to input actions defined in input action map "VR Menu".
     /// </summary>
@@ -2540,9 +2540,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ControllerDistance => m_Wrapper.m_VRMenu_ControllerDistance;
         /// <summary>
-        /// Provides access to the underlying input action "VRMenu/ToggleScreen".
+        /// Provides access to the underlying input action "VRMenu/SpawnAvatar".
         /// </summary>
-        public InputAction @ToggleScreen => m_Wrapper.m_VRMenu_ToggleScreen;
+        public InputAction @SpawnAvatar => m_Wrapper.m_VRMenu_SpawnAvatar;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2572,9 +2572,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @ControllerDistance.started += instance.OnControllerDistance;
             @ControllerDistance.performed += instance.OnControllerDistance;
             @ControllerDistance.canceled += instance.OnControllerDistance;
-            @ToggleScreen.started += instance.OnToggleScreen;
-            @ToggleScreen.performed += instance.OnToggleScreen;
-            @ToggleScreen.canceled += instance.OnToggleScreen;
+            @SpawnAvatar.started += instance.OnSpawnAvatar;
+            @SpawnAvatar.performed += instance.OnSpawnAvatar;
+            @SpawnAvatar.canceled += instance.OnSpawnAvatar;
         }
 
         /// <summary>
@@ -2589,9 +2589,9 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
             @ControllerDistance.started -= instance.OnControllerDistance;
             @ControllerDistance.performed -= instance.OnControllerDistance;
             @ControllerDistance.canceled -= instance.OnControllerDistance;
-            @ToggleScreen.started -= instance.OnToggleScreen;
-            @ToggleScreen.performed -= instance.OnToggleScreen;
-            @ToggleScreen.canceled -= instance.OnToggleScreen;
+            @SpawnAvatar.started -= instance.OnSpawnAvatar;
+            @SpawnAvatar.performed -= instance.OnSpawnAvatar;
+            @SpawnAvatar.canceled -= instance.OnSpawnAvatar;
         }
 
         /// <summary>
@@ -3049,12 +3049,12 @@ public partial class @AppActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnControllerDistance(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Toggle Screen" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Spawn Avatar" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnToggleScreen(InputAction.CallbackContext context);
+        void OnSpawnAvatar(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "History" which allows adding and removing callbacks.

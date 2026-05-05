@@ -226,7 +226,7 @@ public class VRSelectionManager : MonoBehaviour
     /// <param name="arg0">The event data associated with the select exit action. Provides context for the trigger check.</param>
     private void CheckForFastTrigger(SelectExitEventArgs arg0)
     {
-        if (Time.time - _fastClickTime <= FastClickThreshold)
+        if ( _selected != null && Time.time - _fastClickTime <= FastClickThreshold)
         {
             // Reset position and rotation
             _selected.transform.SetPositionAndRotation(_preGrabPosition, _preGrabRotation);

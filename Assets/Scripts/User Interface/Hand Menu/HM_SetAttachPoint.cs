@@ -48,8 +48,11 @@ public class HM_SetAttachPoint : HM_Base
     private void OnFirstSelection(VRSelectionManager.SelectionChangedArgs args)
     {
         _selectionManager.OnSelectionChanged -= OnFirstSelection;
-        if (args == null || args.selection == null) ResetState();
-
+        if (args == null || args.selection == null)
+        {
+            ResetState();
+            return;
+        }
         target = args.selection.transform;
         _selectionManager.OnSelectionChanged += OnSecondSelection;
     }
