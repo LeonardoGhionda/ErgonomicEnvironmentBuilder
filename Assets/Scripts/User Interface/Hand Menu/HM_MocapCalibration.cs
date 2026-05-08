@@ -25,6 +25,8 @@ public class HM_MocapCalibration : HM_Base
         _handMenu.Show(false);
         _handMenu.Lock = true;
         _locManager.LockTeleport(true);
+        _locManager.LockSnapTurn(true);
+        _locManager.LockContinuousTurn(true);
 
         _input = DependencyProvider.Input.VRCalibration;
 
@@ -40,6 +42,7 @@ public class HM_MocapCalibration : HM_Base
         }
 
         _input.Enable();
+        
     }
 
     // right controller
@@ -61,6 +64,8 @@ public class HM_MocapCalibration : HM_Base
     {
         _handMenu.Lock = false;
         _locManager.LockTeleport(false);
+        _locManager.LockSnapTurn(false);
+        _locManager.LockContinuousTurn(false);
 
         // Unsubscribe from events
         _input.HeadOffset.performed -= ChangeHeadOffset;
