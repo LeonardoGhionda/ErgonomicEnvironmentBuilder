@@ -109,11 +109,12 @@ public class ColliderVisual : MonoBehaviour
 
     void UpdateEdgesTickness()
     {
+
+
         // Safety check
         if (_boxCollider == null) return;
 
         Vector3 pScale = transform.lossyScale;
-
 
         float pX = Mathf.Abs(pScale.x) < 0.001f ? 1f : Mathf.Abs(pScale.x);
         float pY = Mathf.Abs(pScale.y) < 0.001f ? 1f : Mathf.Abs(pScale.y);
@@ -144,5 +145,6 @@ public class ColliderVisual : MonoBehaviour
         _edges[9].transform.localScale = scaleX;
         _edges[10].transform.localScale = scaleX;
         _edges[11].transform.localScale = scaleX;
+
     }
 }

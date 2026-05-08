@@ -79,7 +79,7 @@ public class RoomEditorState : AbsAppState
 
         // Start Camera
         _camController.enabled = true;
-        Vector3 camParams = RoomSaveTools.GetCameraParameters();
+        Vector3 camParams = RoomMemoryTools.GetCameraParameters();
         _camController.InitOrtho(_input, new Vector3(camParams.x, 50f, camParams.y), camParams.z);
 
         // Ui Action always enabled
@@ -91,7 +91,7 @@ public class RoomEditorState : AbsAppState
         _selectionManager.Init(_camController.Camera);
         _measureManager.Init(_camController.Camera);
 
-        _insideWallPosition = RoomSaveTools.FindInternalPoint();
+        _insideWallPosition = RoomMemoryTools.FindInternalPoint();
     }
 
     public override void Exit()
@@ -134,7 +134,7 @@ public class RoomEditorState : AbsAppState
         // Move camera in position and generate a room preview
         // Preview is used in Vr menus
         _camController.SetOrtho(true);
-        RoomSaveTools.GenerateRoomPreview(_rbm.RoomName);
+        RoomMemoryTools.GenerateRoomPreview(_rbm.RoomName);
     }
 
     public override void UpdateState()
@@ -306,13 +306,13 @@ public class RoomEditorState : AbsAppState
         _gizmoManager.RemoveGizmo();
         _selectionManager.ChangeSelectedObject(null);
 
-        RoomSaveTools.Save(_rbm.RoomName);
+        RoomMemoryTools.Save(_rbm.RoomName);
     }
 
     private void QuitRoom()
     {
         SaveRoom();
-        RoomSaveTools.CleanupRoom();
+        RoomMemoryTools.CleanupRoom();
         _manager.ChangeState(_manager.MainMenu);
     }
 

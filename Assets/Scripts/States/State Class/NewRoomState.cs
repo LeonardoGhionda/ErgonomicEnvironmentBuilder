@@ -95,8 +95,8 @@ public class NewRoomState : AbsAppState
         {
             bool overwrite = _lastTriedRoomName == _rbm.RoomName;
 
-            RoomSaveTools.SaveRoom(_rbm.RoomName, _rbm, overwrite);
-            RoomSaveTools.CreateDTRoom(_rbm.RoomName);
+            RoomMemoryTools.SaveRoom(_rbm.RoomName, _rbm, overwrite);
+            RoomMemoryTools.CreateDTRoom(_rbm.RoomName);
 
 
             // Change State to the next step

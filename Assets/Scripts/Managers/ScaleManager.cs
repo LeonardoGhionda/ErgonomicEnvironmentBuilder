@@ -315,7 +315,7 @@ public class ScaleManager : MonoBehaviour
         // Save mesh
         OBJExporter.Export(iParent);
 
-        RoomSaveTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+        RoomMemoryTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public class ScaleManager : MonoBehaviour
     /// to date before calling this method.</remarks>
     public void ClearMemoryFromUnusedModifications()
     {
-        string roomsPath = RoomSaveTools.roomsFolderPath;
+        string roomsPath = RoomMemoryTools.roomsFolderPath;
         string modelsPath = ImportUtils.ModelsPath;
 
         List<string> allModifiedModelsPaths = new List<string>();

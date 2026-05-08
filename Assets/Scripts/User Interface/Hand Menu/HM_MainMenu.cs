@@ -23,7 +23,7 @@ public class HM_MainMenu : HM_Base
         if(Managers.Get<StateManager>().CmpState(typeof(ImmersiveEditor)))
         {
             var rbm = Managers.Get<RoomBuilderManager>();
-            RoomSaveTools.Save(rbm.RoomName);
+            RoomMemoryTools.Save(rbm.RoomName);
         }
 
         var state = Managers.Get<StateManager>();

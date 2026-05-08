@@ -247,9 +247,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &2938381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,15 +297,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 966476f091b9d964c8d0a90131555f67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _snap1: {fileID: 0}
   _tutorialText: {fileID: 506794673}
   _snapSelectedMaterial: {fileID: 2100000, guid: 091333d97e6dc974486ea8b10dfdf686, type: 2}
   textScaleFactor: 10
   minFont: 0.4
   maxFont: 1.5
-  _originalMaterials: []
-  _selectionManager: {fileID: 0}
-  _handMenu: {fileID: 0}
 --- !u!1 &7991410
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,10 +488,6 @@ MonoBehaviour:
   DistanceThreshold: 0.1
   LineTemplate: {fileID: 1703993942}
   MaxLines: 500
-  _totalDistance: 0
-  _pathVisible: 1
-  _linesContainer: {fileID: 0}
-  _initialized: 0
 --- !u!33 &11369836
 MeshFilter:
   m_ObjectHideFlags: 2
@@ -600,13 +589,6 @@ MonoBehaviour:
   Cursor: {fileID: 238812092}
   CursorScaleFactor: 0.01
   MeasureLine: {fileID: 1353146241}
-  _currentStep: 1
-  _startPoint: {x: 0, y: 0, z: 0}
-  _t1: {fileID: 0}
-  _t2: {fileID: 0}
-  _startPosEmpty: {fileID: 0}
-  _init: 0
-  _cam: {fileID: 0}
 --- !u!1 &37166759
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,12 +688,6 @@ MonoBehaviour:
   handlePadding: 0.1
   minScale: 0.001
   maxScale: 100
-  _targetObject: {fileID: 0}
-  _targetCollider: {fileID: 0}
-  _originalScale: {x: 0, y: 0, z: 0}
-  _originalMesh: {fileID: 0}
-  _cachedColSize: {x: 0, y: 0, z: 0}
-  _cachedColCenter: {x: 0, y: 0, z: 0}
 --- !u!1 &52964973
 GameObject:
   m_ObjectHideFlags: 0
@@ -865,13 +841,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3688f9d78a4c7014db6c451a358413f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dot: {fileID: 2800000, guid: e45f8f823c093d941855bb23b53b9414, type: 3}
-  dotSize: 4
   moveSpeed: 5
   orthoMoveSpeed: 10
   sprintMultiplier: 2
   lookSpeed: 0.15
   zoomSpeed: 2
+  dot: {fileID: 2800000, guid: e45f8f823c093d941855bb23b53b9414, type: 3}
+  OrthoLight: {fileID: 0}
+  PlayerLight: {fileID: 0}
 --- !u!54 &52964979
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -988,7 +965,7 @@ MonoBehaviour:
     PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
-      - {fileID: 0}
+      - {fileID: 11400000, guid: 6f70f610f06bdd8429b49bf9a248be4c, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -1087,8 +1064,8 @@ MonoBehaviour:
 
     Menu'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1521,9 +1498,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &82289226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1792,6 +1766,88 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1041706785562742312, guid: 138565dafcf73fd48821ea1f7a8b9a58, type: 3}
   m_PrefabInstance: {fileID: 336287266}
   m_PrefabAsset: {fileID: 0}
+--- !u!21 &95580271
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SingleLine-LightSaber(Clone)
+  m_Shader: {fileID: 4800000, guid: 2d9a4ca4b2730b64e8aade7030f8caeb, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: e3f9b24205d86f14ba91ec88868e4e30, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _Glossiness: 0.5
+    - _LightSaberFactor: 1
+    - _LineScale: 1
+    - _LineWidth: 0.015
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _UvBasedLightSaberFactor: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &101086789
 GameObject:
   m_ObjectHideFlags: 0
@@ -2027,10 +2083,6 @@ MonoBehaviour:
   teleportAction: {fileID: -8061240218431744966, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   snapTurnAction: {fileID: -8525429354371678379, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   continuousTurnAction: {fileID: -6493913391331992944, guid: c348712bda248c246b8c49b3db54643f, type: 3}
-  _moveEnabled: 1
-  _teleportEnabled: 1
-  _snapTurnEnabled: 1
-  _continuousTurnEnabled: 0
 --- !u!1 &124281721
 GameObject:
   m_ObjectHideFlags: 0
@@ -2084,9 +2136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &124281725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2137,20 +2186,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f449ee9bc8f2e745ab7a3843c5df7f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _sm: {fileID: 0}
 --- !u!1 &129372130
 GameObject:
   m_ObjectHideFlags: 0
@@ -2410,8 +2445,8 @@ MonoBehaviour:
 
     Monitor'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2609,24 +2644,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxHistorySize: 250
-  _undoAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 4a11e7f4-cccb-4d5b-b49c-8a09f3ef755b
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  _currentTarget: {fileID: 0}
-  _lastStablePosition: {x: 0, y: 0, z: 0}
-  _lastStableRotation: {x: 0, y: 0, z: 0, w: 0}
-  _lastStableScale: {x: 0, y: 0, z: 0}
-  _previousFramePosition: {x: 0, y: 0, z: 0}
-  _previousFrameRotation: {x: 0, y: 0, z: 0, w: 0}
-  _previousFrameScale: {x: 0, y: 0, z: 0}
-  _isTrackingChange: 0
-  _gizmoManager: {fileID: 0}
 --- !u!1 &170754323
 GameObject:
   m_ObjectHideFlags: 0
@@ -2704,8 +2721,6 @@ MonoBehaviour:
   yHandle: {fileID: 1813839858}
   zHandle: {fileID: 1948936390}
   cHandle: {fileID: 0}
-  _handles: []
-  _selected: {fileID: 0}
 --- !u!1001 &182518853
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3184,8 +3199,6 @@ MonoBehaviour:
   yHandle: {fileID: 143787911}
   zHandle: {fileID: 808049170}
   cHandle: {fileID: 0}
-  _handles: []
-  _selected: {fileID: 0}
 --- !u!1 &206293133
 GameObject:
   m_ObjectHideFlags: 0
@@ -3213,7 +3226,7 @@ Transform:
   m_GameObject: {fileID: 206293133}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.58, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3231,6 +3244,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9edfb03cb983e4945b653112e81affea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  edgeTemplate: {fileID: 1984413918}
+  colliderThickness: 0.004
 --- !u!120 &206293136
 LineRenderer:
   serializedVersion: 2
@@ -3239,7 +3254,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 206293133}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -3764,8 +3779,8 @@ MonoBehaviour:
 
     Gravity'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4263,11 +4278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handScreen: {fileID: 731197677}
-  handRaw: {fileID: 0}
   floatingScreen: {fileID: 1890754392}
-  floatingRaw: {fileID: 0}
-  _screenReceiver: {fileID: 0}
-  _current: {fileID: 0}
 --- !u!114 &271986251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4280,15 +4291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 548b02ba2a6e1e84d93002170500fea1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayUI: {fileID: 0}
-  receivedTexture: {fileID: 0}
-  readyImageData: []
-  hasNewImage: 0
   port: 5001
-  currentImageFrameId: 255
-  expectedChunks: 0
-  receivedChunks: 0
-  totalImageSize: 0
 --- !u!1 &283231669
 GameObject:
   m_ObjectHideFlags: 0
@@ -4478,22 +4481,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 356595821d31ebe4b9cdeae30ba335da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _grabOptions: {fileID: 0}
-  _sm: {fileID: 0}
-  _hand: {fileID: 0}
   Lock: 0
 --- !u!114 &284302929
 MonoBehaviour:
@@ -4507,9 +4494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &284302930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5392,8 +5376,8 @@ MonoBehaviour:
 
     Menu'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5867,8 +5851,8 @@ MonoBehaviour:
 
     Point'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6063,6 +6047,12 @@ MonoBehaviour:
   newRoom: {fileID: 3068999828475464996}
   loadRoom: {fileID: 1458315785}
   options: {fileID: 1942559169}
+  goBackLoadUi: {fileID: 0}
+  loadingCircle: {fileID: 0}
+  sessionInvitation: {fileID: 0}
+  roomNameText: {fileID: 0}
+  canvasGroup: {fileID: 0}
+  joinButton: {fileID: 0}
 --- !u!1 &383205118
 GameObject:
   m_ObjectHideFlags: 0
@@ -6242,9 +6232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &395642016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6295,22 +6282,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 356595821d31ebe4b9cdeae30ba335da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _grabOptions: {fileID: 0}
-  _sm: {fileID: 0}
-  _hand: {fileID: 0}
   Lock: 1
 --- !u!1001 &408652056
 PrefabInstance:
@@ -6657,9 +6628,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &422844434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6710,22 +6678,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d5c723c7d74a4b4483506da3e3f25e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _sm: {fileID: 0}
-  _mm: {fileID: 0}
-  _showBB: 0
 --- !u!1 &425336629
 GameObject:
   m_ObjectHideFlags: 0
@@ -7129,9 +7081,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d200dc8a2666f0b469e4081aea089622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  menuRoomView: {fileID: 740085890}
+  iEditorView: {fileID: 1295157839}
+  roomTestView: {fileID: 1860228215}
+  optionView: {fileID: 1103089578}
   mainMenuUI: {fileID: 379573651}
-  NewRoomUI: {fileID: 0}
-  roomBuilderManager: {fileID: 0}
+  newRoomUI: {fileID: 1437130161}
+  editorHUD: {fileID: 1646270202}
 --- !u!1 &448477341
 GameObject:
   m_ObjectHideFlags: 0
@@ -7312,8 +7268,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Body Points Calib.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7705,8 +7661,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8079,7 +8035,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 0}
   onlyY: 0
 --- !u!114 &506794674
 MonoBehaviour:
@@ -8356,7 +8311,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9dfd1931c2cc5947ac32a867daf6b66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectionManager: {fileID: 0}
 --- !u!114 &514354771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8369,9 +8323,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &514354772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8865,8 +8816,8 @@ MonoBehaviour:
 
     Height'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9001,8 +8952,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Lock \nIn \nPlace"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9104,8 +9055,6 @@ MonoBehaviour:
   yHandle: {fileID: 92268233}
   zHandle: {fileID: 1259013070}
   cHandle: {fileID: 308963614}
-  _handles: []
-  _selected: {fileID: 0}
 --- !u!1 &562724968
 GameObject:
   m_ObjectHideFlags: 0
@@ -9165,8 +9114,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Mesure Group
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9445,9 +9394,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &586282974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9498,27 +9444,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af1c2142193f52b42a7b150ee1162eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
   _pm: {fileID: 1098117541}
   pivotCard: {fileID: 1289831512}
   _pivot: {fileID: 1098117541}
-  _target: {fileID: 0}
-  _sm: {fileID: 0}
-  _handMenu: {fileID: 0}
-  _tp: 0
-  _tr: 0
-  _ts: 0
 --- !u!1 &597079200
 GameObject:
   m_ObjectHideFlags: 0
@@ -9811,17 +9739,9 @@ MonoBehaviour:
   - {fileID: 669365644}
   - {fileID: 1669285725}
   - {fileID: 514354770}
-  _resetGroup: []
-  _isMenuOpen: 0
-  _imageComp: {fileID: 0}
   CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
-  _baseSprite: {fileID: 0}
-  _textComp: {fileID: 0}
   CloseText: Close
-  _baseText: 
-  _handMenu: {fileID: 0}
   AdditiveGroup: 0
-  _additiveGroup: []
 --- !u!114 &638094201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9834,9 +9754,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &638094202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9906,11 +9823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dba8761cad91f140bb54c3ea758558c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hostSessionName: 
-  _expectedFiles: 0
-  _completedFiles: 0
-  _pendingJson: 
-  _hasRequestedFiles: 0
 --- !u!4 &639293732
 Transform:
   m_ObjectHideFlags: 0
@@ -9939,11 +9851,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   listenPort: 6987
-  _sessionName: 
-  _hostIp: 
-  _hostPort: 0
-  _inviteReceived: 0
-  _inviteAccepted: 0
 --- !u!114 &639293734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9958,10 +9865,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   broadcastPort: 6987
   _broadcastFrequence: 3
-  _isBroadcasting: 0
-  _timer: 0
-  _broadcastMessage: 
-  _roomName: 
 --- !u!1 &644063182
 GameObject:
   m_ObjectHideFlags: 0
@@ -10124,6 +10027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomBuilderManager: {fileID: 0}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 963155282}
@@ -10685,9 +10589,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &669365642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10738,19 +10639,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b02daac813ca24096a3b7ddd10ae15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _targetComponent: {fileID: 0}
 --- !u!1 &679673007
 GameObject:
   m_ObjectHideFlags: 0
@@ -11023,8 +10911,8 @@ MonoBehaviour:
 
     GZ'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11449,16 +11337,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7dbceef99574d7429b6ccee186d14d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fase: 0
-  _bpm: {fileID: 0}
-  _text: 
-  _fontSize: 0
-  _tmp: {fileID: 0}
   _lookPointPrefab: {fileID: 3920957751396609497, guid: e6eb2defad9600141b772c27ce2d7c2e, type: 3}
   _playerCamera: {fileID: 1489869848}
   _lookPointDistance: 10
-  _spawnedLookPoint: {fileID: 0}
-  _handMenu: {fileID: 0}
 --- !u!114 &731812089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11471,9 +11352,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &731812090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11610,7 +11488,6 @@ MonoBehaviour:
   testRoomCardContainer: {fileID: 1298969075}
   LockPosition:
   - {fileID: 0}
-  _roomsPath: 
 --- !u!1 &754722561
 GameObject:
   m_ObjectHideFlags: 0
@@ -12181,9 +12058,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &786449127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12963,9 +12837,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &849866275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13017,17 +12888,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Group: []
-  _resetGroup: []
-  _isMenuOpen: 0
-  _imageComp: {fileID: 0}
   CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
-  _baseSprite: {fileID: 0}
-  _textComp: {fileID: 0}
   CloseText: Close
-  _baseText: 
-  _handMenu: {fileID: 0}
   AdditiveGroup: 0
-  _additiveGroup: []
   HMEntryTemplate: {fileID: 2033048771}
 --- !u!1 &855331267
 GameObject:
@@ -13251,20 +13114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: {fileID: 1951817120}
   distance: {fileID: 1002639657}
-  openAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e0da07f0-d134-4ecd-a269-5fef2ab2846f
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
   fontSizeWarning: 0.028
-  _bellyButtonPoint: {fileID: 0}
-  _bodyPointsManager: {fileID: 0}
-  _canvas: {fileID: 0}
-  _open: 0
 --- !u!114 &864057002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13772,7 +13622,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 579f33b2c11a0354fa2563f1e3506439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _image: {fileID: 0}
 --- !u!1 &926144145
 GameObject:
   m_ObjectHideFlags: 0
@@ -13907,17 +13756,9 @@ MonoBehaviour:
   - {fileID: 1935895517}
   - {fileID: 731812088}
   - {fileID: 1189179635}
-  _resetGroup: []
-  _isMenuOpen: 0
-  _imageComp: {fileID: 0}
   CloseSprite: {fileID: -1032248116, guid: 7591abf5b164ff1448cc757e9c336d3e, type: 3}
-  _baseSprite: {fileID: 0}
-  _textComp: {fileID: 0}
   CloseText: Close
-  _baseText: 
-  _handMenu: {fileID: 0}
   AdditiveGroup: 0
-  _additiveGroup: []
 --- !u!114 &926949118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13930,9 +13771,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &926949119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14018,15 +13856,6 @@ MonoBehaviour:
   entryContainer: {fileID: 1974736972}
   radius: 120
   handMenuPrefab: {fileID: 2724941017883945093, guid: 11d6b5aa8f706f247a7989e68a9858fe, type: 3}
-  _maxEntriesShown: 8
-  _selected: 0
-  _lMax: 0
-  _rMax: 0
-  _handMenu: {fileID: 0}
-  hand: {fileID: 0}
-  _entries: []
-  <Lock>k__BackingField: 0
-  _open: 0
 --- !u!114 &931211393 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2276769867498983680, guid: 7756042a1ae364d488b1cc998e5f15c1, type: 3}
@@ -14274,6 +14103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomBuilderManager: {fileID: 0}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 1572934512}
@@ -14531,7 +14361,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 0}
   onlyY: 0
 --- !u!114 &998451151
 MonoBehaviour:
@@ -14684,6 +14513,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7970f3b578aa184478ff56fbb86cd50f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  x: {fileID: 0}
+  y: {fileID: 0}
 --- !u!1 &1002639655
 GameObject:
   m_ObjectHideFlags: 0
@@ -15677,8 +15508,8 @@ MonoBehaviour:
 
     Target'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16000,8 +15831,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16377,13 +16208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22c4486e86289c240a1e6718c6ba2b44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <PivotAtCenter>k__BackingField: 0
-  _target: {fileID: 0}
-  _originalParent: {fileID: 0}
-  _isGrabbing: 0
-  _wasKinematic: 0
-  _targetRb: {fileID: 0}
-  _currentWrapper: {fileID: 0}
 --- !u!1 &1103089576
 GameObject:
   m_ObjectHideFlags: 0
@@ -16437,7 +16261,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CamSensibilitySlider: {fileID: 859947891}
-  _camController: {fileID: 0}
 --- !u!114 &1103089579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17080,9 +16903,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1189179633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17133,20 +16953,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b3d4bcf14f9559419f3565d9e239b27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
   bodyPrefab: {fileID: 805099432751414646, guid: e138a61291490164abee67f318b32172, type: 3}
-  body: {fileID: 0}
 --- !u!1001 &1206767084
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17817,18 +17624,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d01a122a0760db44ae9a5a500acc361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
   pivot: {fileID: 1098117541}
 --- !u!114 &1289831513
 MonoBehaviour:
@@ -17842,9 +17637,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1289831514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18105,7 +17897,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8242336758b77e9468b92cdff8a5f4da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _handMenu: {fileID: 0}
   moveProvider: {fileID: 153982006850236078}
   baseEntries:
   - {fileID: 82289228}
@@ -18885,18 +18676,6 @@ MonoBehaviour:
   lineScaleFactor: 0.5
   minLineThickness: 0.05
   maxLineThickness: 1
-  _t1: {fileID: 0}
-  _t2: {fileID: 0}
-  _p1: {x: 0, y: 0, z: 0}
-  _p2: {x: 0, y: 0, z: 0}
-  _offset1: {x: 0, y: 0, z: 0}
-  _offset2: {x: 0, y: 0, z: 0}
-  _cam: {fileID: 0}
-  _deleteMode: 0
-  _interactable: {fileID: 0}
-  _iCollider: {fileID: 0}
-  _iSimpleInt: {fileID: 0}
-  _isHeight: 0
 --- !u!1 &1370093703
 GameObject:
   m_ObjectHideFlags: 0
@@ -19258,13 +19037,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6987dd8114bcbe049888ebb3c5e79f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selected: {fileID: 0}
-  _contactPoint: {x: 0, y: 0, z: 0}
-  _selectedMaterial: {fileID: 0}
-  _baseMaterials: []
-  _fastClickTime: 0
-  _preGrabPosition: {x: 0, y: 0, z: 0}
-  _preGrabRotation: {x: 0, y: 0, z: 0, w: 0}
   VRCam: {fileID: 1489869848}
   SelectedObjectMaterial: {fileID: 2100000, guid: afd5b94812475ec4a9990128e955367e, type: 2}
   ColliderVisual: {fileID: 206293135}
@@ -19724,20 +19496,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: {fileID: 1979480038}
   distance: {fileID: 2138920839}
-  openAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 06ca956e-0436-4a50-9f64-40659c77c6b8
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
   fontSizeWarning: 0.028
-  _bellyButtonPoint: {fileID: 0}
-  _bodyPointsManager: {fileID: 0}
-  _canvas: {fileID: 0}
-  _open: 0
 --- !u!114 &1405645215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20356,7 +20115,10 @@ MonoBehaviour:
   roomLayoutRect: {fileID: 1696917031}
   confirmButton: {fileID: 663819177}
   roomNameError: {fileID: 1181682344}
-  goBackLoadUi: {fileID: 0}
+  loadingCircle: {fileID: 0}
+  _background: {fileID: 0}
+  deleteDot: {fileID: 0}
+  zoomAction: {fileID: 0}
 --- !u!4 &1437777980
 Transform:
   m_ObjectHideFlags: 0
@@ -20654,8 +20416,6 @@ MonoBehaviour:
   headTransform: {fileID: 1489869853}
   bellyButtonHeightRatio: 0.6
   neckPivotLength: 0.15
-  _isCalibrated: 0
-  _bellyButtonEmpty: {fileID: 0}
 --- !u!1 &1450929581
 GameObject:
   m_ObjectHideFlags: 0
@@ -20907,9 +20667,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1466944125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20981,8 +20738,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cd44408c7e439c4aa0ce07b9b0b0915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selection: {fileID: 0}
-  _hand: {fileID: 0}
 --- !u!1 &1467072157
 GameObject:
   m_ObjectHideFlags: 0
@@ -21117,8 +20872,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Mocap Calib.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -21253,8 +21008,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Center \nPivot"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -21389,8 +21144,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Rotate
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -21527,8 +21282,8 @@ MonoBehaviour:
 
     Mesure'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -22116,9 +21871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 361b04efe9285024abde0efe7f501a95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selected: {fileID: 0}
   _colliderVisual: {fileID: 206293135}
-  _cam: {fileID: 0}
 --- !u!1 &1548416718
 GameObject:
   m_ObjectHideFlags: 0
@@ -22253,6 +22006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82f6ce0ca611b5649a53cd33ffb61127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomBuilderManager: {fileID: 0}
 --- !u!1 &1550940160
 GameObject:
   m_ObjectHideFlags: 0
@@ -22411,6 +22165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomBuilderManager: {fileID: 0}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 963155282}
@@ -22569,9 +22324,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1573666345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22622,20 +22374,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 629ad295c15bbfb4a8e5ee5c7ea92348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _sm: {fileID: 0}
 --- !u!1 &1578991401
 GameObject:
   m_ObjectHideFlags: 0
@@ -23198,8 +22936,8 @@ MonoBehaviour:
 
     Point'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -23785,8 +23523,6 @@ MonoBehaviour:
   globalRotateY: {fileID: 819295449}
   globalRotateZ: {fileID: 1925157438}
   modelButtonContainer: {fileID: 1937404694}
-  _isUpdatingUI: 0
-  _pause: 0
 --- !u!1 &1656323073
 GameObject:
   m_ObjectHideFlags: 0
@@ -24125,8 +23861,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -24255,9 +23991,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1669285723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24308,14 +24041,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fbe62f145e2be04baefdf233519a761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attachPointObject: {fileID: 0}
-  target: {fileID: 0}
   _tutorialText: {fileID: 998451150}
   textScaleFactor: 13.72
   minFont: 0.4
   maxFont: 1.5
-  _selectionManager: {fileID: 0}
-  _handMenu: {fileID: 0}
 --- !u!1 &1671513438
 GameObject:
   m_ObjectHideFlags: 0
@@ -24513,8 +24242,8 @@ MonoBehaviour:
 
     Library'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -24643,9 +24372,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1677688130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24698,18 +24424,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Group:
   - {fileID: 2101414192}
-  _resetGroup: []
-  _isMenuOpen: 0
-  _imageComp: {fileID: 0}
   CloseSprite: {fileID: -83601516, guid: 3a3056fd385f9d44ca97f74bcd83b4dd, type: 3}
-  _baseSprite: {fileID: 0}
-  _textComp: {fileID: 0}
   CloseText: Close\nMonitor
-  _baseText: 
-  _handMenu: {fileID: 0}
   AdditiveGroup: 1
-  _additiveGroup: []
-  _screenM: {fileID: 0}
 --- !u!1 &1678932827
 GameObject:
   m_ObjectHideFlags: 0
@@ -25085,8 +24802,8 @@ MonoBehaviour:
 
     Monitor'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -25443,8 +25160,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -26039,9 +25756,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1747218598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26092,20 +25806,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1af4b51ad49b00d45bd314fa5e77f5d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _unselectedColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  _state: 0
-  _image: {fileID: 0}
-  _target: {fileID: 0}
-  _sm: {fileID: 0}
 --- !u!1 &1751485150
 GameObject:
   m_ObjectHideFlags: 0
@@ -26446,8 +26146,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Lock \nParent"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -26626,20 +26326,6 @@ MonoBehaviour:
   Translate: {fileID: 170775237}
   Rotate: {fileID: 191399214}
   Scale: {fileID: 560704083}
-  _tMode: 0
-  _localTransform: 0
-  _pivotModeOrigin: 1
-  _mouseWrapMarginX: 0
-  _mouseWrapMarginY: 0
-  _firstDrag: 1
-  _lastMousePos: {x: 0, y: 0}
-  _currentGizmo: {fileID: 0}
-  _objMoved: 0
-  _objNonUniformScale: 0
-  _lastPos: {x: 0, y: 0, z: 0}
-  _lastRot: {x: 0, y: 0, z: 0}
-  _lastSca: {x: 0, y: 0, z: 0}
-  _cam: {fileID: 0}
 --- !u!1 &1820000588
 GameObject:
   m_ObjectHideFlags: 0
@@ -26921,7 +26607,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 579f33b2c11a0354fa2563f1e3506439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _image: {fileID: 0}
 --- !u!1 &1825672980
 GameObject:
   m_ObjectHideFlags: 0
@@ -27121,8 +26806,8 @@ MonoBehaviour:
 
     Point'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -27251,9 +26936,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 458ed44042e1e324388747647bc20ea5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sm: {fileID: 0}
-  _handMenu: {fileID: 0}
-  _scaleManager: {fileID: 0}
 --- !u!114 &1830517291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27266,9 +26948,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1830517292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27729,7 +27408,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d4eb922f194cc44db114988bd8f2576, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _handMenu: {fileID: 0}
   baseEntries:
   - {fileID: 82289228}
   - {fileID: 1879755675}
@@ -27971,8 +27649,8 @@ MonoBehaviour:
 
     H Pos'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -28288,9 +27966,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db7e8baa223cf61449d214864c82bee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _handMenu: {fileID: 0}
-  _mocapSync: {fileID: 0}
-  _locManager: {fileID: 0}
   Tutorial: []
 --- !u!114 &1879755676
 MonoBehaviour:
@@ -28304,9 +27979,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1879755677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28515,7 +28187,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 0}
   onlyY: 1
 --- !u!1 &1925157436
 GameObject:
@@ -28749,8 +28420,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textComp: {fileID: 90986859}
   toggleLogAction: {fileID: -8131889337412747615, guid: 55127edae9832bc45b3a50feb5998d0d, type: 3}
-  _show: 0
-  _canvas: {fileID: 0}
 --- !u!114 &1927059328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28893,8 +28562,8 @@ MonoBehaviour:
 
     Size'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -29185,9 +28854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &1935895519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30471,7 +30137,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974736972}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 1489869848}
@@ -31391,9 +31057,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &2022826387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31574,9 +31237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &2033048769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31628,8 +31288,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modelFullPath: 
-  _selectionManager: {fileID: 0}
-  _handMenu: {fileID: 0}
 --- !u!1 &2035232418
 GameObject:
   m_ObjectHideFlags: 0
@@ -31785,6 +31443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomBuilderManager: {fileID: 0}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 1572934512}
@@ -32306,9 +31965,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2b7e6647655ba49bdae13f121a4c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 0
-  _rectTransform: {fileID: 0}
-  _angle: 0
 --- !u!114 &2101414190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32359,7 +32015,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e73a69b2248c334eb89c5fe85625c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _screenM: {fileID: 0}
 --- !u!1 &2107942711
 GameObject:
   m_ObjectHideFlags: 0
@@ -33421,8 +33076,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Detach
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
+  m_sharedMaterial: {fileID: -7055950221037943860, guid: 29358376f3a488341b92bccf9d39482f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -37892,7 +37547,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b8d252d2e6030747a75bc986e319536, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _textComponent: {fileID: 0}
 --- !u!114 &5201162274123730919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39073,14 +38727,6 @@ MonoBehaviour:
   vrCamera: {fileID: 1489869853}
   EyeOffset: {x: 0, y: 0.06, z: 0.1}
   RotationOffset: 0
-  _oldRotationOffset: 0
-  _mocap: {fileID: 0}
-  _mocapRoot: {fileID: 0}
-  _mocapHead: {fileID: 0}
-  expectedPosition: {x: 0, y: 0, z: 0}
-  expectedRotation: {x: 0, y: 0, z: 0, w: 0}
-  expectedLocalHeadsetPosition: {x: 0, y: 0, z: 0}
-  _initialization: 0
 --- !u!4 &6528530117724131401
 Transform:
   m_ObjectHideFlags: 0
@@ -40063,6 +39709,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7970f3b578aa184478ff56fbb86cd50f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  x: {fileID: 0}
+  y: {fileID: 0}
 --- !u!114 &7399425242919978247
 MonoBehaviour:
   m_ObjectHideFlags: 0

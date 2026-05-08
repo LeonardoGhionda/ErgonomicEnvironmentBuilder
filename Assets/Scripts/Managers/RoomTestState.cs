@@ -44,14 +44,14 @@ public class RoomTestState : AbsAppState
         _inviteBroadcaster.StartBroadcasting(_rbm.RoomName);
 
         //  Create Room
-        RoomSaveTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
+        RoomMemoryTools.CreateTestRoom(_rbm.RoomName, _networkPrefabMimic.gameObject);
         Physics.SyncTransforms();
 
         // Disable far casting (during test only real-life interaction are allowed)
         NearFarInteractor[] interactors = GameObject.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
         foreach (NearFarInteractor item in interactors) item.enableFarCasting = false;
         
-        Vector3 insideWallPosition = RoomSaveTools.FindInternalPoint();
+        Vector3 insideWallPosition = RoomMemoryTools.FindInternalPoint();
         insideWallPosition.y = 0;
 
         _vrPlayer.transform.position = insideWallPosition;  
@@ -83,8 +83,6 @@ public class RoomTestState : AbsAppState
         // Lock motion
         var locManager = Managers.Get<LocomotionManager>();
         locManager.LockMove(true);
-        locManager.LockSnapTurn(true);
-
     }
 
     public override void Exit()
@@ -111,13 +109,12 @@ public class RoomTestState : AbsAppState
         // Unlock motion
         var locManager = Managers.Get<LocomotionManager>();
         locManager.LockMove(false);
-        locManager.LockSnapTurn(false);
 
         // Close network
         if(_mocapSync != null) _mocapSync.enabled = false;
 
         //Clear Room
-        RoomSaveTools.CleanupRoom();
+        RoomMemoryTools.CleanupRoom();
 
         _handMenuManager.TurnOff();
 

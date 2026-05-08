@@ -133,7 +133,7 @@ public static class ValidationErrors
 /// <summary>
 /// Handle saving and creations of rooms
 /// </summary>
-static public class RoomSaveTools
+static public class RoomMemoryTools
 {
 
     public static string floorName = "Floor";
@@ -144,7 +144,7 @@ static public class RoomSaveTools
     public static readonly string roomsFolderPath;
 
     //Runs automatically the first time the class is accessed
-    static RoomSaveTools()
+    static RoomMemoryTools()
     {
         roomsFolderPath = Path.Combine(Application.persistentDataPath, "Rooms Saved");
         if (!Directory.Exists(roomsFolderPath))
@@ -723,7 +723,10 @@ static public class RoomSaveTools
 
     public static void SetUpVrObject(Transform obj, VRSelectionManager sm, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
     {
-        if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
+        // Get or Add BoxCollider 
+        BoxCollider bc;
+        if (!obj.TryGetComponent(out bc))
+            bc = obj.AddComponent<BoxCollider>();
 
         Rigidbody rb = obj.AddComponent<Rigidbody>();
         rb.useGravity = gravityEnabled;
@@ -761,6 +764,12 @@ static public class RoomSaveTools
 
             attachPointGO.AddComponent<AttachPoint>().Setup(ap);
         }
+
+        // if origin is outside the collider bounds for any reason,
+        // add an empty gameobject as child and set it as attach point,
+        // so the object will be grabbed from the center of the collider and not from the origin,
+        // avoiding weird behaviour when grabbing objects with an origin outside of their collider
+        if (!IsOriginInsideBB(bc)) SetOriginToBBCenter(bc, xrg);
     }
 
     public static void SetUpTestObject(Transform obj, bool gravityEnabled, bool interactable, AttachPointData[] attachPoints)
@@ -776,9 +785,11 @@ static public class RoomSaveTools
         }
 
         if (!interactable) return;
-        
 
-        if (obj.GetComponent<BoxCollider>() == null) _ = obj.AddComponent<BoxCollider>();
+        // Get or Add BoxCollider 
+        BoxCollider bc;
+        if (!obj.TryGetComponent(out bc)) 
+            bc = obj.AddComponent<BoxCollider>();
 
         Rigidbody rb = obj.AddComponent<Rigidbody>();
         rb.useGravity = gravityEnabled;
@@ -794,7 +805,12 @@ static public class RoomSaveTools
         xrg.retainTransformParent = true;
         xrg.selectMode = InteractableSelectMode.Multiple;
 
-
+        // if origin is outside the collider bounds for any reason,
+        // add an empty gameobject as child and set it as attach point,
+        // so the object will be grabbed from the center of the collider and not from the origin,
+        // avoiding weird behaviour when grabbing objects with an origin outside of their collider
+        if (!IsOriginInsideBB(bc)) SetOriginToBBCenter(bc, xrg);
+        
     }
 
     /// <summary>
@@ -1037,5 +1053,20 @@ static public class RoomSaveTools
         // Return: X = CenterX, Y = CenterZ, Z = OrthoSize
         return new Vector3(totalBounds.center.x, totalBounds.center.z, orthoSize);
     }
+
+    private static bool IsOriginInsideBB(BoxCollider bc) => bc.bounds.Contains(bc.transform.position);
+    
+    private static void SetOriginToBBCenter(BoxCollider bc, XRGrabInteractable grab)
+    {
+        GameObject attachObj = new GameObject("Attach transform");
+
+        // Passing false ensures the new object aligns with the parent's local space
+        attachObj.transform.SetParent(bc.transform, false);
+
+        attachObj.transform.localPosition = bc.center;
+
+        grab.attachTransform = attachObj.transform;
+    }
+
 }
 

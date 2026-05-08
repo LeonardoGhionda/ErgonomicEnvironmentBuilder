@@ -153,7 +153,7 @@ public class VRSelectionManager : MonoBehaviour
             }
         }
 
-        RoomSaveTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
+        RoomMemoryTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
         ClearSelection();
     }
 

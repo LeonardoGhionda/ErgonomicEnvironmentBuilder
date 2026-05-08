@@ -67,8 +67,8 @@ public class ModelExchangeManager : MonoBehaviour
 
     private void HandleDataRequest(ulong senderClientId, FastBufferReader messagePayload)
     {
-        string jsonPath = RoomSaveTools.RoomFullPath(_hostSessionName);
-        string roomJson = RoomSaveTools.LoadJson(jsonPath);
+        string jsonPath = RoomMemoryTools.RoomFullPath(_hostSessionName);
+        string roomJson = RoomMemoryTools.LoadJson(jsonPath);
         List<string> filePaths = new();
 
         // Pattern to find inside the room.json every objFilePath entry
