@@ -847,8 +847,8 @@ MonoBehaviour:
   lookSpeed: 0.15
   zoomSpeed: 2
   dot: {fileID: 2800000, guid: e45f8f823c093d941855bb23b53b9414, type: 3}
-  OrthoLight: {fileID: 0}
-  PlayerLight: {fileID: 0}
+  OrthoLight: {fileID: 465556791}
+  PlayerLight: {fileID: 995357894}
 --- !u!54 &52964979
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1766,88 +1766,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1041706785562742312, guid: 138565dafcf73fd48821ea1f7a8b9a58, type: 3}
   m_PrefabInstance: {fileID: 336287266}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &95580271
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: SingleLine-LightSaber(Clone)
-  m_Shader: {fileID: 4800000, guid: 2d9a4ca4b2730b64e8aade7030f8caeb, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 5
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailAlbedoMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailMask:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: e3f9b24205d86f14ba91ec88868e4e30, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _ParallaxMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _BumpScale: 1
-    - _Cutoff: 0.5
-    - _DetailNormalMapScale: 1
-    - _DstBlend: 0
-    - _Glossiness: 0.5
-    - _LightSaberFactor: 1
-    - _LineScale: 1
-    - _LineWidth: 0.015
-    - _Metallic: 0
-    - _Mode: 0
-    - _OcclusionStrength: 1
-    - _Parallax: 0.02
-    - _SrcBlend: 1
-    - _UVSec: 0
-    - _UvBasedLightSaberFactor: 0
-    - _ZWrite: 1
-    m_Colors:
-    - _Color: {r: 1, g: 0, b: 0, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &101086789
 GameObject:
   m_ObjectHideFlags: 0
@@ -6047,12 +5965,12 @@ MonoBehaviour:
   newRoom: {fileID: 3068999828475464996}
   loadRoom: {fileID: 1458315785}
   options: {fileID: 1942559169}
-  goBackLoadUi: {fileID: 0}
-  loadingCircle: {fileID: 0}
-  sessionInvitation: {fileID: 0}
-  roomNameText: {fileID: 0}
-  canvasGroup: {fileID: 0}
-  joinButton: {fileID: 0}
+  goBackLoadUi: {fileID: 920168938}
+  loadingCircle: {fileID: 920168937}
+  sessionInvitation: {fileID: 829972375}
+  roomNameText: {fileID: 1040547950}
+  canvasGroup: {fileID: 829972378}
+  joinButton: {fileID: 408652058}
 --- !u!1 &383205118
 GameObject:
   m_ObjectHideFlags: 0
@@ -6425,6 +6343,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1187751702929801240, guid: 022d5041035aa7d4fb1d83c431852229, type: 3}
   m_PrefabInstance: {fileID: 408652056}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &408652058 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6280072192413946266, guid: 022d5041035aa7d4fb1d83c431852229, type: 3}
+  m_PrefabInstance: {fileID: 408652056}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &410085694
 GameObject:
   m_ObjectHideFlags: 0
@@ -10027,7 +9956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomBuilderManager: {fileID: 0}
+  roomBuilderManager: {fileID: 1752906936}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 963155282}
@@ -13622,6 +13551,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 579f33b2c11a0354fa2563f1e3506439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &920168938 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3691581116551065872, guid: 99222f187236eb345b0a99608a61ebb9, type: 3}
+  m_PrefabInstance: {fileID: 918360447}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920168933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &926144145
 GameObject:
   m_ObjectHideFlags: 0
@@ -14103,7 +14043,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomBuilderManager: {fileID: 0}
+  roomBuilderManager: {fileID: 1752906936}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 1572934512}
@@ -20115,10 +20055,10 @@ MonoBehaviour:
   roomLayoutRect: {fileID: 1696917031}
   confirmButton: {fileID: 663819177}
   roomNameError: {fileID: 1181682344}
-  loadingCircle: {fileID: 0}
-  _background: {fileID: 0}
-  deleteDot: {fileID: 0}
-  zoomAction: {fileID: 0}
+  loadingCircle: {fileID: 1824116206}
+  _background: {fileID: 1696917035}
+  deleteDot: {fileID: 2002569314}
+  zoomAction: {fileID: 1196603296470496648, guid: 55127edae9832bc45b3a50feb5998d0d, type: 3}
 --- !u!4 &1437777980
 Transform:
   m_ObjectHideFlags: 0
@@ -22006,7 +21946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82f6ce0ca611b5649a53cd33ffb61127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomBuilderManager: {fileID: 0}
+  roomBuilderManager: {fileID: 1752906936}
 --- !u!1 &1550940160
 GameObject:
   m_ObjectHideFlags: 0
@@ -22165,7 +22105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomBuilderManager: {fileID: 0}
+  roomBuilderManager: {fileID: 1752906936}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 963155282}
@@ -27966,7 +27906,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db7e8baa223cf61449d214864c82bee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Tutorial: []
+  Tutorial:
+  - {fileID: 2035232422}
+  - {fileID: 1421264957}
 --- !u!114 &1879755676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29455,6 +29397,88 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5138337566795318864, guid: 8771393cb71c6c94dae3ec416106c34c, type: 3}
   m_PrefabInstance: {fileID: 707763143230712715}
   m_PrefabAsset: {fileID: 0}
+--- !u!21 &1950275068
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SingleLine-LightSaber(Clone)
+  m_Shader: {fileID: 4800000, guid: 2d9a4ca4b2730b64e8aade7030f8caeb, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: e3f9b24205d86f14ba91ec88868e4e30, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _Glossiness: 0.5
+    - _LightSaberFactor: 1
+    - _LineScale: 1
+    - _LineWidth: 0.015
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _UvBasedLightSaberFactor: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1950799490
 GameObject:
   m_ObjectHideFlags: 0
@@ -30137,7 +30161,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974736972}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 1489869848}
@@ -31443,7 +31467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13eb97b39ff6e8649bf530e01dd766c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomBuilderManager: {fileID: 0}
+  roomBuilderManager: {fileID: 1752906936}
   canvas: {fileID: 1437130158}
   bgRect: {fileID: 1696917031}
   c1: {fileID: 1572934512}

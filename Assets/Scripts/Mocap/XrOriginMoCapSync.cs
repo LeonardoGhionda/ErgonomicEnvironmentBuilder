@@ -1,3 +1,5 @@
+/*
+
 using Unity.Netcode;
 using UnityEngine;
 
@@ -165,6 +167,136 @@ public class XROriginMoCapSync : MonoBehaviour
         {
             NetworkManager.Singleton.OnClientDisconnectCallback -= HandleNetworkDisconnect;
             NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+        }
+    }
+}
+
+*/
+
+using Unity.Netcode;
+using UnityEngine;
+
+public class XROriginMoCapSync : MonoBehaviour
+{
+    [SerializeField] private Transform mocapPrefab;
+    [SerializeField] private Transform vrCamera;
+
+    public Vector3 EyeOffset = new(0f, 0.15f, 0.1f);
+    public float RotationOffset = 0f;
+
+    private float _oldRotationOffset;
+
+    private Transform _mocap;
+    private Transform _mocapRoot;
+    private Transform _mocapHead;
+
+    private bool _initialization = false;
+
+    private void OnEnable()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback += HandleNetworkDisconnect;
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            InitializeHost();
+        }
+        else
+        {
+            NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        }
+    }
+
+    private void OnDisable()
+    {
+        var netObj = _mocap.GetComponent<NetworkObject>();
+
+        if (netObj.IsSpawned) netObj.Despawn(true);
+        else Destroy(_mocap.gameObject);
+
+        _initialization = false;
+        NetworkManager.Singleton.Shutdown();
+    }
+
+    private void OnServerStarted()
+    {
+        InitializeHost();
+    }
+
+    private void InitializeHost()
+    {
+        NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+        _mocap = Instantiate(mocapPrefab);
+        NetworkObject netObj = _mocap.GetComponent<NetworkObject>();
+        netObj.Spawn();
+
+        _mocapHead = _mocap.Find("MvnPuppet/Avatar/Hips/Chest/Chest2/Chest3/Chest4/Neck 1/Head 1");
+        _mocapRoot = _mocap.GetChild(0);
+
+        _oldRotationOffset = RotationOffset;
+
+        _initialization = true;
+
+        AlignAvatarToRoom();
+    }
+
+    public void SetPosition(Vector3 pos)
+    {
+        _mocap.position = pos;
+        AlignAvatarToRoom();
+    }
+
+    // Calibrates rotation to align the avatar tracking space with the headset yaw
+    public void CalibrateRotation()
+    {
+        Vector3 flatHeadForward = Vector3.ProjectOnPlane(_mocapHead.right, Vector3.up).normalized;
+        float headYaw = Mathf.Atan2(flatHeadForward.x, flatHeadForward.z) * Mathf.Rad2Deg;
+        RotationOffset = vrCamera.rotation.eulerAngles.y - headYaw;
+    }
+
+    public void AlignAvatarToRoom()
+    {
+        _mocap.rotation = Quaternion.Euler(0f, RotationOffset, 0f);
+    }
+
+    private void LateUpdate()
+    {
+        if (_initialization == false) return;
+
+        if (!NetworkManager.Singleton.IsServer) return;
+
+        if (_oldRotationOffset != RotationOffset)
+        {
+            AlignAvatarToRoom();
+            _oldRotationOffset = RotationOffset;
+        }
+
+        // Calculate head orientation axes
+        Vector3 customRight = _mocapHead.forward;
+        Vector3 customUp = -_mocapHead.right;
+        Vector3 customForward = -_mocapHead.up;
+
+        Vector3 trueOffset = (customRight * EyeOffset.x) + (customUp * EyeOffset.y) + (customForward * EyeOffset.z);
+        Vector3 currentMocapEyePosition = _mocapHead.position + trueOffset;
+
+        // Shift the entire avatar root so the mocap eyes land exactly on the VR camera position
+        Vector3 positionDelta = vrCamera.position - currentMocapEyePosition;
+        _mocap.position += positionDelta;
+    }
+
+    private void HandleNetworkDisconnect(ulong clientId)
+    {
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            enabled = false;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+                NetworkManager.Singleton.OnClientDisconnectCallback -= HandleNetworkDisconnect;
+                NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
         }
     }
 }

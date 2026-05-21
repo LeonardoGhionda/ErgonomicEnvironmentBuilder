@@ -1,12 +1,9 @@
-using System;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class AttachPoint : MonoBehaviour
 {
-    [SerializeField] float Radius = 0.05f;
+    [SerializeField] float Radius = 0.025f;
+    [SerializeField] float MaxRotationAngleDifference = 90f;
 
     private Transform _target;
     private BoxCollider _targetBox;
@@ -21,7 +18,6 @@ public class AttachPoint : MonoBehaviour
     public Quaternion RotOffset => _rotOffset;
 
     private VRSelectionManager _selectionManager;
-
 
     private void Awake()
     {
@@ -84,23 +80,27 @@ public class AttachPoint : MonoBehaviour
 
         if (!string.IsNullOrEmpty(_targetName) && other.name == _targetName)
         {
-            // If the object is currently being held, force it to be released so it can snap to the attach point
-            // If its grabbed while inside the trigger, it will not be released
+            Quaternion expectedRotation = transform.rotation * _rotOffset;
+
+            // Abort snap if the current rotation is too far from the expected target rotation
+            if (Quaternion.Angle(other.transform.rotation, expectedRotation) > MaxRotationAngleDifference) return;
+
+            // Force object release if held so it can snap properly
             if (_target == null)
             {
                 _selectionManager.ClearSelection();
             }
 
-            // get target components
             _target = other.transform;
             _targetBox = _target.GetComponent<BoxCollider>();
-            if(_targetBox == null)
+
+            if (_targetBox == null)
             {
                 Debug.LogWarning($"Target {_target.name} does not have a BoxCollider");
                 return;
             }
 
-            _target.rotation = transform.rotation * _rotOffset;
+            _target.rotation = expectedRotation;
 
             if (Managers.Get<StateManager>().CmpState(typeof(RoomTestState)))
             {
@@ -130,5 +130,4 @@ public class AttachPoint : MonoBehaviour
         if (_target.TryGetComponent<InteractableObject>(out var intObj)) intObj.Locked = true;
         else Debug.LogWarning($"Target {_target.name} does not have InteractableObject component, cannot set Locked to true");
     }
-
 }
