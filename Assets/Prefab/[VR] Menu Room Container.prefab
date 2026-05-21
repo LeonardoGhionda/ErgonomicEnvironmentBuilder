@@ -1088,7 +1088,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Camera: {fileID: 0}
   onlyY: 1
 --- !u!1 &1557265187192249253
 GameObject:
@@ -5980,7 +5979,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Camera: {fileID: 0}
   onlyY: 1
 --- !u!1 &7477131322088111514
 GameObject:
@@ -6098,7 +6096,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3ba6c245f9e2644a3a030d45a312ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Camera: {fileID: 0}
   onlyY: 1
 --- !u!1 &7506843767114576288
 GameObject:
@@ -6129,8 +6126,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
   m_LocalPosition: {x: -1.69, y: 0.001, z: 2.2}
-  m_LocalScale: {x: 0.21152581, y: 0.21152581, z: 0.13702978}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 0.2, y: 1, z: 0.057}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2082571171835217792}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -7343,7 +7340,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4794595929550700353
 Transform:
   m_ObjectHideFlags: 0
