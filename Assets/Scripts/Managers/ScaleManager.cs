@@ -202,57 +202,35 @@ public class ScaleManager : MonoBehaviour
     public void ConfirmScale()
     {
         if (_targetObject == null) return;
-
         if (_targetObject.GetComponent<InteractableParent>())
         {             
             ConfirmScaleForParentObject();
         }
-        else
-        {
-            ConfirmScaleForChildObject();
-        }
-
-        SaveAsNewOBJ();
         Cleanup();
-    }
-
-    private void ConfirmScaleForChildObject()
-    {
-        // Bake vertices
-        MeshFilter mf = _targetObject.GetComponent<MeshFilter>();
-        mf.BakeCurrentScale();
-
-        // Reset the transform scale to 1 because the scale is now baked into the mesh vertices
-        _targetObject.transform.localScale = Vector3.one;
-
-        // Update the real collider to match new mesh bounds
-        _targetCollider.size = mf.sharedMesh.bounds.size;
-        _targetCollider.center = mf.sharedMesh.bounds.center;
     }
 
     private void ConfirmScaleForParentObject()
     {
-        // Apply parent scale to childrens
-        foreach (Transform child in _targetObject.transform)
+        Transform targetTransform = _targetObject.transform;
+
+        // 1. Store references to all children
+        Transform[] children = new Transform[targetTransform.childCount];
+        for (int i = 0; i < targetTransform.childCount; i++)
         {
-            child.localScale = _targetObject.transform.localScale;
+            children[i] = targetTransform.GetChild(i);
         }
 
-        // Reset the parent transform scale to 1 because the scale is now applied to the children
-        _targetObject.transform.localScale = Vector3.one;
+        // 2. Detach children so they maintain their exact world scale/position
+        targetTransform.DetachChildren();
 
-        foreach (MeshFilter mf in _targetObject.GetComponentsInChildren<MeshFilter>())
+        // 3. Reset the parent's scale
+        targetTransform.localScale = Vector3.one;
+
+        // 4. Reattach children. The 'true' parameter ensures they keep their world scale, 
+        // forcing Unity to automatically recalculate their local scales correctly.
+        foreach (Transform child in children)
         {
-            // Bake
-            mf.BakeCurrentScale();
-            // Reset the transform scale to 1 because the scale is now baked into the mesh vertices
-            mf.transform.localScale = Vector3.one;
-
-            var box = mf.GetComponent<BoxCollider>();
-            // Update the real collider to match new mesh bounds
-            box.size = mf.sharedMesh.bounds.size;
-            box.center = mf.sharedMesh.bounds.center;
-
+            child.SetParent(targetTransform, true);
         }
     }
 
@@ -279,95 +257,5 @@ public class ScaleManager : MonoBehaviour
         }
 
         _targetObject = null;
-    }
-
-    private void SaveAsNewOBJ()
-    {
-        // Create a new model folder to contain the new mesh 
-        InteractableParent iParent = _targetObject.GetComponentInParent<InteractableParent>();
-
-        string ogFileName = Path.GetFileNameWithoutExtension(iParent.Path);
-
-        int pos = ogFileName.IndexOf('#');
-        if (pos != -1) // Object was already a mod 
-        {
-            // Remove mod id if present
-            ogFileName = ogFileName.Substring(0, pos);
-        }
-
-        string ogDirPath = Path.GetDirectoryName(iParent.Path);
-
-        int i = 0;
-        string newFilePath;
-        string modID;
-        do
-        {
-            modID = $"#m{++i}.obj";
-            string newFileName = string.Concat(ogFileName, modID);
-            newFilePath = Path.Combine(ogDirPath, newFileName); // Same folder but different OBJ file 
-        } while (File.Exists(newFilePath));
-
-        //Update this parent path with the new OBJFile path
-        iParent.Path = newFilePath;
-        // Update parent name 
-        iParent.gameObject.name = string.Concat(iParent.gameObject.name.RemoveModID(), modID);
-
-        // Save mesh
-        OBJExporter.Export(iParent);
-
-        RoomMemoryTools.Save(FindAnyObjectByType<RoomBuilderManager>().RoomName);
-    }
-
-    /// <summary>
-    /// Removes unused modified model files from the models directory that are no longer referenced by any room file.
-    /// </summary>
-    /// <remarks>This method scans all model files with the '#m' marker in the models directory and deletes
-    /// those that are not referenced by any room definition. Use this method to free disk space and keep the models
-    /// directory synchronized with active room data. This operation cannot be undone; ensure that all room files are up
-    /// to date before calling this method.</remarks>
-    public void ClearMemoryFromUnusedModifications()
-    {
-        string roomsPath = RoomMemoryTools.roomsFolderPath;
-        string modelsPath = ImportUtils.ModelsPath;
-
-        List<string> allModifiedModelsPaths = new List<string>();
-        List<string> foundModifiedModelsPaths = new List<string>();
-
-        foreach (string modelDir in Directory.GetDirectories(modelsPath))
-        {
-            foreach (string file in Directory.GetFiles(modelDir, "*.obj"))
-            {
-                if (file.Contains("#m"))
-                {
-                    // Normalize file path to ensure exact string matching later
-                    string normalizedFilePath = Path.GetFullPath(file).Replace('\\', '/');
-                    allModifiedModelsPaths.Add(normalizedFilePath);
-                    Debug.Log($"Found modified model file: {normalizedFilePath}");
-                }
-            }
-        }
-
-        foreach (string roomFile in Directory.GetFiles(roomsPath, "*.room"))
-        {
-            string json = File.ReadAllText(roomFile);
-            RoomData roomData = JsonUtility.FromJson<RoomData>(json);
-
-            foreach (ParentData data in roomData.objects)
-            {
-                if (data.objFilePath.Contains("#m"))
-                {
-                    // Normalize the JSON reference path to match the file system path format
-                    string normalizedRefPath = Path.GetFullPath(data.objFilePath).Replace('\\', '/');
-                    foundModifiedModelsPaths.Add(normalizedRefPath);
-                    Debug.Log($"Found modified model reference: {normalizedRefPath}, in room: {roomFile}");
-                }
-            }
-        }
-
-        foreach (string deletePath in allModifiedModelsPaths.Except(foundModifiedModelsPaths))
-        {
-            File.Delete(deletePath);
-            Debug.Log($"Deleted unused modified model file: {deletePath}");
-        }
     }
 }

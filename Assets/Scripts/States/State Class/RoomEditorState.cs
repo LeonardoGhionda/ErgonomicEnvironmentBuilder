@@ -228,15 +228,14 @@ public class RoomEditorState : AbsAppState
         {
             _gizmoManager.DeselectHandle(_selectionManager.SelectionTransform);
 
-            // When releasing the handle, if non-uniform scale was applied bake the new scale (otherwise it will cause problem in the VR profile)
-            if (_gizmoManager.ObjectNonUniformScale)
+            // When releasing the handle, if scale was applied perform a scale transfer to the children.
+            // The empty parent must have uniform scale to avoid skewing, so we apply the non-uniform scale to the children and reset the parent scale to 1.
+            if (_gizmoManager.TransformMode == TransformMode.Scale)
             {
                 GameObject selectedGO = _selectionManager.SelectionGO;
                 _selectionManager.ChangeSelectedObject(null);
                 _scaleManager.SetTarget(selectedGO);
                 _scaleManager.ConfirmScale();
-                
-                _gizmoManager.ObjectNonUniformScale = false; // reset flag after applying non-uniform scale
             }
         }
     }
@@ -437,6 +436,14 @@ public class RoomEditorState : AbsAppState
 
         // Optional: Sync Physics if needed
         Physics.SyncTransforms();
+
+        if (type == TransType.Scale)
+        {
+            Debug.Log($"Cofirming scale");
+            GameObject selectedGO = _selectionManager.SelectionGO;
+            _scaleManager.SetTarget(selectedGO);
+            _scaleManager.ConfirmScale();
+        }
     }
 
     private void ApplyModification(Transform t, TransSpace space, TransType type, Axis axis, float val)
@@ -460,7 +467,6 @@ public class RoomEditorState : AbsAppState
         {
             if (type == TransType.Position) t.position = ModifyVector(t.position, axis, val);
             if (type == TransType.Rotation) t.eulerAngles = ModifyVector(t.eulerAngles, axis, val);
-            // Global Scale is usually read-only in Unity because of skewing, skip or implement carefully
         }
     }
 }

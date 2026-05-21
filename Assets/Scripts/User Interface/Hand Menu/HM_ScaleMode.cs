@@ -30,7 +30,7 @@ public class HM_ScaleMode : HM_Base
     private void EndScaling(VRSelectionManager.SelectionChangedArgs args)
     {
         XRGrabInteractable interactable = args.selection;
-
+        
         if (interactable == null)
         {
             // Save Scale 

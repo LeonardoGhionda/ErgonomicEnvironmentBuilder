@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public enum TransformMode
 {
@@ -29,8 +28,6 @@ public class GizmoManager : MonoBehaviour
     public bool PivotModeOrigin { get { return _pivotModeOrigin; } set { _pivotModeOrigin = value; } }
 
     public bool IsDragging => _currentGizmo != null && _currentGizmo.IsHandleSelected;
-
-    public bool ObjectNonUniformScale { get { return _objNonUniformScale; }  set { _objNonUniformScale = value; } }
 
     public bool SelectedMoved()
     {
@@ -100,7 +97,6 @@ public class GizmoManager : MonoBehaviour
     private readonly SnapTools _snapTool = new();
 
     private bool _objMoved = false;
-    private bool _objNonUniformScale = false;
 
     // Cache to avoid GC allocations
     private readonly RaycastHit[] _raycastHitsCache = new RaycastHit[16];
@@ -335,9 +331,6 @@ public class GizmoManager : MonoBehaviour
         // Prevent negative or zero scale
         if (newScale.x <= minScale || newScale.y < minScale || newScale.z < minScale)
             return;
-
-        // Check for non-uniform scaling, because mesh bake is needed for it to work properly in vr 
-        if (direction != Vector3.one) _objNonUniformScale = true;
 
         selected.localScale = newScale;
     }
