@@ -19,7 +19,7 @@ public class SpectatorNetworkManager : MonoBehaviour
     private bool _inviteReceived = false;
     private bool _inviteAccepted = false;
 
-    public Action<string> InvitationRecevied;
+    public Action<string> InvitationReceived;
     public Action<(string, string)> RoomDataReceived;
 
     private void Start()
@@ -64,7 +64,7 @@ public class SpectatorNetworkManager : MonoBehaviour
         if (_inviteReceived)
         {
             _inviteReceived = false;
-            InvitationRecevied?.Invoke(_sessionName);
+            InvitationReceived?.Invoke(_sessionName);
         }
     }
 

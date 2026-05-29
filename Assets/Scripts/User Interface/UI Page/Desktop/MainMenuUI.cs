@@ -38,7 +38,7 @@ public class MainMenuUI : MonoBehaviour
     private void OnEnable()
     {
         if (_sessionListener == null) _sessionListener = FindAnyObjectByType<SpectatorNetworkManager>();
-        _sessionListener.InvitationRecevied += ShowInvitation;
+        _sessionListener.InvitationReceived += ShowInvitation;
     }
 
     private void Update()
@@ -69,7 +69,7 @@ public class MainMenuUI : MonoBehaviour
 
         if (_sessionListener != null)
         {
-            _sessionListener.InvitationRecevied -= ShowInvitation;
+            _sessionListener.InvitationReceived -= ShowInvitation;
         }
     }
 
